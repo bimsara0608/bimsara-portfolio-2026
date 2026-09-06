@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { ArrowRight, Star, GitBranch, ExternalLink } from 'lucide-react';
 import type { GitHubRepo } from '@/lib/types';
-import { GitHubCalendarClient } from '@/components/ui/GitHubCalendarClient';
+import { GitHubCalendarServer } from '@/components/ui/GitHubCalendarServer';
 
 async function getGitHubRepos(): Promise<GitHubRepo[]> {
   try {
@@ -109,7 +109,7 @@ export default async function GitHubPage() {
 
       <div className="glass-card p-8 mb-10">
         <h3 className="text-lg font-bold mb-6 text-foreground">Contribution Activity</h3>
-        <GitHubCalendarClient username="bimsara0608" />
+        <GitHubCalendarServer username="bimsara0608" />
       </div>
 
       {/* Repos Grid */}

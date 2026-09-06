@@ -45,9 +45,15 @@ export function ModelViewer({ src, alt }: ModelViewerProps) {
         camera-controls
         shadow-intensity="1.5"
         shadow-softness="1"
-        exposure="0.4"
+        exposure="0.5"
         environment-image="neutral"
-        style={{ width: '100%', height: '100%', backgroundColor: 'transparent', outline: 'none' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'transparent',
+          outline: 'none',
+          filter: 'brightness(0.75) contrast(1.1) drop-shadow(0px 10px 20px rgba(0,0,0,0.25))',
+        }}
       >
         {/* @ts-expect-error - Custom element closing tag not known to React */}
       </model-viewer>
