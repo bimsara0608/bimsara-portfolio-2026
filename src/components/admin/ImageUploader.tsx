@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import Image from "next/image";
-import { Upload, X, Star, Loader2 } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { useState, useCallback } from 'react';
+import Image from 'next/image';
+import { Upload, X, Star, Loader2 } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 
 interface UploadedImage {
   url: string;
@@ -16,11 +16,7 @@ interface ImageUploaderProps {
   onChange?: (images: UploadedImage[]) => void;
 }
 
-export function ImageUploader({
-  projectId,
-  existingImages = [],
-  onChange,
-}: ImageUploaderProps) {
+export function ImageUploader({ projectId, existingImages = [], onChange }: ImageUploaderProps) {
   const [images, setImages] = useState<UploadedImage[]>(existingImages);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -28,20 +24,18 @@ export function ImageUploader({
 
   const uploadFile = useCallback(
     async (file: File) => {
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file.name.split('.').pop();
       const fileName = `${projectId}/${Date.now()}.${fileExt}`;
 
       const { data, error } = await supabase.storage
-        .from("portfolio-assets")
+        .from('portfolio-assets')
         .upload(fileName, file, { upsert: false });
 
       if (error) throw error;
 
       const {
         data: { publicUrl },
-      } = supabase.storage
-        .from("portfolio-assets")
-        .getPublicUrl(data.path);
+      } = supabase.storage.from('portfolio-assets').getPublicUrl(data.path);
 
       return publicUrl;
     },
@@ -55,7 +49,7 @@ export function ImageUploader({
     try {
       const newImages: UploadedImage[] = [];
       for (const file of Array.from(files)) {
-        if (!file.type.startsWith("image/")) continue;
+        if (!file.type.startsWith('image/')) continue;
         const url = await uploadFile(file);
         newImages.push({ url, is_hero: images.length === 0 && newImages.length === 0 });
       }
@@ -64,7 +58,7 @@ export function ImageUploader({
       setImages(updated);
       onChange?.(updated);
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error('Upload error:', err);
     } finally {
       setUploading(false);
     }
@@ -90,13 +84,20 @@ export function ImageUploader({
     <div className="space-y-4">
       {/* Drop Zone */}
       <div
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          handleFiles(e.dataTransfer.files);
+        }}
         className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-          dragOver ? "border-accent bg-gray-50" : "border-gray-300 hover:border-gray-400"
+          dragOver ? 'border-foreground bg-muted' : 'border-border hover:border-foreground/50'
         }`}
-        onClick={() => document.getElementById("image-input")?.click()}
+        onClick={() => document.getElementById('image-input')?.click()}
       >
         <input
           id="image-input"
@@ -107,12 +108,12 @@ export function ImageUploader({
           onChange={(e) => handleFiles(e.target.files)}
         />
         {uploading ? (
-          <div className="flex flex-col items-center gap-2 text-muted">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Loader2 size={32} className="animate-spin" />
             <p className="font-medium">Uploading...</p>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-muted">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Upload size={32} />
             <p className="font-medium">Drag & drop images here, or click to select</p>
             <p className="text-sm">PNG, JPG, WEBP supported</p>
@@ -124,13 +125,16 @@ export function ImageUploader({
       {images.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {images.map((img, idx) => (
-            <div key={idx} className="relative group aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+            <div
+              key={idx}
+              className="relative group aspect-[4/3] bg-muted rounded-lg overflow-hidden border border-border"
+            >
               <Image src={img.url} alt={`Upload ${idx + 1}`} fill className="object-cover" />
 
               {/* Hero Badge */}
               {img.is_hero && (
-                <div className="absolute top-2 left-2 bg-accent text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                  <Star size={10} fill="white" /> Hero
+                <div className="absolute top-2 left-2 bg-foreground text-background text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                  <Star size={10} fill="currentColor" /> Hero
                 </div>
               )}
 
@@ -140,7 +144,7 @@ export function ImageUploader({
                   <button
                     type="button"
                     onClick={() => setHero(idx)}
-                    className="bg-white text-accent text-xs font-bold px-3 py-1.5 rounded-full hover:bg-gray-100 transition-colors flex items-center gap-1"
+                    className="bg-background text-foreground text-xs font-bold px-3 py-1.5 rounded-full hover:bg-muted transition-colors flex items-center gap-1"
                   >
                     <Star size={12} /> Set Hero
                   </button>

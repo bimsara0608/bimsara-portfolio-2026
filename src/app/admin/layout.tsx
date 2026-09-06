@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -15,13 +15,9 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
+} from 'lucide-react';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -31,14 +27,16 @@ export default function AdminLayout({
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUserEmail(user?.email ?? null);
     };
     const getUnread = async () => {
       const { count } = await supabase
-        .from("contact_messages")
-        .select("*", { count: "exact", head: true })
-        .eq("is_read", false);
+        .from('contact_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false);
       setUnreadCount(count ?? 0);
     };
     getUser();
@@ -47,37 +45,37 @@ export default function AdminLayout({
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push('/login');
     router.refresh();
   };
 
   const navItems = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
-    { name: "Projects", href: "/admin/projects", icon: FolderKanban },
-    { name: "Messages", href: "/admin/messages", icon: MessageSquare, badge: unreadCount },
-    { name: "Testimonials", href: "/admin/testimonials", icon: Star },
-    { name: "Profile", href: "/admin/profile", icon: User },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },
+    { name: 'Projects', href: '/admin/projects', icon: FolderKanban },
+    { name: 'Messages', href: '/admin/messages', icon: MessageSquare, badge: unreadCount },
+    { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
+    { name: 'Profile', href: '/admin/profile', icon: User },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen flex bg-gray-50 font-sans">
+    <div className="min-h-screen flex bg-muted font-sans text-foreground">
       {/* Sidebar */}
       <aside
         className={`${
-          collapsed ? "w-16" : "w-64"
-        } bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out flex-shrink-0`}
+          collapsed ? 'w-16' : 'w-64'
+        } bg-background border-r border-border flex flex-col transition-all duration-300 ease-in-out flex-shrink-0`}
       >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {!collapsed && (
-            <Link href="/" className="font-bold text-lg tracking-tight text-accent truncate">
+            <Link href="/" className="font-bold text-lg tracking-tight text-foreground truncate">
               Portfolio CMS
             </Link>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg text-muted hover:bg-gray-100 hover:text-foreground transition-colors ml-auto"
+            className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors ml-auto"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
@@ -86,9 +84,7 @@ export default function AdminLayout({
         {/* Navigation */}
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = item.exact
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
+            const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
@@ -96,8 +92,8 @@ export default function AdminLayout({
                 title={collapsed ? item.name : undefined}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors relative ${
                   isActive
-                    ? "bg-accent text-white"
-                    : "text-muted hover:bg-gray-100 hover:text-foreground"
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <item.icon size={18} className="flex-shrink-0" />
@@ -106,14 +102,14 @@ export default function AdminLayout({
                     <span className="flex-1 truncate">{item.name}</span>
                     {item.badge && item.badge > 0 && (
                       <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
-                        {item.badge > 9 ? "9+" : item.badge}
+                        {item.badge > 9 ? '9+' : item.badge}
                       </span>
                     )}
                   </>
                 )}
                 {collapsed && item.badge && item.badge > 0 && (
                   <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {item.badge > 9 ? "9+" : item.badge}
+                    {item.badge > 9 ? '9+' : item.badge}
                   </span>
                 )}
               </Link>
@@ -122,13 +118,13 @@ export default function AdminLayout({
         </nav>
 
         {/* Footer */}
-        <div className="p-2 border-t border-gray-200 space-y-1">
+        <div className="p-2 border-t border-border space-y-1">
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            title={collapsed ? "View Live Site" : undefined}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-muted hover:bg-gray-100 hover:text-foreground transition-colors"
+            title={collapsed ? 'View Live Site' : undefined}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <ExternalLink size={18} className="flex-shrink-0" />
             {!collapsed && <span className="truncate">View Live Site</span>}
@@ -136,8 +132,8 @@ export default function AdminLayout({
 
           <button
             onClick={handleSignOut}
-            title={collapsed ? "Sign Out" : undefined}
-            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg font-medium text-red-500 hover:bg-red-50 transition-colors"
+            title={collapsed ? 'Sign Out' : undefined}
+            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg font-medium text-red-500 hover:bg-red-500/10 transition-colors"
           >
             <LogOut size={18} className="flex-shrink-0" />
             {!collapsed && <span className="truncate">Sign Out</span>}
@@ -145,7 +141,7 @@ export default function AdminLayout({
 
           {!collapsed && userEmail && (
             <div className="px-3 py-2 mt-2">
-              <p className="text-xs text-muted truncate" title={userEmail}>
+              <p className="text-xs text-muted-foreground truncate" title={userEmail}>
                 {userEmail}
               </p>
             </div>

@@ -1,48 +1,62 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Poppins } from 'next/font/google';
+import './globals.css';
 
 const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: '--font-poppins',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
-  title: "Bimsara Gunawardana | Design Engineer",
-  description: "Portfolio of Bimsara Gunawardana, Design Engineer specializing in Product Design and 3D Animation. CSWP Certified.",
-  keywords: ["Design Engineer", "3D Animation", "SolidWorks", "Blender", "CSWP", "Product Design", "Mechanical Engineering", "Sri Lanka"],
-  authors: [{ name: "Bimsara Gunawardana" }],
+  title: 'Bimsara Gunawardana | Design Engineer',
+  description:
+    'Portfolio of Bimsara Gunawardana, Design Engineer specializing in Product Design and 3D Animation. CSWP Certified.',
+  keywords: [
+    'Design Engineer',
+    '3D Animation',
+    'SolidWorks',
+    'Blender',
+    'CSWP',
+    'Product Design',
+    'Mechanical Engineering',
+    'Sri Lanka',
+  ],
+  authors: [{ name: 'Bimsara Gunawardana' }],
   openGraph: {
-    title: "Bimsara Gunawardana | Design Engineer",
-    description: "Portfolio of Bimsara Gunawardana, Design Engineer specializing in Product Design and 3D Animation.",
-    url: "https://bimsara.com",
-    siteName: "Bimsara Gunawardana Portfolio",
-    locale: "en_US",
-    type: "website",
+    title: 'Bimsara Gunawardana | Design Engineer',
+    description:
+      'Portfolio of Bimsara Gunawardana, Design Engineer specializing in Product Design and 3D Animation.',
+    url: 'https://bimsara.com',
+    siteName: 'Bimsara Gunawardana Portfolio',
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Bimsara Gunawardana | Design Engineer",
-    description: "Design Engineer specializing in Product Design and 3D Animation.",
+    card: 'summary_large_image',
+    title: 'Bimsara Gunawardana | Design Engineer',
+    description: 'Design Engineer specializing in Product Design and 3D Animation.',
   },
 };
 
 const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Bimsara Gunawardana",
-  jobTitle: "Design Engineer",
-  url: "https://bimsara.com",
-  sameAs: [
-    "https://www.linkedin.com/in/bimsara",
-    "https://github.com/bimsara0608"
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Bimsara Gunawardana',
+  jobTitle: 'Design Engineer',
+  url: 'https://bimsara.com',
+  sameAs: ['https://www.linkedin.com/in/bimsara', 'https://github.com/bimsara0608'],
+  knowsAbout: [
+    'Product Design',
+    '3D Animation',
+    'SolidWorks',
+    'Blender',
+    'CAD Engineering',
+    '3D Printing',
   ],
-  knowsAbout: ["Product Design", "3D Animation", "SolidWorks", "Blender", "CAD Engineering", "3D Printing"]
 };
 
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { CustomCursor } from '@/components/ui/CustomCursor';
 
 export default function RootLayout({
   children,
@@ -50,10 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${poppins.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <head>
         <script
           type="application/ld+json"
@@ -74,6 +85,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans">
+        <CustomCursor />
         {children}
       </body>
     </html>

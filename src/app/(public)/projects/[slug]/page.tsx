@@ -1,23 +1,23 @@
-import Image from "next/image";
-import Link from "next/link";
-import { PillBadge } from "@/components/ui/PillBadge";
-import { ArrowLeft, ArrowRight, ExternalLink, Calendar, Clock, User } from "lucide-react";
-import { createClient } from "@/utils/supabase/server";
-import type { Project } from "@/lib/types";
-import { notFound } from "next/navigation";
-import { ImageLightbox } from "@/components/ui/ImageLightbox";
-import { ModelViewer } from "@/components/ui/ModelViewer";
+import Image from 'next/image';
+import Link from 'next/link';
+import { PillBadge } from '@/components/ui/PillBadge';
+import { ArrowLeft, ArrowRight, ExternalLink, Calendar, Clock, User } from 'lucide-react';
+import { createClient } from '@/utils/supabase/server';
+import type { Project } from '@/lib/types';
+import { notFound } from 'next/navigation';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
+import { ModelViewer } from '@/components/ui/ModelViewer';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
   const { data: project } = await supabase
-    .from("projects")
-    .select("title, description, category")
-    .eq("slug", slug)
+    .from('projects')
+    .select('title, description, category')
+    .eq('slug', slug)
     .single();
 
-  if (!project) return { title: "Project Not Found" };
+  if (!project) return { title: 'Project Not Found' };
 
   return {
     title: `${project.title} | Bimsara Gunawardana`,
@@ -25,18 +25,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ProjectDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient();
   const slug = (await params).slug;
 
   const { data: project } = await supabase
-    .from("projects")
-    .select("*, project_images(*)")
-    .eq("slug", slug)
+    .from('projects')
+    .select('*, project_images(*)')
+    .eq('slug', slug)
     .single();
 
   if (!project) notFound();
@@ -47,10 +43,10 @@ export default async function ProjectDetailPage({
 
   // Fetch prev/next projects for navigation
   const { data: allProjects } = await supabase
-    .from("projects")
-    .select("id, slug, title")
-    .eq("is_published", true)
-    .order("date", { ascending: false });
+    .from('projects')
+    .select('id, slug, title')
+    .eq('is_published', true)
+    .order('date', { ascending: false });
 
   const currentIndex = (allProjects ?? []).findIndex((p) => p.slug === slug);
   const nextProject = allProjects?.[currentIndex + 1];
@@ -59,7 +55,10 @@ export default async function ProjectDetailPage({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 w-full">
       {/* Back Nav */}
-      <Link href="/projects" className="inline-flex items-center gap-2 text-muted hover:text-foreground font-medium mb-12 transition-colors">
+      <Link
+        href="/projects"
+        className="magnetic inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium mb-12 transition-colors"
+      >
         <ArrowLeft size={18} /> Back to Projects
       </Link>
 
@@ -70,15 +69,17 @@ export default async function ProjectDetailPage({
           {data.year && <PillBadge label={data.year} />}
           {data.client && <PillBadge label={data.client} />}
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight">{data.title}</h1>
+        <h1 className="text-fluid-h2 font-bold tracking-tight leading-tight">{data.title}</h1>
         {data.description && (
-          <p className="text-xl text-muted mt-6 max-w-3xl leading-relaxed">{data.description}</p>
+          <p className="text-xl text-muted-foreground mt-6 max-w-3xl leading-relaxed">
+            {data.description}
+          </p>
         )}
       </div>
 
       {/* Hero Image */}
       {heroImage && (
-        <div className="relative aspect-[21/9] w-full overflow-hidden bg-gray-100 mb-20">
+        <div className="relative aspect-[21/9] w-full overflow-hidden bg-muted mb-20 rounded-xl">
           <Image
             src={heroImage.url}
             alt={data.title}
@@ -104,17 +105,23 @@ export default async function ProjectDetailPage({
           {data.challenge && (
             <div>
               <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span className="text-muted text-base font-normal uppercase tracking-widest">/01</span> The Challenge
+                <span className="text-muted-foreground text-base font-normal uppercase tracking-widest">
+                  /01
+                </span>{' '}
+                The Challenge
               </h2>
-              <p className="text-xl text-muted leading-relaxed">{data.challenge}</p>
+              <p className="text-xl text-muted-foreground leading-relaxed">{data.challenge}</p>
             </div>
           )}
           {data.solution && (
             <div>
               <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span className="text-muted text-base font-normal uppercase tracking-widest">/02</span> The Solution
+                <span className="text-muted-foreground text-base font-normal uppercase tracking-widest">
+                  /02
+                </span>{' '}
+                The Solution
               </h2>
-              <p className="text-xl text-muted leading-relaxed">{data.solution}</p>
+              <p className="text-xl text-muted-foreground leading-relaxed">{data.solution}</p>
             </div>
           )}
         </div>
@@ -125,10 +132,15 @@ export default async function ProjectDetailPage({
           <div className="card p-6">
             {data.tools && data.tools.length > 0 && (
               <div className="mb-6">
-                <h3 className="font-bold uppercase tracking-wider text-xs text-muted mb-3">Tools Used</h3>
+                <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground mb-3">
+                  Tools Used
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {data.tools.map((tool) => (
-                    <span key={tool} className="text-sm font-medium bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                    <span
+                      key={tool}
+                      className="text-sm font-medium bg-muted text-muted-foreground px-3 py-1 rounded-full"
+                    >
                       {tool}
                     </span>
                   ))}
@@ -137,42 +149,48 @@ export default async function ProjectDetailPage({
             )}
 
             {data.timeline && (
-              <div className="flex items-center gap-3 py-3 border-t border-gray-100 dark:border-gray-800">
-                <Clock size={16} className="text-muted" />
+              <div className="flex items-center gap-3 py-3 border-t border-border">
+                <Clock size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted uppercase tracking-wider font-bold">Timeline</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                    Timeline
+                  </p>
                   <p className="font-medium text-sm">{data.timeline}</p>
                 </div>
               </div>
             )}
 
             {data.client && (
-              <div className="flex items-center gap-3 py-3 border-t border-gray-100 dark:border-gray-800">
-                <User size={16} className="text-muted" />
+              <div className="flex items-center gap-3 py-3 border-t border-border">
+                <User size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted uppercase tracking-wider font-bold">Client</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                    Client
+                  </p>
                   <p className="font-medium text-sm">{data.client}</p>
                 </div>
               </div>
             )}
 
             {data.date && (
-              <div className="flex items-center gap-3 py-3 border-t border-gray-100 dark:border-gray-800">
-                <Calendar size={16} className="text-muted" />
+              <div className="flex items-center gap-3 py-3 border-t border-border">
+                <Calendar size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted uppercase tracking-wider font-bold">Date</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                    Date
+                  </p>
                   <p className="font-medium text-sm">{data.year || data.date}</p>
                 </div>
               </div>
             )}
 
             {data.external_url && (
-              <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+              <div className="pt-3 border-t border-border">
                 <a
                   href={data.external_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-bold text-accent dark:text-white hover:underline"
+                  className="magnetic inline-flex items-center gap-2 text-sm font-bold text-foreground hover:opacity-80 transition-opacity"
                 >
                   View Live / Download <ExternalLink size={14} />
                 </a>
@@ -181,10 +199,13 @@ export default async function ProjectDetailPage({
           </div>
 
           {/* Hire CTA */}
-          <div className="card p-6 bg-accent text-white border-0">
+          <div className="card p-6 bg-foreground text-background border-0">
             <p className="font-bold mb-1">Like what you see?</p>
-            <p className="text-sm text-gray-300 mb-4">Let&apos;s build something together.</p>
-            <Link href="/contact" className="inline-flex items-center gap-2 bg-white text-accent px-4 py-2.5 font-bold text-sm hover:bg-gray-100 transition-colors">
+            <p className="text-sm text-background/80 mb-4">Let&apos;s build something together.</p>
+            <Link
+              href="/contact"
+              className="magnetic inline-flex items-center gap-2 bg-background text-foreground px-4 py-2.5 font-bold text-sm hover:opacity-90 transition-opacity rounded-lg"
+            >
               Get in Touch <ArrowRight size={14} />
             </Link>
           </div>
@@ -200,22 +221,31 @@ export default async function ProjectDetailPage({
       )}
 
       {/* Prev/Next Navigation */}
-      <div className="border-t border-gray-200 dark:border-gray-800 pt-12 grid grid-cols-2 gap-8">
+      <div className="border-t border-border pt-12 grid grid-cols-2 gap-8">
         {prevProject ? (
-          <Link href={`/projects/${prevProject.slug}`} className="group">
-            <p className="text-xs text-muted uppercase tracking-widest mb-2 flex items-center gap-1">
+          <Link href={`/projects/${prevProject.slug}`} className="group magnetic text-left">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1">
               <ArrowLeft size={12} /> Previous
             </p>
-            <p className="font-bold group-hover:underline line-clamp-2">{prevProject.title}</p>
+            <p className="font-bold group-hover:text-muted-foreground transition-colors line-clamp-2">
+              {prevProject.title}
+            </p>
           </Link>
-        ) : <div />}
+        ) : (
+          <div />
+        )}
 
         {nextProject && (
-          <Link href={`/projects/${nextProject.slug}`} className="group text-right ml-auto">
-            <p className="text-xs text-muted uppercase tracking-widest mb-2 flex items-center justify-end gap-1">
+          <Link
+            href={`/projects/${nextProject.slug}`}
+            className="group magnetic text-right ml-auto"
+          >
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2 flex items-center justify-end gap-1">
               Next <ArrowRight size={12} />
             </p>
-            <p className="font-bold group-hover:underline line-clamp-2">{nextProject.title}</p>
+            <p className="font-bold group-hover:text-muted-foreground transition-colors line-clamp-2">
+              {nextProject.title}
+            </p>
           </Link>
         )}
       </div>

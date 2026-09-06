@@ -1,57 +1,89 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* =============================================
-   DESIGN TOKENS
+   ULTIMATE DESIGN TOKENS (Tailwind v4)
    ============================================= */
 @theme inline {
-  --color-background: #F5F5F0;
-  --color-foreground: #1A1A1A;
-  --color-muted: #6B6B6B;
-  --color-accent: #141414;
+  /* Semantic Colors */
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+
   --font-sans: var(--font-poppins);
 }
 
 /* =============================================
-   BASE
+   BASE THEME VARIABLES
+   ============================================= */
+:root {
+  /* Light Theme (Zinc/Slate inspired professional) */
+  --bg: #fafafa;
+  --fg: #09090b;
+
+  --card: #ffffff;
+  --card-fg: #09090b;
+
+  --border: #e4e4e7;
+
+  --muted: #f4f4f5;
+  --muted-fg: #71717a;
+
+  --accent: #18181b;
+  --accent-fg: #fafafa;
+}
+
+.dark {
+  /* Dark Theme (Deep immersive black) */
+  --bg: #09090b;
+  --fg: #fafafa;
+
+  --card: #121214;
+  --card-fg: #fafafa;
+
+  --border: #27272a;
+
+  --muted: #18181b;
+  --muted-fg: #a1a1aa;
+
+  --accent: #fafafa;
+  --accent-fg: #09090b;
+}
+
+/* =============================================
+   BASE STYLES
    ============================================= */
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* =============================================
-   DARK MODE
-   ============================================= */
-.dark {
-  --color-background: #0A0A0A;
-  --color-foreground: #F0F0EE;
-  --color-muted: #888888;
-  --color-accent: #F0F0EE;
-}
-
-.dark body {
-  background-color: #0A0A0A;
-  color: #F0F0EE;
+  background-color: var(--bg);
+  color: var(--fg);
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+  overflow-x: hidden;
 }
 
 /* =============================================
    GLASS UTILITIES
    ============================================= */
 .glass-nav {
-  background: rgba(245, 245, 240, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(250, 250, 250, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
 }
 
 .dark .glass-nav {
-  background: rgba(10, 10, 10, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(9, 9, 11, 0.7);
+  border-bottom: 1px solid var(--border);
 }
 
 .glass {
@@ -61,7 +93,7 @@ body {
 }
 
 .dark .glass {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .glass-input-dark {
@@ -69,50 +101,51 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+.glass-input-dark::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* =============================================
    EDITORIAL CARDS
    ============================================= */
 .card {
-  background: #FFFFFF;
-  border: 1px solid #E0E0E0;
-  border-radius: 2px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.dark .card {
-  background: #141414;
-  border: 1px solid #2A2A2A;
+  background-color: var(--card);
+  color: var(--card-fg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
 }
 
 .dark .card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* =============================================
    LOADING SKELETONS
    ============================================= */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.5s infinite linear;
   border-radius: 4px;
-}
-
-.dark .skeleton {
-  background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
-  background-size: 200% 100%;
 }
 
 /* =============================================
@@ -124,17 +157,63 @@ body {
 }
 
 /* =============================================
-   DARK MODE FORM INPUTS
+   FORM INPUTS
    ============================================= */
-.dark input,
-.dark select,
-.dark textarea {
-  background-color: #1a1a1a;
-  border-color: #2a2a2a;
-  color: #F0F0EE;
+input,
+select,
+textarea {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--fg);
 }
 
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: #555555;
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-fg);
+}
+
+/* =============================================
+   FLUID TYPOGRAPHY HELPERS
+   ============================================= */
+.text-fluid-h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.text-fluid-h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.text-fluid-p {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  line-height: 1.6;
+}
+
+/* =============================================
+   MAGNETIC HOVER
+   ============================================= */
+.magnetic {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* =============================================
+   MARQUEE ANIMATION
+   ============================================= */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
