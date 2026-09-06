@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { createClient } from '@/utils/supabase/server';
@@ -96,22 +95,6 @@ export default async function Home() {
             </div>
           </ScrollReveal>
 
-          {/* Avatar */}
-          {profile.avatar_url && (
-            <ScrollReveal direction="up" delay={50}>
-              <div className="w-28 h-28 md:w-32 md:h-32 mx-auto mb-6 rounded-full overflow-hidden shadow-lg border border-border">
-                <Image
-                  src={profile.avatar_url}
-                  alt={profile.name}
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  priority
-                />
-              </div>
-            </ScrollReveal>
-          )}
-
           {/* Heading */}
           <ScrollReveal direction="up" delay={100}>
             <h1 className="text-fluid-h1 font-bold mb-5 text-balance">
@@ -178,18 +161,27 @@ export default async function Home() {
       </section>
 
       {/* ── TOOLS MARQUEE BAR ── */}
-      <section className="w-full py-12 border-y border-border bg-muted/30 overflow-hidden relative flex items-center">
-        {/* Gradients for fade effect on edges */}
-        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
-
-        <div className="flex w-[200%] gap-8 animate-[marquee_20s_linear_infinite]">
+      <section className="w-full py-10 border-y border-border overflow-hidden relative flex items-center">
+        {/* Edge fade */}
+        <div
+          className="absolute inset-y-0 left-0 w-20 z-10"
+          style={{ background: 'linear-gradient(to right, var(--bg), transparent)' }}
+        />
+        <div
+          className="absolute inset-y-0 right-0 w-20 z-10"
+          style={{ background: 'linear-gradient(to left, var(--bg), transparent)' }}
+        />
+        <div
+          className="flex gap-10 animate-[marquee_25s_linear_infinite]"
+          style={{ width: '200%' }}
+        >
           {[...techStack, ...techStack].map((tool, i) => (
             <div
               key={`${tool}-${i}`}
-              className="flex-shrink-0 text-xl font-bold text-muted-foreground/50 whitespace-nowrap"
+              className="flex-shrink-0 text-base font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-10"
             >
-              {tool} <span className="mx-4 text-border">•</span>
+              {tool}
+              <span className="text-border text-lg">·</span>
             </div>
           ))}
         </div>
