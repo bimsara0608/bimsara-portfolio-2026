@@ -56,8 +56,6 @@ const jsonLd = {
   ],
 };
 
-import { CustomCursor } from '@/components/ui/CustomCursor';
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -84,10 +82,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
-        <CustomCursor />
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }

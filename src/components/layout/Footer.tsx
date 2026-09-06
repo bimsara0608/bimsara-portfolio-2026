@@ -27,49 +27,59 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-foreground text-background py-20 mt-20 border-t border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          {/* Newsletter */}
-          <div className="md:col-span-1">
-            <h2 className="text-xl font-bold mb-2 text-background">Stay Connected</h2>
-            <p className="text-muted-foreground text-sm mb-4">
-              Get notified about new projects and updates.
+    <footer className="bg-foreground text-background mt-16 border-t border-border/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+          {/* Brand + Newsletter */}
+          <div className="md:col-span-2">
+            <p className="font-bold text-xl mb-1 text-background">Bimsara Gunawardana</p>
+            <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              Design Engineer · Colombo, Sri Lanka
             </p>
             {subStatus === 'success' ? (
-              <div className="flex items-center gap-2 text-green-500 font-medium text-sm">
+              <div className="flex items-center gap-2 text-green-400 font-medium text-sm">
                 <Mail size={16} /> {subMsg}
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="glass-input-dark px-4 py-2 w-full focus:outline-none text-sm font-medium rounded-none border border-muted-foreground/30 text-background bg-background/5"
-                  />
-                  <button
-                    type="submit"
-                    disabled={subStatus === 'loading'}
-                    className="magnetic bg-background text-foreground px-4 py-2 font-bold hover:opacity-80 transition-opacity flex-shrink-0 disabled:opacity-70"
-                  >
-                    <ArrowRight size={18} />
-                  </button>
-                </div>
-                {subStatus === 'error' && <p className="text-red-500 text-xs">{subMsg}</p>}
+              <form onSubmit={handleSubscribe} className="flex gap-2 max-w-xs">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="flex-1 px-4 py-2 text-sm rounded-full focus:outline-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: '#fff',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={subStatus === 'loading'}
+                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-60 transition-opacity hover:opacity-80"
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                  }}
+                >
+                  <ArrowRight size={16} className="text-white" />
+                </button>
               </form>
             )}
+            {subStatus === 'error' && <p className="text-red-400 text-xs mt-2">{subMsg}</p>}
           </div>
 
-          {/* Quick Links */}
+          {/* Navigation */}
           <div>
-            <h3 className="font-semibold text-muted-foreground mb-4 uppercase tracking-wider text-xs">
+            <h3
+              className="text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
               Navigation
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {[
                 { label: 'Home', href: '/' },
                 { label: 'About', href: '/about' },
@@ -80,7 +90,8 @@ export function Footer() {
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-sm font-medium text-background/80 hover:text-background transition-colors"
+                    className="text-sm transition-colors hover:text-white"
+                    style={{ color: 'rgba(255,255,255,0.65)' }}
                   >
                     {l.label}
                   </Link>
@@ -91,69 +102,49 @@ export function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="font-semibold text-muted-foreground mb-4 uppercase tracking-wider text-xs">
-              Social
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <a
-                  href="https://linkedin.com/in/bimsara-gunawardana-8a9b07253"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-background/80 hover:text-background transition-colors"
-                >
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/bimsara0608"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-background/80 hover:text-background transition-colors"
-                >
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://grabcad.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-background/80 hover:text-background transition-colors"
-                >
-                  GrabCAD
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="font-semibold text-muted-foreground mb-4 uppercase tracking-wider text-xs">
-              Contact
-            </h3>
-            <a
-              href="mailto:hello@bimsara.com"
-              className="text-sm font-medium text-background/80 hover:text-background transition-colors block mb-2"
+            <h3
+              className="text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
             >
-              hello@bimsara.com
-            </a>
-            <p className="text-muted-foreground text-sm">
-              Colombo, Sri Lanka
-              <br />
-              Available worldwide.
-            </p>
+              Connect
+            </h3>
+            <ul className="space-y-2.5">
+              {[
+                {
+                  label: 'LinkedIn',
+                  href: 'https://linkedin.com/in/bimsara-gunawardana-8a9b07253',
+                },
+                { label: 'GitHub', href: 'https://github.com/bimsara0608' },
+                { label: 'GrabCAD', href: 'https://grabcad.com' },
+                { label: 'hello@bimsara.com', href: 'mailto:hello@bimsara.com' },
+              ].map((l) => (
+                <li key={l.href}>
+                  <a
+                    href={l.href}
+                    target={l.href.startsWith('http') ? '_blank' : undefined}
+                    rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="text-sm transition-colors hover:text-white"
+                    style={{ color: 'rgba(255,255,255,0.65)' }}
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
-        <div className="border-t border-muted-foreground/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        {/* Bottom bar */}
+        <div
+          className="pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-3"
+          style={{ borderColor: 'rgba(255,255,255,0.1)' }}
+        >
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
             © {new Date().getFullYear()} Bimsara Gunawardana. All rights reserved.
           </p>
-          <div className="font-black text-2xl tracking-tighter text-background opacity-20">
-            Bimsara
-          </div>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            Built with Next.js & Supabase
+          </p>
         </div>
       </div>
     </footer>

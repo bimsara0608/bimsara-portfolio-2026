@@ -43,7 +43,7 @@ export default async function ProjectsPage({
   ].sort();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
       <ScrollReveal direction="left">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
           <div>
@@ -78,7 +78,7 @@ export default async function ProjectsPage({
       </ScrollReveal>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         {projects.map((project, idx) => (
           <ScrollReveal key={project.id} direction="up" delay={(idx % 4) * 100}>
             <ProjectCard project={project} />
@@ -87,11 +87,11 @@ export default async function ProjectsPage({
       </div>
 
       {projects.length === 0 && (
-        <div className="text-center py-24 text-muted-foreground border border-border rounded-xl mt-8">
-          <p className="text-lg">No projects found in this category.</p>
+        <div className="glass-card text-center py-16 text-muted-foreground mt-8">
+          <p className="text-lg font-medium">No projects found in this category.</p>
           <Link
             href="/projects"
-            className="text-foreground font-bold mt-4 inline-block hover:underline magnetic"
+            className="text-foreground font-semibold mt-4 inline-block hover:opacity-70 transition-opacity"
           >
             View all projects
           </Link>

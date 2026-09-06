@@ -71,7 +71,7 @@ const PROCESS = [
 
 export default function ServicesPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
       {/* Header */}
       <div className="mb-24 text-center max-w-3xl mx-auto">
         <ScrollReveal direction="up">
@@ -90,7 +90,7 @@ export default function ServicesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-32">
         {SERVICES.map((service, idx) => (
           <ScrollReveal key={service.title} direction="up" delay={idx * 150}>
-            <div className="card p-8 md:p-10 h-full flex flex-col hover:-translate-y-2 transition-transform duration-300">
+            <div className="glass-card p-8 md:p-10 h-full flex flex-col">
               <service.icon size={40} className="text-foreground mb-6" strokeWidth={1.5} />
               <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
               <p className="text-muted-foreground mb-8 flex-1">{service.description}</p>
@@ -130,9 +130,14 @@ export default function ServicesPage() {
 
       {/* CTA */}
       <ScrollReveal direction="up">
-        <div className="card bg-foreground text-background p-12 md:p-20 text-center border-0">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Have a project in mind?</h2>
-          <p className="text-background/70 mb-10 max-w-xl mx-auto text-lg">
+        <div
+          className="glass-card p-12 md:p-16 text-center"
+          style={{ background: 'var(--fg)', color: 'var(--bg)' }}
+        >
+          <h2 className="text-3xl md:text-5xl font-bold mb-6" style={{ color: 'var(--bg)' }}>
+            Have a project in mind?
+          </h2>
+          <p className="mb-10 max-w-xl mx-auto text-lg" style={{ color: 'rgba(255,255,255,0.7)' }}>
             Whether you need a quick 3D render or a complete mechanical design from scratch,
             I&apos;m ready to help.
           </p>

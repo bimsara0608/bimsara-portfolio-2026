@@ -53,11 +53,12 @@ export default function ContactPage() {
   }
 
   const fieldClass =
-    'w-full bg-background/50 border border-border px-4 py-3 focus:outline-none focus:border-foreground transition-colors font-medium';
-  const labelClass = 'block text-sm font-bold text-muted-foreground mb-2 uppercase tracking-wider';
+    'w-full glass-input px-4 py-3 focus:outline-none transition-colors font-medium text-sm';
+  const labelClass =
+    'block text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wider';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
         {/* Left: Info */}
         <div>
@@ -126,7 +127,7 @@ export default function ContactPage() {
         </div>
 
         {/* Right: Form */}
-        <div className="card p-8 md:p-12">
+        <div className="glass-card p-8 md:p-12">
           {status === 'success' ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">✅</div>
@@ -207,7 +208,7 @@ export default function ContactPage() {
               </div>
 
               {status === 'error' && (
-                <p className="text-red-600 font-medium text-sm bg-red-50 dark:bg-red-900/20 px-4 py-3">
+                <p className="text-red-500 font-medium text-sm bg-red-500/10 px-4 py-3 rounded-xl">
                   {message}
                 </p>
               )}

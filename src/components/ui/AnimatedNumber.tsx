@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useInView, useMotionValue, useSpring } from 'framer-motion';
 
 interface AnimatedNumberProps {
   value: number;
   suffix?: string;
   prefix?: string;
   className?: string;
+  duration?: number;
 }
 
 export function AnimatedNumber({
@@ -15,32 +15,54 @@ export function AnimatedNumber({
   suffix = '',
   prefix = '',
   className = '',
+  duration = 1800,
 }: AnimatedNumberProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, {
-    damping: 60,
-    stiffness: 100,
-  });
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    if (isInView) {
-      motionValue.set(value);
-    }
-  }, [motionValue, isInView, value]);
+    const el = ref.current;
+    if (!el) return;
 
-  useEffect(() => {
-    return springValue.on('change', (latest) => {
-      if (ref.current) {
-        ref.current.textContent = `${prefix}${Intl.NumberFormat('en-US').format(Math.floor(latest))}${suffix}`;
-      }
-    });
-  }, [springValue, prefix, suffix]);
+    // Set initial value
+    el.textContent = `${prefix}0${suffix}`;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          observer.disconnect();
+
+          const startTime = performance.now();
+          const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+          const tick = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = Math.floor(easeOut(progress) * value);
+            if (el) {
+              el.textContent = `${prefix}${current}${suffix}`;
+            }
+            if (progress < 1) {
+              requestAnimationFrame(tick);
+            } else {
+              if (el) el.textContent = `${prefix}${value}${suffix}`;
+            }
+          };
+
+          requestAnimationFrame(tick);
+        }
+      },
+      // Trigger when element is fully visible (no negative margin bug)
+      { threshold: 0.5 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value, suffix, prefix, duration]);
 
   return (
-    <span ref={ref} className={className}>
+    <span ref={ref} className={`stat-number ${className}`}>
       {prefix}0{suffix}
     </span>
   );

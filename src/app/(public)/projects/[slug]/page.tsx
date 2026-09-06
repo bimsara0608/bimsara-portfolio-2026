@@ -53,7 +53,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const prevProject = allProjects?.[currentIndex - 1];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
       {/* Back Nav */}
       <Link
         href="/projects"
@@ -129,18 +129,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         {/* Sidebar */}
         <div className="md:col-span-4 space-y-6">
           {/* Project Info */}
-          <div className="card p-6">
+          <div className="glass-card p-6">
             {data.tools && data.tools.length > 0 && (
               <div className="mb-6">
-                <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground mb-3">
+                <h3 className="font-semibold uppercase tracking-wider text-xs text-muted-foreground mb-3">
                   Tools Used
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {data.tools.map((tool) => (
-                    <span
-                      key={tool}
-                      className="text-sm font-medium bg-muted text-muted-foreground px-3 py-1 rounded-full"
-                    >
+                    <span key={tool} className="pill">
                       {tool}
                     </span>
                   ))}
@@ -152,7 +149,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div className="flex items-center gap-3 py-3 border-t border-border">
                 <Clock size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                     Timeline
                   </p>
                   <p className="font-medium text-sm">{data.timeline}</p>
@@ -164,7 +161,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div className="flex items-center gap-3 py-3 border-t border-border">
                 <User size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                     Client
                   </p>
                   <p className="font-medium text-sm">{data.client}</p>
@@ -176,7 +173,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div className="flex items-center gap-3 py-3 border-t border-border">
                 <Calendar size={16} className="text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                     Date
                   </p>
                   <p className="font-medium text-sm">{data.year || data.date}</p>
@@ -190,7 +187,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                   href={data.external_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="magnetic inline-flex items-center gap-2 text-sm font-bold text-foreground hover:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:opacity-70 transition-opacity"
                 >
                   View Live / Download <ExternalLink size={14} />
                 </a>
@@ -199,12 +196,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </div>
 
           {/* Hire CTA */}
-          <div className="card p-6 bg-foreground text-background border-0">
-            <p className="font-bold mb-1">Like what you see?</p>
-            <p className="text-sm text-background/80 mb-4">Let&apos;s build something together.</p>
+          <div className="glass-card p-6" style={{ background: 'var(--fg)' }}>
+            <p className="font-bold mb-1" style={{ color: 'var(--bg)' }}>
+              Like what you see?
+            </p>
+            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              Let&apos;s build something together.
+            </p>
             <Link
               href="/contact"
-              className="magnetic inline-flex items-center gap-2 bg-background text-foreground px-4 py-2.5 font-bold text-sm hover:opacity-90 transition-opacity rounded-lg"
+              className="inline-flex items-center gap-2 bg-background text-foreground px-4 py-2.5 font-semibold text-sm hover:opacity-90 transition-opacity rounded-full"
             >
               Get in Touch <ArrowRight size={14} />
             </Link>
