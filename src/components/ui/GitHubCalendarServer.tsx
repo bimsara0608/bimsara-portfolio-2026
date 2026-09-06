@@ -25,7 +25,7 @@ export async function GitHubCalendarServer({ username }: { username: string }) {
 
   return (
     <div
-      className="overflow-x-auto py-4 flex justify-center w-full [&_svg]:max-w-full [&_svg]:h-auto [&_rect.day]:transition-colors"
+      className="overflow-x-auto py-2 flex w-full justify-start [&_svg]:min-w-[700px] [&_svg]:max-w-full [&_svg]:h-auto dark:[&_svg]:invert dark:[&_svg]:hue-rotate-180 opacity-90 hover:opacity-100 transition-opacity"
       dangerouslySetInnerHTML={{ __html: svgContent }}
     />
   );
