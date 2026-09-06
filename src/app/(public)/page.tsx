@@ -99,13 +99,13 @@ export default async function Home() {
           {/* Avatar */}
           {profile.avatar_url && (
             <ScrollReveal direction="up" delay={50}>
-              <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 rounded-full overflow-hidden border-2 border-border shadow-xl ring-4 ring-background">
+              <div className="w-28 h-28 md:w-32 md:h-32 mx-auto mb-6 rounded-full overflow-hidden shadow-lg border border-border">
                 <Image
                   src={profile.avatar_url}
                   alt={profile.name}
-                  width={96}
-                  height={96}
-                  className="w-full h-full object-cover"
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   priority
                 />
               </div>
@@ -141,34 +141,34 @@ export default async function Home() {
             </div>
           </ScrollReveal>
 
-          {/* Stats */}
+          {/* Stats - Reverted to classic minimalist look */}
           <ScrollReveal direction="up" delay={420}>
             <div className="mt-16 grid grid-cols-3 gap-6 md:gap-10 max-w-lg mx-auto">
-              <div className="text-center glass-card py-5 px-2">
+              <div className="text-center">
                 <AnimatedNumber
                   value={pStats.value}
                   suffix={pStats.suffix}
-                  className="block text-3xl md:text-4xl font-bold mb-1 text-foreground"
+                  className="block text-4xl md:text-5xl font-bold mb-2 text-foreground"
                 />
-                <p className="text-[11px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                <p className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-widest">
                   Projects
                 </p>
               </div>
-              <div className="text-center glass-card py-5 px-2">
+              <div className="text-center">
                 <AnimatedNumber
                   value={eStats.value}
                   suffix={eStats.suffix}
-                  className="block text-3xl md:text-4xl font-bold mb-1 text-foreground"
+                  className="block text-4xl md:text-5xl font-bold mb-2 text-foreground"
                 />
-                <p className="text-[11px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                <p className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-widest">
                   Years Exp.
                 </p>
               </div>
-              <div className="text-center glass-card py-5 px-2">
-                <p className="block text-3xl md:text-4xl font-bold mb-1 text-foreground">
+              <div className="text-center">
+                <p className="block text-4xl md:text-5xl font-bold mb-2 text-foreground">
                   {profile.stat_certification}
                 </p>
-                <p className="text-[11px] md:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                <p className="text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-widest">
                   Certified
                 </p>
               </div>
@@ -177,25 +177,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── SKILLS GRID (replaces marquee) ── */}
-      <section className="w-full py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <ScrollReveal direction="up">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center mb-6">
-              Tools & Technologies
-            </p>
-            <div className="flex flex-wrap justify-center gap-2.5">
-              {techStack.map((tool) => (
-                <span
-                  key={tool}
-                  className="glass-card px-4 py-2 text-sm font-medium text-foreground border border-border hover:border-foreground/30 transition-colors cursor-default"
-                  style={{ borderRadius: '980px' }}
-                >
-                  {tool}
-                </span>
-              ))}
+      {/* ── TOOLS MARQUEE BAR ── */}
+      <section className="w-full py-12 border-y border-border bg-muted/30 overflow-hidden relative flex items-center">
+        {/* Gradients for fade effect on edges */}
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
+
+        <div className="flex w-[200%] gap-8 animate-[marquee_20s_linear_infinite]">
+          {[...techStack, ...techStack].map((tool, i) => (
+            <div
+              key={`${tool}-${i}`}
+              className="flex-shrink-0 text-xl font-bold text-muted-foreground/50 whitespace-nowrap"
+            >
+              {tool} <span className="mx-4 text-border">•</span>
             </div>
-          </ScrollReveal>
+          ))}
         </div>
       </section>
 

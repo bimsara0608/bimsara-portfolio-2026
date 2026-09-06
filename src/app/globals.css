@@ -101,7 +101,7 @@ body {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
-  border-radius: 20px;
+  border-radius: 14px;
 }
 
 /* Glass navbar — thin, floating */
@@ -119,7 +119,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
+  border-radius: 10px;
 }
 
 .dark .glass-subtle {
@@ -291,7 +291,7 @@ body {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 14px;
   transition:
     transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     box-shadow 0.3s ease,
@@ -451,4 +451,16 @@ select option {
   outline: 2px solid var(--fg);
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* =============================================
+   MARQUEE ANIMATION
+   ============================================= */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

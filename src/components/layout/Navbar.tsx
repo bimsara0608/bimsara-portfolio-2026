@@ -37,6 +37,7 @@ export function Navbar() {
   }, [isOpen]);
 
   const links = [
+    { label: 'Home', href: '/' },
     { label: 'About', href: '/about' },
     { label: 'Projects', href: '/projects' },
     { label: 'Services', href: '/services' },

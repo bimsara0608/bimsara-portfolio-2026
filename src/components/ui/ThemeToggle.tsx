@@ -26,9 +26,18 @@ export function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label="Toggle dark mode"
-      className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+      className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground relative w-9 h-9 flex items-center justify-center overflow-hidden"
     >
-      {isDark ? <Sun size={18} /> : <Moon size={18} />}
+      <div
+        className={`transition-transform duration-500 absolute ${isDark ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'}`}
+      >
+        <Sun size={18} />
+      </div>
+      <div
+        className={`transition-transform duration-500 absolute ${isDark ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'}`}
+      >
+        <Moon size={18} />
+      </div>
     </button>
   );
 }
