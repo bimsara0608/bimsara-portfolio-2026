@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 interface ModelViewerProps {
   src: string;
@@ -13,9 +13,7 @@ export function ModelViewer({ src, alt }: ModelViewerProps) {
 
   useEffect(() => {
     // Dynamically import the web component so it only runs on the client
-    import("@google/model-viewer")
-      .then(() => setIsMounted(true))
-      .catch(() => setError(true));
+    import('@google/model-viewer').then(() => setIsMounted(true)).catch(() => setError(true));
   }, []);
 
   if (error) {
@@ -42,15 +40,16 @@ export function ModelViewer({ src, alt }: ModelViewerProps) {
       {/* @ts-expect-error - Custom element not known to React types */}
       <model-viewer
         src={src}
-        alt={alt || "3D Model"}
+        alt={alt || '3D Model'}
         auto-rotate
         camera-controls
-        shadow-intensity="1"
-        exposure="1"
-        environment-image="neutral"
-        style={{ width: "100%", height: "100%", backgroundColor: "transparent", outline: "none" }}
+        shadow-intensity="2"
+        shadow-softness="1"
+        exposure="0.8"
+        environment-image="legacy"
+        style={{ width: '100%', height: '100%', backgroundColor: 'transparent', outline: 'none' }}
       >
-      {/* @ts-expect-error */}
+        {/* @ts-expect-error - Custom element closing tag not known to React */}
       </model-viewer>
       <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white px-3 py-1.5 text-xs rounded-full pointer-events-none">
         Drag to rotate · Scroll to zoom
