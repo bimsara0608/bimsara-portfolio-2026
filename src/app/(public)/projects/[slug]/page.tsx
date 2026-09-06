@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight, ExternalLink, Calendar, Clock, User } from "luci
 import { createClient } from "@/utils/supabase/server";
 import type { Project } from "@/lib/types";
 import { notFound } from "next/navigation";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
+import { ModelViewer } from "@/components/ui/ModelViewer";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -85,6 +87,13 @@ export default async function ProjectDetailPage({
             className="object-cover"
             priority
           />
+        </div>
+      )}
+
+      {/* Interactive 3D Model */}
+      {data.model_url && (
+        <div className="mb-20">
+          <ModelViewer src={data.model_url} alt={data.title} />
         </div>
       )}
 
@@ -186,24 +195,7 @@ export default async function ProjectDetailPage({
       {galleryImages.length > 0 && (
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-12">Project Gallery</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {galleryImages.map((img, idx) => (
-              <div
-                key={idx}
-                className={`relative overflow-hidden bg-gray-100 dark:bg-gray-900 ${
-                  idx === 0 ? "md:col-span-2 aspect-[16/7]" : "aspect-[4/3]"
-                }`}
-              >
-                <Image
-                  src={img.url}
-                  alt={`${data.title} — image ${idx + 1}`}
-                  fill
-                  sizes={idx === 0 ? "100vw" : "50vw"}
-                  className="object-cover hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-            ))}
-          </div>
+          <ImageLightbox images={galleryImages} />
         </div>
       )}
 

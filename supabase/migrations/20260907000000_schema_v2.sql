@@ -22,6 +22,8 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW
 DROP POLICY IF EXISTS "Published projects are viewable by everyone" ON projects;
 CREATE POLICY "Published projects are viewable by everyone" ON projects
   FOR SELECT USING (is_published = true);
+
+DROP POLICY IF EXISTS "Admins can view all projects" ON projects;
 CREATE POLICY "Admins can view all projects" ON projects
   FOR SELECT USING (auth.role() = 'authenticated');
 
@@ -46,12 +48,20 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 );
 
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can submit messages" ON contact_messages;
 CREATE POLICY "Anyone can submit messages" ON contact_messages
   FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Only admins can view messages" ON contact_messages;
 CREATE POLICY "Only admins can view messages" ON contact_messages
   FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Only admins can update messages" ON contact_messages;
 CREATE POLICY "Only admins can update messages" ON contact_messages
   FOR UPDATE USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Only admins can delete messages" ON contact_messages;
 CREATE POLICY "Only admins can delete messages" ON contact_messages
   FOR DELETE USING (auth.role() = 'authenticated');
 
@@ -88,8 +98,12 @@ CREATE TABLE IF NOT EXISTS testimonials (
 );
 
 ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Published testimonials viewable by all" ON testimonials;
 CREATE POLICY "Published testimonials viewable by all" ON testimonials
   FOR SELECT USING (is_published = true);
+
+DROP POLICY IF EXISTS "Only admins can manage testimonials" ON testimonials;
 CREATE POLICY "Only admins can manage testimonials" ON testimonials
   FOR ALL USING (auth.role() = 'authenticated');
 
@@ -103,8 +117,12 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
 );
 
 ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can subscribe" ON newsletter_subscribers;
 CREATE POLICY "Anyone can subscribe" ON newsletter_subscribers
   FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Only admins can view subscribers" ON newsletter_subscribers;
 CREATE POLICY "Only admins can view subscribers" ON newsletter_subscribers
   FOR SELECT USING (auth.role() = 'authenticated');
 
@@ -118,8 +136,12 @@ CREATE TABLE IF NOT EXISTS site_settings (
 );
 
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Settings viewable by all" ON site_settings;
 CREATE POLICY "Settings viewable by all" ON site_settings
   FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Only admins can modify settings" ON site_settings;
 CREATE POLICY "Only admins can modify settings" ON site_settings
   FOR ALL USING (auth.role() = 'authenticated');
 
