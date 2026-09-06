@@ -45,8 +45,8 @@ export function ModelViewer({ src, alt }: ModelViewerProps) {
         camera-controls
         shadow-intensity="1.5"
         shadow-softness="1"
-        exposure="0.85"
-        environment-image="https://modelviewer.dev/shared-assets/environments/spruit_sunrise_1k_HDR.hdr"
+        exposure="0.4"
+        environment-image="neutral"
         style={{ width: '100%', height: '100%', backgroundColor: 'transparent', outline: 'none' }}
       >
         {/* @ts-expect-error - Custom element closing tag not known to React */}
