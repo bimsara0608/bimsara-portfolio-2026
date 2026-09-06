@@ -126,10 +126,6 @@ export function ServicesSection() {
           </p>
           <a
             href="#contact"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-            }}
             className="inline-flex items-center gap-2 bg-background text-foreground font-medium px-6 py-3 rounded-[10px] hover:opacity-90 transition-opacity text-sm"
           >
             Start a Conversation <ArrowRight size={17} />
