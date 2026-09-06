@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowRight, Mail } from 'lucide-react';
 import { subscribeNewsletter } from '@/app/actions';
@@ -26,20 +25,21 @@ export function Footer() {
     }
   };
 
-  // Footer is ALWAYS a dark panel regardless of theme
-  const FOOTER_BG = '#111111';
+  const handleNavClick = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
-    <footer style={{ background: FOOTER_BG }} className="mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+    <footer style={{ background: '#0f172a' }} className="mt-0">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand + Newsletter */}
           <div className="md:col-span-2">
-            <p className="font-bold text-xl mb-1 text-white">Bimsara Gunawardana</p>
+            <p className="font-semibold text-base mb-1 text-white">Bimsara Gunawardana</p>
             <p className="text-sm mb-5 text-white/50">Design Engineer · Colombo, Sri Lanka</p>
             {subStatus === 'success' ? (
-              <div className="flex items-center gap-2 text-green-400 font-medium text-sm">
-                <Mail size={16} /> {subMsg}
+              <div className="flex items-center gap-2 text-green-400 text-sm">
+                <Mail size={14} /> {subMsg}
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex gap-2 max-w-xs">
@@ -49,22 +49,22 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  className="flex-1 px-4 py-2 text-sm rounded-full focus:outline-none placeholder:text-white/30 text-white"
+                  className="flex-1 px-3.5 py-2 text-sm rounded-[10px] focus:outline-none placeholder:text-white/30 text-white"
                   style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
                   }}
                 />
                 <button
                   type="submit"
                   disabled={subStatus === 'loading'}
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-60 transition-opacity hover:opacity-70"
+                  className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0 disabled:opacity-50 transition-opacity hover:opacity-70"
                   style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.12)',
                   }}
                 >
-                  <ArrowRight size={16} className="text-white" />
+                  <ArrowRight size={15} className="text-white" />
                 </button>
               </form>
             )}
@@ -73,24 +73,24 @@ export function Footer() {
 
           {/* Navigation */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest mb-4 text-white/35">
+            <h3 className="text-[11px] font-semibold uppercase tracking-widest mb-4 text-white/30">
               Navigation
             </h3>
             <ul className="space-y-2.5">
               {[
-                { label: 'Home', href: '/' },
-                { label: 'About', href: '/about' },
-                { label: 'Projects', href: '/projects' },
-                { label: 'Services', href: '/services' },
-                { label: 'Contact', href: '/contact' },
+                { label: 'About', id: 'about' },
+                { label: 'Projects', id: 'projects' },
+                { label: 'Services', id: 'services' },
+                { label: 'GitHub', id: 'github' },
+                { label: 'Contact', id: 'contact' },
               ].map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-white/60 hover:text-white transition-colors"
+                <li key={l.id}>
+                  <button
+                    onClick={() => handleNavClick(l.id)}
+                    className="text-sm text-white/55 hover:text-white transition-colors"
                   >
                     {l.label}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -98,7 +98,7 @@ export function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-widest mb-4 text-white/35">
+            <h3 className="text-[11px] font-semibold uppercase tracking-widest mb-4 text-white/30">
               Connect
             </h3>
             <ul className="space-y-2.5">
@@ -109,17 +109,14 @@ export function Footer() {
                 },
                 { label: 'GitHub', href: 'https://github.com/bimsara0608' },
                 { label: 'GrabCAD', href: 'https://grabcad.com' },
-                {
-                  label: 'hello@bimsara.com',
-                  href: 'mailto:hello@bimsara.com',
-                },
+                { label: 'hello@bimsara.com', href: 'mailto:hello@bimsara.com' },
               ].map((l) => (
                 <li key={l.href}>
                   <a
                     href={l.href}
                     target={l.href.startsWith('http') ? '_blank' : undefined}
                     rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-sm text-white/60 hover:text-white transition-colors"
+                    className="text-sm text-white/55 hover:text-white transition-colors"
                   >
                     {l.label}
                   </a>
@@ -130,8 +127,8 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-xs text-white/35">
+        <div className="pt-8 border-t border-white/8 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-white/30">
             © {new Date().getFullYear()} Bimsara Gunawardana. All rights reserved.
           </p>
           <p className="text-xs text-white/20">Built with Next.js &amp; Supabase</p>

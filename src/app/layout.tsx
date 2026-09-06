@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 
-const poppins = Poppins({
-  variable: '--font-poppins',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -45,7 +46,10 @@ const jsonLd = {
   name: 'Bimsara Gunawardana',
   jobTitle: 'Design Engineer',
   url: 'https://bimsara.com',
-  sameAs: ['https://www.linkedin.com/in/bimsara', 'https://github.com/bimsara0608'],
+  sameAs: [
+    'https://www.linkedin.com/in/bimsara-gunawardana-8a9b07253',
+    'https://github.com/bimsara0608',
+  ],
   knowsAbout: [
     'Product Design',
     '3D Animation',
@@ -62,7 +66,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <head>
         <script
           type="application/ld+json"

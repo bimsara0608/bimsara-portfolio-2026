@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /* =============================================
-   DESIGN TOKENS — Apple Glass UI System
+   DESIGN TOKENS — Attio-Inspired System
    ============================================= */
 @theme inline {
   --color-background: var(--bg);
@@ -13,63 +13,51 @@
   --color-muted-foreground: var(--muted-fg);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-fg);
-  --font-sans: var(--font-poppins);
+  --font-sans: var(--font-inter);
 }
 
 /* =============================================
-   LIGHT MODE — Warm Apple White
+   LIGHT MODE — Attio Warm Canvas
    ============================================= */
 :root {
-  --bg: #f5f5f7;
-  --fg: #1d1d1f;
+  --bg: #fafafa;
+  --fg: #0f172a;
 
-  --card: rgba(255, 255, 255, 0.72);
-  --card-fg: #1d1d1f;
+  --card: #ffffff;
+  --card-fg: #0f172a;
 
-  --border: rgba(0, 0, 0, 0.1);
+  --border: #e2e8f0;
 
-  --muted: rgba(0, 0, 0, 0.05);
-  --muted-fg: #6e6e73;
+  --muted: #f1f5f9;
+  --muted-fg: #64748b;
 
-  --accent: #1d1d1f;
-  --accent-fg: #f5f5f7;
+  --accent: #0f172a;
+  --accent-fg: #ffffff;
 
-  /* Glass tints */
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-
-  /* Mesh gradient orbs */
-  --orb-1: rgba(120, 119, 198, 0.15);
-  --orb-2: rgba(255, 119, 115, 0.1);
-  --orb-3: rgba(74, 222, 128, 0.08);
+  /* Section alternation */
+  --section-alt: #ffffff;
 }
 
 /* =============================================
-   DARK MODE — Deep Apple Black
+   DARK MODE — Attio Deep Black
    ============================================= */
 .dark {
-  --bg: #000000;
-  --fg: #f5f5f7;
+  --bg: #09090b;
+  --fg: #fafafa;
 
-  --card: rgba(255, 255, 255, 0.06);
-  --card-fg: #f5f5f7;
+  --card: #18181b;
+  --card-fg: #fafafa;
 
-  --border: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.08);
 
-  --muted: rgba(255, 255, 255, 0.05);
-  --muted-fg: #98989d;
+  --muted: #27272a;
+  --muted-fg: #a1a1aa;
 
-  --accent: #f5f5f7;
-  --accent-fg: #000000;
+  --accent: #fafafa;
+  --accent-fg: #09090b;
 
-  --glass-bg: rgba(30, 30, 30, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-
-  --orb-1: rgba(120, 80, 255, 0.18);
-  --orb-2: rgba(255, 80, 100, 0.12);
-  --orb-3: rgba(80, 200, 120, 0.1);
+  /* Section alternation */
+  --section-alt: #111113;
 }
 
 /* =============================================
@@ -91,256 +79,122 @@ body {
 }
 
 /* =============================================
-   APPLE GLASS UTILITIES
-   ============================================= */
-
-/* Main glass card */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: 14px;
-  transition:
-    transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow 0.3s ease,
-    border-color 0.2s ease;
-}
-
-.glass-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-}
-
-.dark .glass-card:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-}
-
-/* Glass navbar — thin, floating */
-.glass-nav {
-  background: var(--glass-bg);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 0 var(--border);
-}
-
-/* Subtle glass — for inner panels */
-.glass-subtle {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-}
-
-.dark .glass-subtle {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-/* Glass input */
-.glass-input {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  color: var(--fg);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-}
-
-.glass-input:focus {
-  outline: none;
-  border-color: rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-}
-
-.dark .glass-input {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.dark .glass-input:focus {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
-}
-
-.glass-input::placeholder {
-  color: var(--muted-fg);
-}
-
-/* =============================================
-   MESH GRADIENT BACKGROUND
-   ============================================= */
-.mesh-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.mesh-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
-  animation: float 8s ease-in-out infinite;
-}
-
-.mesh-orb-1 {
-  width: 600px;
-  height: 600px;
-  background: var(--orb-1);
-  top: -10%;
-  left: -10%;
-  animation-delay: 0s;
-}
-
-.mesh-orb-2 {
-  width: 500px;
-  height: 500px;
-  background: var(--orb-2);
-  top: 30%;
-  right: -5%;
-  animation-delay: -3s;
-}
-
-.mesh-orb-3 {
-  width: 400px;
-  height: 400px;
-  background: var(--orb-3);
-  bottom: -5%;
-  left: 40%;
-  animation-delay: -6s;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) scale(1);
-  }
-  33% {
-    transform: translateY(-30px) scale(1.05);
-  }
-  66% {
-    transform: translateY(15px) scale(0.97);
-  }
-}
-
-/* =============================================
-   TYPOGRAPHY HELPERS
+   TYPOGRAPHY SCALE
    ============================================= */
 .text-fluid-h1 {
-  font-size: clamp(2.5rem, 7vw, 5.5rem);
-  line-height: 1.05;
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+  line-height: 1.08;
   letter-spacing: -0.03em;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .text-fluid-h2 {
-  font-size: clamp(1.75rem, 4vw, 3.5rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  font-weight: 500;
 }
 
 .text-fluid-p {
-  font-size: clamp(1rem, 1.8vw, 1.25rem);
-  line-height: 1.65;
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  line-height: 1.6;
 }
 
 /* =============================================
-   APPLE-STYLE BUTTONS
+   CARDS — Solid, Opaque (no glassmorphism)
    ============================================= */
-.btn-glass {
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.dark .card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 28px;
-  border-radius: 980px;
-  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 500;
   font-size: 0.9375rem;
-  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.btn-primary {
   background: var(--fg);
   color: var(--bg);
   border: 1px solid transparent;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-
-.dark .btn-primary:hover {
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+  opacity: 0.82;
 }
 
 .btn-secondary {
-  background: var(--glass-bg);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  background: transparent;
   color: var(--fg);
   border: 1px solid var(--border);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-secondary:hover {
   background: var(--muted);
-  transform: translateY(-1px);
+  border-color: var(--fg);
 }
 
 /* =============================================
-   CARDS
+   FORM INPUTS
    ============================================= */
-.card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  transition:
-    transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow 0.3s ease,
-    border-color 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--glass-shadow);
-  border-color: rgba(255, 255, 255, 0.9);
-}
-
-.dark .card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
-}
-
-/* =============================================
-   SCROLLBAR STYLING
-   ============================================= */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
   background: transparent;
+  color: var(--fg);
+  font-size: 0.9375rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+.form-input:focus {
+  outline: none;
+  border-color: var(--fg);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
 }
 
-/* =============================================
-   FORM INPUTS (global baseline)
-   ============================================= */
+.dark .form-input:focus {
+  box-shadow: 0 0 0 2px rgba(250, 250, 250, 0.08);
+}
+
+.form-input::placeholder {
+  color: var(--muted-fg);
+}
+
 input,
 select,
 textarea {
@@ -357,6 +211,88 @@ textarea::placeholder {
 select option {
   background-color: var(--bg);
   color: var(--fg);
+}
+
+/* =============================================
+   PILL / BADGE
+   ============================================= */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  background: var(--muted);
+  color: var(--muted-fg);
+  border: 1px solid var(--border);
+}
+
+/* =============================================
+   HERO BADGE
+   ============================================= */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-fg);
+}
+
+/* =============================================
+   SECTION LABEL
+   ============================================= */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-fg);
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* =============================================
+   SCROLLBAR STYLING
+   ============================================= */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* =============================================
+   HIDE SCROLLBAR UTILITY
+   ============================================= */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* =============================================
+   FOCUS RING
+   ============================================= */
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* =============================================
@@ -379,7 +315,16 @@ select option {
 }
 
 /* =============================================
-   ANIMATED NUMBER (Pure CSS counter)
+   SECTION BACKGROUND ALTERNATION
+   ============================================= */
+.section-alt {
+  background-color: var(--section-alt);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* =============================================
+   STAT NUMBER
    ============================================= */
 .stat-number {
   font-variant-numeric: tabular-nums;
@@ -387,99 +332,78 @@ select option {
 }
 
 /* =============================================
-   SCROLL REVEAL WILL-CHANGE
+   PROJECT CARD IMAGE (no gradient overlay)
    ============================================= */
-.scroll-reveal {
-  will-change: opacity, transform;
+.project-image-container {
+  overflow: hidden;
+  border-radius: 12px;
 }
 
 /* =============================================
-   SECTION DIVIDERS
+   EXPERIENCE TIMELINE
    ============================================= */
-.section-divider {
-  width: 48px;
-  height: 2px;
+.timeline-line {
+  position: relative;
+  padding-left: 28px;
+  border-left: 1.5px solid var(--border);
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -5px;
+  top: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+}
+
+.timeline-dot.active {
+  border-color: var(--fg);
   background: var(--fg);
-  border-radius: 1px;
-  margin-bottom: 20px;
 }
 
 /* =============================================
-   MAGNETIC HOVER (subtle)
+   NAVBAR ANCHOR ACTIVE STATE
    ============================================= */
-.magnetic {
-  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* =============================================
-   PILL BADGE
-   ============================================= */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 14px;
-  border-radius: 980px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.025em;
-  background: var(--muted);
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 400;
   color: var(--muted-fg);
-  border: 1px solid var(--border);
+  transition: color 0.15s ease;
+  padding: 4px 0;
+  position: relative;
 }
 
-/* =============================================
-   PROJECT CARD IMAGE OVERLAY
-   ============================================= */
-.project-card-overlay {
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.2) 50%,
-    transparent 100%
-  );
+.nav-link:hover {
+  color: var(--fg);
 }
 
-/* =============================================
-   HERO BADGE
-   ============================================= */
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  border-radius: 980px;
-  font-size: 0.8125rem;
+.nav-link.active {
+  color: var(--fg);
   font-weight: 500;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+}
+
+/* =============================================
+   FAQ ACCORDION
+   ============================================= */
+.faq-item {
   border: 1px solid var(--border);
-  color: var(--muted-fg);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.faq-item:hover {
+  border-color: var(--muted-fg);
 }
 
 /* =============================================
-   FOCUS RING
+   LAYER UTILITIES
    ============================================= */
-:focus-visible {
-  outline: 2px solid var(--fg);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* =============================================
-   MARQUEE ANIMATION
-   ============================================= */
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
 @layer components {
   .pill {
-    @apply px-4 py-1.5 rounded-full text-sm font-medium bg-muted text-foreground border border-border inline-block;
+    @apply px-3 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border inline-block;
   }
 }

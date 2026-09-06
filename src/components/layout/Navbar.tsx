@@ -2,27 +2,49 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { Menu, X, Download } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
+const NAV_LINKS = [
+  { label: 'About', href: '#about', section: 'about' },
+  { label: 'Projects', href: '#projects', section: 'projects' },
+  { label: 'Services', href: '#services', section: 'services' },
+  { label: 'GitHub', href: '#github', section: 'github' },
+  { label: 'Contact', href: '#contact', section: 'contact' },
+];
+
 export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('hero');
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // IntersectionObserver to track active section
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (isOpen) setIsOpen(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    const sections = ['hero', 'about', 'projects', 'services', 'github', 'contact'];
+    const observers: IntersectionObserver[] = [];
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveSection(id);
+        },
+        { threshold: 0.25 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -31,80 +53,77 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
     };
   }, [isOpen]);
 
-  const links = [
-    { label: 'Home', href: '/' },
-    { label: 'About', href: '/about' },
-    { label: 'Projects', href: '/projects' },
-    { label: 'Services', href: '/services' },
-    { label: 'GitHub', href: '/github' },
-    { label: 'Contact', href: '/contact' },
-  ];
-
-  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const handleNavClick = (href: string) => {
+    setIsOpen(false);
+    const id = href.replace('#', '');
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 pt-4 pointer-events-none">
-      {/* ── Desktop Floating Pill ── */}
-      <div
-        className={`hidden md:flex max-w-5xl mx-auto items-center justify-between px-5 py-2.5 rounded-full transition-all duration-300 pointer-events-auto ${
-          scrolled
-            ? 'backdrop-blur-2xl bg-background/80 border border-border shadow-lg shadow-black/5'
-            : 'backdrop-blur-xl bg-background/60 border border-border/50'
-        }`}
-      >
-        <Link
-          href="/"
-          className="font-bold text-sm tracking-tight text-foreground hover:opacity-70 transition-opacity"
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled || isOpen
+          ? 'bg-background/90 backdrop-blur-md border-b border-border shadow-sm'
+          : 'bg-background/80 backdrop-blur-md border-b border-transparent'
+      }`}
+    >
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <a
+          href="#hero"
+          onClick={(e) => {
+            e.preventDefault();
+            handleNavClick('#hero');
+          }}
+          className="font-semibold text-sm text-foreground hover:opacity-70 transition-opacity tracking-tight"
         >
           Bimsara
-        </Link>
+        </a>
 
-        <nav className="flex items-center gap-0.5">
-          {links.map((link) => (
-            <Link
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-7">
+          {NAV_LINKS.map((link) => (
+            <a
               key={link.href}
               href={link.href}
-              className={`px-3.5 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
-                isActive(link.href)
-                  ? 'bg-foreground text-background'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(link.href);
+              }}
+              className={`text-sm transition-colors duration-150 ${
+                activeSection === link.section
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {link.label}
-            </Link>
+            </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-1">
+        {/* Desktop right actions */}
+        <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
           <a
             href={resumeUrl || '#'}
             download={!!resumeUrl}
             target={resumeUrl ? '_blank' : undefined}
             rel={resumeUrl ? 'noopener noreferrer' : undefined}
-            className="ml-1 inline-flex items-center gap-1.5 bg-foreground text-background px-4 py-1.5 text-sm font-semibold rounded-full hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-1.5 bg-foreground text-background px-4 py-2 text-sm font-medium rounded-[10px] hover:opacity-80 transition-opacity"
           >
             <Download size={13} />
             Resume
           </a>
         </div>
-      </div>
 
-      {/* ── Mobile Bar ── */}
-      <div
-        className={`md:hidden flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 pointer-events-auto ${
-          scrolled || isOpen
-            ? 'backdrop-blur-2xl bg-background/90 border border-border shadow-lg'
-            : 'backdrop-blur-xl bg-background/60 border border-border/50'
-        }`}
-      >
-        <Link href="/" className="font-bold text-sm text-foreground">
-          Bimsara
-        </Link>
-        <div className="flex items-center gap-1">
+        {/* Mobile actions */}
+        <div className="flex md:hidden items-center gap-2">
           <ThemeToggle />
           <button
-            className="p-2 -mr-1 rounded-xl text-foreground hover:bg-muted transition-colors"
+            className="p-2 -mr-1 rounded-lg text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -113,39 +132,40 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
         </div>
       </div>
 
-      {/* ── Mobile Dropdown ── */}
+      {/* Mobile menu */}
       <div
-        className={`md:hidden mt-2 overflow-hidden transition-all duration-300 ease-out rounded-2xl pointer-events-auto ${
-          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-        }`}
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-out border-b border-border ${
+          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        } bg-background`}
       >
-        <div className="backdrop-blur-2xl bg-background/95 border border-border rounded-2xl p-3">
-          <nav className="flex flex-col gap-1">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className={`px-4 py-3 text-base font-medium rounded-xl transition-colors ${
-                  isActive(link.href)
-                    ? 'bg-foreground text-background'
-                    : 'text-foreground hover:bg-muted'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+        <nav className="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-1">
+          {NAV_LINKS.map((link) => (
             <a
-              href={resumeUrl || '#'}
-              download={!!resumeUrl}
-              target={resumeUrl ? '_blank' : undefined}
-              rel={resumeUrl ? 'noopener noreferrer' : undefined}
-              className="mt-2 flex items-center justify-center gap-2 bg-foreground text-background px-4 py-3 font-semibold rounded-xl hover:opacity-90 transition-opacity"
+              key={link.href}
+              href={link.href}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(link.href);
+              }}
+              className={`px-3 py-2.5 text-base rounded-lg transition-colors ${
+                activeSection === link.section
+                  ? 'text-foreground font-medium bg-muted'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
             >
-              <Download size={16} /> Download Resume
+              {link.label}
             </a>
-          </nav>
-        </div>
+          ))}
+          <a
+            href={resumeUrl || '#'}
+            download={!!resumeUrl}
+            target={resumeUrl ? '_blank' : undefined}
+            rel={resumeUrl ? 'noopener noreferrer' : undefined}
+            className="mt-2 flex items-center justify-center gap-2 bg-foreground text-background px-4 py-2.5 font-medium rounded-[10px] hover:opacity-80 transition-opacity text-sm"
+          >
+            <Download size={15} /> Download Resume
+          </a>
+        </nav>
       </div>
     </header>
   );
