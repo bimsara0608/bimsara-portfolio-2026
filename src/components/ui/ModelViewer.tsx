@@ -43,10 +43,10 @@ export function ModelViewer({ src, alt }: ModelViewerProps) {
         alt={alt || '3D Model'}
         auto-rotate
         camera-controls
-        shadow-intensity="2"
+        shadow-intensity="1.5"
         shadow-softness="1"
-        exposure="0.8"
-        environment-image="legacy"
+        exposure="0.85"
+        environment-image="https://modelviewer.dev/shared-assets/environments/spruit_sunrise_1k_HDR.hdr"
         style={{ width: '100%', height: '100%', backgroundColor: 'transparent', outline: 'none' }}
       >
         {/* @ts-expect-error - Custom element closing tag not known to React */}
