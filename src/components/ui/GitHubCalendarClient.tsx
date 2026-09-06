@@ -1,6 +1,6 @@
 'use client';
 
-import GitHubCalendar from 'react-github-calendar';
+import { GitHubCalendar } from 'react-github-calendar';
 
 export function GitHubCalendarClient({ username }: { username: string }) {
   return (
