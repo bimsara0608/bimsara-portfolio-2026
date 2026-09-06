@@ -130,20 +130,15 @@ export default function ServicesPage() {
 
       {/* CTA */}
       <ScrollReveal direction="up">
-        <div
-          className="glass-card p-12 md:p-16 text-center"
-          style={{ background: 'var(--fg)', color: 'var(--bg)' }}
-        >
-          <h2 className="text-3xl md:text-5xl font-bold mb-6" style={{ color: 'var(--bg)' }}>
-            Have a project in mind?
-          </h2>
-          <p className="mb-10 max-w-xl mx-auto text-lg" style={{ color: 'rgba(255,255,255,0.7)' }}>
+        <div className="bg-foreground text-background p-12 md:p-16 text-center rounded-[14px]">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">Have a project in mind?</h2>
+          <p className="mb-10 max-w-xl mx-auto text-lg text-background/70">
             Whether you need a quick 3D render or a complete mechanical design from scratch,
             I&apos;m ready to help.
           </p>
           <Link
             href="/contact"
-            className="magnetic inline-flex items-center gap-2 bg-background text-foreground px-8 py-4 font-bold text-lg rounded-full hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 bg-background text-foreground font-semibold px-6 py-3 rounded-full hover:opacity-90 transition-opacity"
           >
             Start a Conversation <ArrowRight size={20} />
           </Link>
