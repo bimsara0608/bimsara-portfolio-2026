@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { TagInput } from "@/components/admin/TagInput";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FileUploader } from "@/components/admin/FileUploader";
 
 const projectSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -20,6 +21,7 @@ const projectSchema = z.object({
   timeline: z.string().optional(),
   client: z.string().optional(),
   external_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  model_url: z.string().optional().or(z.literal("")),
   description: z.string().optional(),
   challenge: z.string().optional(),
   solution: z.string().optional(),
@@ -43,9 +45,10 @@ export default function NewProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [images, setImages] = useState<UploadedImage[]>([]);
+  const [modelUrl, setModelUrl] = useState("");
   const [projectId] = useState(() => crypto.randomUUID());
 
-  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<ProjectFormValues>({
+  const { register, handleSubmit, control, setValue, getValues, formState: { errors } } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       is_published: false,
@@ -56,11 +59,10 @@ export default function NewProjectPage() {
     },
   });
 
-  const title = watch("title");
-
   const generateSlug = () => {
-    if (title) {
-      const slug = title
+    const currentTitle = getValues("title");
+    if (currentTitle) {
+      const slug = currentTitle
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, "")
         .replace(/\s+/g, "-")
@@ -84,6 +86,7 @@ export default function NewProjectPage() {
       timeline: data.timeline || null,
       client: data.client || null,
       external_url: data.external_url || null,
+      model_url: modelUrl || null,
       description: data.description || null,
       challenge: data.challenge || null,
       solution: data.solution || null,
@@ -264,6 +267,16 @@ export default function NewProjectPage() {
           <ImageUploader
             projectId={projectId}
             onChange={setImages}
+          />
+        </div>
+
+        {/* 3D Model */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-bold border-b border-gray-100 pb-3">3D Model (Interactive Viewer)</h2>
+          <p className="text-sm text-muted">Upload a .glb or .gltf file to enable the interactive 3D model viewer on this project page.</p>
+          <FileUploader
+            projectId={projectId}
+            onChange={setModelUrl}
           />
         </div>
 

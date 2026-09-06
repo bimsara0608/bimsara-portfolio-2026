@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { TagInput } from "@/components/admin/TagInput";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FileUploader } from "@/components/admin/FileUploader";
 import type { Project } from "@/lib/types";
 
 const projectSchema = z.object({
@@ -21,6 +22,7 @@ const projectSchema = z.object({
   timeline: z.string().optional(),
   client: z.string().optional(),
   external_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  model_url: z.string().optional().or(z.literal("")),
   description: z.string().optional(),
   challenge: z.string().optional(),
   solution: z.string().optional(),
@@ -37,11 +39,12 @@ export function EditProjectForm({ project }: { project: Project }) {
   const supabase = createClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [modelUrl, setModelUrl] = useState(project.model_url ?? "");
   const [images, setImages] = useState(
     (project.project_images ?? []).map((img) => ({ url: img.url, is_hero: img.is_hero }))
   );
 
-  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<ProjectFormValues>({
+  const { register, handleSubmit, control, setValue, getValues, formState: { errors } } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: project.title,
@@ -61,10 +64,10 @@ export function EditProjectForm({ project }: { project: Project }) {
     },
   });
 
-  const title = watch("title");
   const generateSlug = () => {
-    if (title) {
-      setValue("slug", title.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-"));
+    const currentTitle = getValues("title");
+    if (currentTitle) {
+      setValue("slug", currentTitle.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-"));
     }
   };
 
@@ -81,6 +84,7 @@ export function EditProjectForm({ project }: { project: Project }) {
       timeline: data.timeline || null,
       client: data.client || null,
       external_url: data.external_url || null,
+      model_url: modelUrl || null,
       description: data.description || null,
       challenge: data.challenge || null,
       solution: data.solution || null,
@@ -183,6 +187,12 @@ export function EditProjectForm({ project }: { project: Project }) {
         <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-bold border-b border-gray-100 pb-3">Project Images</h2>
           <ImageUploader projectId={project.id} existingImages={images} onChange={setImages} />
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-bold border-b border-gray-100 pb-3">3D Model (Interactive Viewer)</h2>
+          <p className="text-sm text-muted">Upload a .glb or .gltf file to enable the interactive 3D model viewer on this project page.</p>
+          <FileUploader projectId={project.id} existingUrl={modelUrl} onChange={setModelUrl} />
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
