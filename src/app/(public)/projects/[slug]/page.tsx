@@ -1,8 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PillBadge } from "@/components/ui/PillBadge";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink, Calendar, Clock, User } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
+import type { Project } from "@/lib/types";
+import { notFound } from "next/navigation";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: project } = await supabase
+    .from("projects")
+    .select("title, description, category")
+    .eq("slug", slug)
+    .single();
+
+  if (!project) return { title: "Project Not Found" };
+
+  return {
+    title: `${project.title} | Bimsara Gunawardana`,
+    description: project.description || `${project.category} project by Bimsara Gunawardana`,
+  };
+}
 
 export default async function ProjectDetailPage({
   params,
@@ -18,40 +37,41 @@ export default async function ProjectDetailPage({
     .eq("slug", slug)
     .single();
 
-  // Mock data for development
-  const mockProject = {
-    title: "Fire Fighting Drone",
-    category: "Drones",
-    year: "2023",
-    description: "A custom-designed quadcopter capable of carrying and deploying fire-extinguishing payloads in hard-to-reach areas.",
-    challenge: "Designing a drone chassis that is lightweight enough for 30 minutes of flight time while maintaining structural integrity to carry a 2kg payload.",
-    solution: "Utilized generative design in SolidWorks to optimize the carbon fiber frame, and designed custom 3D printed brackets for the payload release mechanism.",
-    tools: ["SolidWorks", "Blender", "3D Printing", "CFD Analysis"],
-    project_images: [
-      { url: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&q=80&w=1200", is_hero: true },
-      { url: "https://images.unsplash.com/photo-1579820010410-c10411aaaa88?auto=format&fit=crop&q=80&w=800", is_hero: false },
-      { url: "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?auto=format&fit=crop&q=80&w=800", is_hero: false }
-    ]
-  };
+  if (!project) notFound();
 
-  const data = project || mockProject;
+  const data = project as Project;
+  const heroImage = data.project_images?.find((img) => img.is_hero) ?? data.project_images?.[0];
+  const galleryImages = data.project_images?.filter((img) => !img.is_hero) ?? [];
 
-  const heroImage = data.project_images.find((img: any) => img.is_hero) || data.project_images[0];
-  const galleryImages = data.project_images.filter((img: any) => !img.is_hero);
+  // Fetch prev/next projects for navigation
+  const { data: allProjects } = await supabase
+    .from("projects")
+    .select("id, slug, title")
+    .eq("is_published", true)
+    .order("date", { ascending: false });
+
+  const currentIndex = (allProjects ?? []).findIndex((p) => p.slug === slug);
+  const nextProject = allProjects?.[currentIndex + 1];
+  const prevProject = allProjects?.[currentIndex - 1];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 w-full">
+      {/* Back Nav */}
       <Link href="/projects" className="inline-flex items-center gap-2 text-muted hover:text-foreground font-medium mb-12 transition-colors">
-        <ArrowLeft size={20} /> Back to Projects
+        <ArrowLeft size={18} /> Back to Projects
       </Link>
 
       {/* Header */}
       <div className="mb-12">
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-wrap gap-3 mb-6">
           <PillBadge label={data.category} />
-          <PillBadge label={data.year || "2024"} />
+          {data.year && <PillBadge label={data.year} />}
+          {data.client && <PillBadge label={data.client} />}
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight">{data.title}</h1>
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight">{data.title}</h1>
+        {data.description && (
+          <p className="text-xl text-muted mt-6 max-w-3xl leading-relaxed">{data.description}</p>
+        )}
       </div>
 
       {/* Hero Image */}
@@ -61,55 +81,125 @@ export default async function ProjectDetailPage({
             src={heroImage.url}
             alt={data.title}
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
         </div>
       )}
 
-      {/* Challenge & Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-32">
-        <div className="md:col-span-8">
-          <h2 className="text-3xl font-bold mb-6">The Challenge</h2>
-          <p className="text-xl text-muted leading-relaxed mb-12">
-            {data.challenge || data.description}
-          </p>
-
-          <h2 className="text-3xl font-bold mb-6">The Solution</h2>
-          <p className="text-xl text-muted leading-relaxed">
-            {data.solution || "Detailed solution description goes here."}
-          </p>
+      {/* Main Content + Sidebar */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-24">
+        {/* Content */}
+        <div className="md:col-span-8 space-y-12">
+          {data.challenge && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <span className="text-muted text-base font-normal uppercase tracking-widest">/01</span> The Challenge
+              </h2>
+              <p className="text-xl text-muted leading-relaxed">{data.challenge}</p>
+            </div>
+          )}
+          {data.solution && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <span className="text-muted text-base font-normal uppercase tracking-widest">/02</span> The Solution
+              </h2>
+              <p className="text-xl text-muted leading-relaxed">{data.solution}</p>
+            </div>
+          )}
         </div>
 
-        <div className="md:col-span-4">
-          <div className="border-t border-gray-200 pt-8">
-            <h3 className="font-bold mb-4 uppercase tracking-wider text-sm text-muted">Tools Used</h3>
-            <ul className="space-y-2">
-              {(data.tools || []).map((tool: string, idx: number) => (
-                <li key={idx} className="font-medium">{tool}</li>
-              ))}
-            </ul>
+        {/* Sidebar */}
+        <div className="md:col-span-4 space-y-6">
+          {/* Project Info */}
+          <div className="card p-6">
+            {data.tools && data.tools.length > 0 && (
+              <div className="mb-6">
+                <h3 className="font-bold uppercase tracking-wider text-xs text-muted mb-3">Tools Used</h3>
+                <div className="flex flex-wrap gap-2">
+                  {data.tools.map((tool) => (
+                    <span key={tool} className="text-sm font-medium bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data.timeline && (
+              <div className="flex items-center gap-3 py-3 border-t border-gray-100 dark:border-gray-800">
+                <Clock size={16} className="text-muted" />
+                <div>
+                  <p className="text-xs text-muted uppercase tracking-wider font-bold">Timeline</p>
+                  <p className="font-medium text-sm">{data.timeline}</p>
+                </div>
+              </div>
+            )}
+
+            {data.client && (
+              <div className="flex items-center gap-3 py-3 border-t border-gray-100 dark:border-gray-800">
+                <User size={16} className="text-muted" />
+                <div>
+                  <p className="text-xs text-muted uppercase tracking-wider font-bold">Client</p>
+                  <p className="font-medium text-sm">{data.client}</p>
+                </div>
+              </div>
+            )}
+
+            {data.date && (
+              <div className="flex items-center gap-3 py-3 border-t border-gray-100 dark:border-gray-800">
+                <Calendar size={16} className="text-muted" />
+                <div>
+                  <p className="text-xs text-muted uppercase tracking-wider font-bold">Date</p>
+                  <p className="font-medium text-sm">{data.year || data.date}</p>
+                </div>
+              </div>
+            )}
+
+            {data.external_url && (
+              <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+                <a
+                  href={data.external_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-bold text-accent dark:text-white hover:underline"
+                >
+                  View Live / Download <ExternalLink size={14} />
+                </a>
+              </div>
+            )}
           </div>
-          
-          <div className="border-t border-gray-200 pt-8 mt-8">
-            <h3 className="font-bold mb-4 uppercase tracking-wider text-sm text-muted">Timeline</h3>
-            <p className="font-medium">4 Weeks</p>
+
+          {/* Hire CTA */}
+          <div className="card p-6 bg-accent text-white border-0">
+            <p className="font-bold mb-1">Like what you see?</p>
+            <p className="text-sm text-gray-300 mb-4">Let&apos;s build something together.</p>
+            <Link href="/contact" className="inline-flex items-center gap-2 bg-white text-accent px-4 py-2.5 font-bold text-sm hover:bg-gray-100 transition-colors">
+              Get in Touch <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Gallery */}
       {galleryImages.length > 0 && (
-        <div className="mb-32">
-          <h2 className="text-3xl font-bold mb-12 text-center">From Concept to Reality</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {galleryImages.map((img: any, idx: number) => (
-              <div key={idx} className={`relative overflow-hidden bg-gray-100 ${idx === 0 ? "aspect-square" : "aspect-[4/3]"}`}>
+        <div className="mb-24">
+          <h2 className="text-3xl font-bold mb-12">Project Gallery</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {galleryImages.map((img, idx) => (
+              <div
+                key={idx}
+                className={`relative overflow-hidden bg-gray-100 dark:bg-gray-900 ${
+                  idx === 0 ? "md:col-span-2 aspect-[16/7]" : "aspect-[4/3]"
+                }`}
+              >
                 <Image
                   src={img.url}
-                  alt={`${data.title} gallery image ${idx + 1}`}
+                  alt={`${data.title} — image ${idx + 1}`}
                   fill
-                  className="object-cover"
+                  sizes={idx === 0 ? "100vw" : "50vw"}
+                  className="object-cover hover:scale-105 transition-transform duration-700"
                 />
               </div>
             ))}
@@ -117,12 +207,25 @@ export default async function ProjectDetailPage({
         </div>
       )}
 
-      {/* Next Project CTA */}
-      <div className="border-t border-gray-200 pt-16 text-center">
-        <p className="text-muted font-bold tracking-widest uppercase mb-4 text-sm">Up Next</p>
-        <Link href="/projects" className="group inline-flex items-center gap-4 text-4xl font-bold hover:text-muted transition-colors">
-          Explore Similar Work <ArrowRight className="group-hover:translate-x-2 transition-transform" size={40} />
-        </Link>
+      {/* Prev/Next Navigation */}
+      <div className="border-t border-gray-200 dark:border-gray-800 pt-12 grid grid-cols-2 gap-8">
+        {prevProject ? (
+          <Link href={`/projects/${prevProject.slug}`} className="group">
+            <p className="text-xs text-muted uppercase tracking-widest mb-2 flex items-center gap-1">
+              <ArrowLeft size={12} /> Previous
+            </p>
+            <p className="font-bold group-hover:underline line-clamp-2">{prevProject.title}</p>
+          </Link>
+        ) : <div />}
+
+        {nextProject && (
+          <Link href={`/projects/${nextProject.slug}`} className="group text-right ml-auto">
+            <p className="text-xs text-muted uppercase tracking-widest mb-2 flex items-center justify-end gap-1">
+              Next <ArrowRight size={12} />
+            </p>
+            <p className="font-bold group-hover:underline line-clamp-2">{nextProject.title}</p>
+          </Link>
+        )}
       </div>
     </div>
   );
