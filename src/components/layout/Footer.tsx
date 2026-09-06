@@ -26,16 +26,17 @@ export function Footer() {
     }
   };
 
+  // Footer is ALWAYS a dark panel regardless of theme
+  const FOOTER_BG = '#111111';
+
   return (
-    <footer className="bg-foreground text-background mt-16 border-t border-border/10">
+    <footer style={{ background: FOOTER_BG }} className="mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand + Newsletter */}
           <div className="md:col-span-2">
-            <p className="font-bold text-xl mb-1 text-background">Bimsara Gunawardana</p>
-            <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              Design Engineer · Colombo, Sri Lanka
-            </p>
+            <p className="font-bold text-xl mb-1 text-white">Bimsara Gunawardana</p>
+            <p className="text-sm mb-5 text-white/50">Design Engineer · Colombo, Sri Lanka</p>
             {subStatus === 'success' ? (
               <div className="flex items-center gap-2 text-green-400 font-medium text-sm">
                 <Mail size={16} /> {subMsg}
@@ -48,20 +49,19 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  className="flex-1 px-4 py-2 text-sm rounded-full focus:outline-none"
+                  className="flex-1 px-4 py-2 text-sm rounded-full focus:outline-none placeholder:text-white/30 text-white"
                   style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    color: '#fff',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.15)',
                   }}
                 />
                 <button
                   type="submit"
                   disabled={subStatus === 'loading'}
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-60 transition-opacity hover:opacity-80"
+                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-60 transition-opacity hover:opacity-70"
                   style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.15)',
                   }}
                 >
                   <ArrowRight size={16} className="text-white" />
@@ -73,10 +73,7 @@ export function Footer() {
 
           {/* Navigation */}
           <div>
-            <h3
-              className="text-xs font-semibold uppercase tracking-widest mb-4"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
-            >
+            <h3 className="text-xs font-semibold uppercase tracking-widest mb-4 text-white/35">
               Navigation
             </h3>
             <ul className="space-y-2.5">
@@ -90,8 +87,7 @@ export function Footer() {
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-sm transition-colors hover:text-white"
-                    style={{ color: 'rgba(255,255,255,0.65)' }}
+                    className="text-sm text-white/60 hover:text-white transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -102,10 +98,7 @@ export function Footer() {
 
           {/* Social */}
           <div>
-            <h3
-              className="text-xs font-semibold uppercase tracking-widest mb-4"
-              style={{ color: 'rgba(255,255,255,0.4)' }}
-            >
+            <h3 className="text-xs font-semibold uppercase tracking-widest mb-4 text-white/35">
               Connect
             </h3>
             <ul className="space-y-2.5">
@@ -116,15 +109,17 @@ export function Footer() {
                 },
                 { label: 'GitHub', href: 'https://github.com/bimsara0608' },
                 { label: 'GrabCAD', href: 'https://grabcad.com' },
-                { label: 'hello@bimsara.com', href: 'mailto:hello@bimsara.com' },
+                {
+                  label: 'hello@bimsara.com',
+                  href: 'mailto:hello@bimsara.com',
+                },
               ].map((l) => (
                 <li key={l.href}>
                   <a
                     href={l.href}
                     target={l.href.startsWith('http') ? '_blank' : undefined}
                     rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-sm transition-colors hover:text-white"
-                    style={{ color: 'rgba(255,255,255,0.65)' }}
+                    className="text-sm text-white/60 hover:text-white transition-colors"
                   >
                     {l.label}
                   </a>
@@ -135,16 +130,11 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div
-          className="pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-3"
-          style={{ borderColor: 'rgba(255,255,255,0.1)' }}
-        >
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-white/35">
             © {new Date().getFullYear()} Bimsara Gunawardana. All rights reserved.
           </p>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
-            Built with Next.js & Supabase
-          </p>
+          <p className="text-xs text-white/20">Built with Next.js &amp; Supabase</p>
         </div>
       </div>
     </footer>

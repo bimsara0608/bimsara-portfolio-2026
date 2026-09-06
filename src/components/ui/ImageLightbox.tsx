@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image from "next/image";
-import { X, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface ImageInfo {
   url: string;
@@ -17,17 +17,26 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!images || images.length === 0) return null;
 
   const openLightbox = (idx: number) => {
     setCurrentIndex(idx);
     setIsOpen(true);
-    document.body.style.overflow = "hidden"; // Prevent background scrolling
   };
 
   const closeLightbox = () => {
     setIsOpen(false);
-    document.body.style.overflow = "auto";
   };
 
   const next = (e: React.MouseEvent) => {
@@ -47,8 +56,8 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
         {images.map((img, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden bg-gray-100 dark:bg-gray-900 cursor-pointer group ${
-              idx === 0 ? "md:col-span-2 aspect-[16/7]" : "aspect-[4/3]"
+            className={`relative overflow-hidden bg-muted cursor-pointer group rounded-xl ${
+              idx === 0 ? 'md:col-span-2 aspect-[16/7]' : 'aspect-[4/3]'
             }`}
             onClick={() => openLightbox(idx)}
           >
@@ -56,7 +65,7 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
               src={img.url}
               alt={img.alt_text || `Gallery image ${idx + 1}`}
               fill
-              sizes={idx === 0 ? "100vw" : "50vw"}
+              sizes={idx === 0 ? '100vw' : '50vw'}
               className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -70,11 +79,11 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
 
       {/* Lightbox Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           onClick={closeLightbox}
         >
-          <button 
+          <button
             className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50"
             onClick={closeLightbox}
             aria-label="Close lightbox"
@@ -84,14 +93,14 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
 
           {images.length > 1 && (
             <>
-              <button 
+              <button
                 className="absolute left-6 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors p-4 z-50"
                 onClick={prev}
                 aria-label="Previous image"
               >
                 <ChevronLeft size={48} strokeWidth={1} />
               </button>
-              <button 
+              <button
                 className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors p-4 z-50"
                 onClick={next}
                 aria-label="Next image"
@@ -101,7 +110,7 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
             </>
           )}
 
-          <div 
+          <div
             className="relative w-full max-w-6xl h-[80vh] mx-12 flex items-center justify-center"
             onClick={(e) => e.stopPropagation()} // Prevent clicks on image from closing
           >

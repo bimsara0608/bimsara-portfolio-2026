@@ -1,14 +1,18 @@
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { createClient } from '@/utils/supabase/server';
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: profile } = await supabase.from('profiles').select('resume_url').limit(1).single();
+
   return (
     <>
-      <Navbar />
+      <Navbar resumeUrl={profile?.resume_url} />
       <main className="flex-grow">{children}</main>
       <Footer />
     </>

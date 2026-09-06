@@ -160,30 +160,14 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── TOOLS MARQUEE BAR ── */}
-      <section className="w-full py-10 border-y border-border overflow-hidden relative flex items-center">
-        {/* Edge fade */}
-        <div
-          className="absolute inset-y-0 left-0 w-20 z-10"
-          style={{ background: 'linear-gradient(to right, var(--bg), transparent)' }}
-        />
-        <div
-          className="absolute inset-y-0 right-0 w-20 z-10"
-          style={{ background: 'linear-gradient(to left, var(--bg), transparent)' }}
-        />
-        <div
-          className="flex gap-10 animate-[marquee_25s_linear_infinite]"
-          style={{ width: '200%' }}
-        >
-          {[...techStack, ...techStack].map((tool, i) => (
-            <div
-              key={`${tool}-${i}`}
-              className="flex-shrink-0 text-base font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-10"
-            >
-              {tool}
-              <span className="text-border text-lg">·</span>
-            </div>
-          ))}
+      {/* ── SKILLS ── */}
+      <section className="w-full py-20 border-y border-border px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <ScrollReveal direction="up">
+            <h2 className="text-3xl md:text-5xl lg:text-7xl font-bold tracking-tighter text-balance leading-none text-foreground">
+              {techStack.join(' • ')}
+            </h2>
+          </ScrollReveal>
         </div>
       </section>
 

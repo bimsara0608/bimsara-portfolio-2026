@@ -1,5 +1,5 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -17,11 +17,11 @@ export function PillBadge({ label, isActive, onClick }: PillBadgeProps) {
       onClick={onClick}
       disabled={!onClick}
       className={cn(
-        "px-4 py-1.5 rounded-full text-sm font-medium border transition-colors",
-        isActive 
-          ? "bg-accent text-white border-accent" 
-          : "bg-transparent text-muted border-gray-200 hover:border-gray-300 hover:text-foreground",
-        !onClick && "cursor-default"
+        'px-4 py-1.5 rounded-lg text-sm font-medium border transition-colors',
+        isActive
+          ? 'bg-foreground text-background border-foreground'
+          : 'bg-muted text-foreground border-border hover:bg-muted/80',
+        !onClick && 'cursor-default'
       )}
     >
       {label}

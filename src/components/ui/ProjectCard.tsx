@@ -18,7 +18,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <Link href={`/projects/${project.slug}`} className="group block">
       <div className="glass-card overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
         {/* Image */}
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted rounded-t-[20px]">
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
           {heroUrl ? (
             <Image
               src={heroUrl}
