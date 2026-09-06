@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { ProjectCard } from '@/components/portfolio/ProjectCard';
 import type { Project } from '@/lib/types';
-import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 export const metadata = {
   title: 'Projects | Bimsara Gunawardana',
@@ -44,54 +43,50 @@ export default async function ProjectsPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
-      <ScrollReveal direction="left">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
-          <div>
-            <h2 className="text-sm uppercase tracking-widest text-muted-foreground font-bold mb-4">
-              /02 Portfolio
-            </h2>
-            <h1 className="text-fluid-h2 font-bold">All Projects</h1>
-          </div>
-          <p className="text-muted-foreground font-medium text-lg">
-            Showing {projects.length} {projects.length === 1 ? 'project' : 'projects'}
-          </p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">
+            Portfolio Archive
+          </span>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+            All Projects
+          </h1>
         </div>
-      </ScrollReveal>
+        <p className="text-sm font-medium text-muted-foreground">
+          Showing {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+        </p>
+      </div>
 
       {/* Filter Tabs */}
-      <ScrollReveal direction="up" delay={150}>
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-12 hide-scrollbar">
-          {categories.map((cat) => (
-            <a
-              key={cat}
-              href={cat === 'All' ? '/projects' : `/projects?category=${encodeURIComponent(cat)}`}
-              className={`magnetic whitespace-nowrap px-6 py-2.5 rounded-full font-bold text-sm transition-colors ${
-                currentCategory === cat
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {cat}
-            </a>
-          ))}
-        </div>
-      </ScrollReveal>
+      <div className="flex gap-2 overflow-x-auto pb-4 mb-10 hide-scrollbar">
+        {categories.map((cat) => (
+          <Link
+            key={cat}
+            href={cat === 'All' ? '/projects' : `/projects?category=${encodeURIComponent(cat)}`}
+            className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              currentCategory === cat
+                ? 'bg-foreground text-background border-foreground'
+                : 'bg-secondary/40 text-muted-foreground border-border hover:text-foreground hover:bg-secondary'
+            }`}
+          >
+            {cat}
+          </Link>
+        ))}
+      </div>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-        {projects.map((project, idx) => (
-          <ScrollReveal key={project.id} direction="up" delay={(idx % 4) * 100}>
-            <ProjectCard project={project} />
-          </ScrollReveal>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {projects.map((project) => (
+          <ProjectCard key={project.id} project={project} />
         ))}
       </div>
 
       {projects.length === 0 && (
-        <div className="glass-card text-center py-16 text-muted-foreground mt-8">
-          <p className="text-lg font-medium">No projects found in this category.</p>
+        <div className="rounded-xl border border-dashed border-border text-center py-16 text-muted-foreground mt-8">
+          <p className="text-sm font-medium">No projects found in this category.</p>
           <Link
             href="/projects"
-            className="text-foreground font-semibold mt-4 inline-block hover:opacity-70 transition-opacity"
+            className="text-foreground text-xs font-semibold mt-3 inline-block hover:underline"
           >
             View all projects
           </Link>
