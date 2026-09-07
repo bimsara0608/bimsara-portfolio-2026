@@ -51,7 +51,8 @@ function generateStreamlineGeometry(
   startZ: number,
   sphereRadius: number,
   bounds: number,
-  fadeStretchX: number
+  fadeBoxWidth: number,
+  fadeBoxHeight: number
 ) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
@@ -84,11 +85,15 @@ function generateStreamlineGeometry(
 
     colorsArray.push(getXPositionColor(current.x, bounds));
 
-    // Elliptical center fade to match the bounding box of the text!
-    // By dividing X by fadeStretchX, we make the dark area wider horizontally
-    const effX = current.x / fadeStretchX;
-    const distFromCenterXY = Math.sqrt(effX * effX + current.y * current.y);
-    const centerFade = THREE.MathUtils.smoothstep(distFromCenterXY, 4.0, 9.0);
+    // Rectangular bounding box fade!
+    // This perfectly matches the shape of the text without making the whole screen dark.
+    // It calculates the distance from a rounded rectangle.
+    const dx = Math.max(0, Math.abs(current.x) - fadeBoxWidth);
+    const dy = Math.max(0, Math.abs(current.y) - fadeBoxHeight);
+    const distFromBox = Math.sqrt(dx * dx + dy * dy);
+
+    // Fade over 5 units outside the box, restoring original brightness levels
+    const centerFade = THREE.MathUtils.smoothstep(distFromBox, 0.5, 5.5);
 
     const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 4.0);
 
@@ -137,9 +142,10 @@ export function FlowLines() {
     const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.5 : DEFAULT_SPHERE_RADIUS;
     const actualBounds = isMobile ? BOUNDS * 0.6 : BOUNDS;
 
-    // Stretch the dark fade area horizontally.
-    // Desktop: text is very wide. Mobile: text is stacked and narrower.
-    const fadeStretchX = isMobile ? 1.5 : 3.0;
+    // Adapt the dark area exactly to the shape of the text.
+    // Desktop text is wide and short. Mobile text is narrower and taller.
+    const fadeBoxWidth = isMobile ? 3.0 : 7.0;
+    const fadeBoxHeight = isMobile ? 3.0 : 1.5;
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
@@ -157,7 +163,8 @@ export function FlowLines() {
         startZ,
         actualSphereRadius,
         actualBounds,
-        fadeStretchX
+        fadeBoxWidth,
+        fadeBoxHeight
       );
       newGeometries.push(geom);
     }
