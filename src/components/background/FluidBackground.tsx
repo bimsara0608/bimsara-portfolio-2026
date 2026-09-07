@@ -2,7 +2,6 @@
 
 import { Canvas } from '@react-three/fiber';
 import { FlowLines } from './FlowLines';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 export function FluidBackground() {
   return (
@@ -19,15 +18,18 @@ export function FluidBackground() {
 
         {/* The procedural CFD simulation */}
         <FlowLines />
-
-        {/* Post-processing: Add a subtle glow (bloom) to the high-velocity particles */}
-        <EffectComposer>
-          <Bloom luminanceThreshold={0.2} mipmapBlur intensity={1.2} radius={0.4} />
-        </EffectComposer>
       </Canvas>
 
+      {/* Heavily opaque gradient overlay in the center to protect text readability */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, hsl(var(--background)) 15%, transparent 65%)',
+        }}
+      />
       {/* Optional gradient overlay to blend into the bottom/top of the site if needed */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/10 to-background pointer-events-none" />
     </div>
   );
 }

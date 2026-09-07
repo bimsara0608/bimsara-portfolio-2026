@@ -2,10 +2,11 @@ import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const TUBE_COUNT = 180;
+// Optimized for mobile and desktop performance
+const TUBE_COUNT = 120;
 const SEGMENTS = 100;
 const BOUNDS = 25;
-const SPHERE_RADIUS = 6.0;
+const SPHERE_RADIUS = 9.0; // Increased to create a huge, noticeable curvature
 
 // Analytical Potential Flow around a Sphere
 function getVelocity(x: number, y: number, z: number) {
@@ -30,8 +31,8 @@ function getVelocity(x: number, y: number, z: number) {
 // Map distance from center to color (Light Cyan in middle -> Yellow -> Red on edges)
 function getPositionColor(y: number, z: number) {
   const dist = Math.sqrt(y * y + z * z);
-  // Max expected distance is around SPHERE_RADIUS + 8 = 14
-  const v = Math.min(Math.max(dist / 14.0, 0), 1);
+  // Max expected distance is around SPHERE_RADIUS + 6.0
+  const v = Math.min(Math.max(dist / (SPHERE_RADIUS + 6.0), 0), 1);
 
   const c = new THREE.Color();
   if (v < 0.33) {
@@ -56,18 +57,14 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
 
     const vel = getVelocity(current.x, current.y, current.z);
 
-    // Color based on radial distance from the center axis (red on sides, light in middle)
+    // Color based on radial distance from the center axis
     colorsArray.push(getPositionColor(current.y, current.z));
 
-    // Alpha calculation to protect the text in the middle
-    // Fade out completely near the center of the screen for ALL depths to clear the text area
-    const distFromCenterXY = Math.sqrt(current.x * current.x + current.y * current.y);
-    const centerFade = THREE.MathUtils.smoothstep(distFromCenterXY, 5.0, 12.0);
-
-    // Fade at the extreme X edges so they smoothly appear/disappear
+    // We removed centerFade from WebGL because we now use a CSS radial gradient overlay!
+    // We only need to fade at the extreme X edges so they smoothly appear/disappear
     const edgeFade = THREE.MathUtils.smoothstep(BOUNDS - Math.abs(current.x), 0.0, 5.0);
 
-    alphas.push(centerFade * edgeFade * 0.9); // max opacity 0.9
+    alphas.push(edgeFade * 1.0); // full opacity where visible
 
     // Step forward along the velocity vector
     const step = 0.5;
@@ -76,7 +73,7 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
 
   const curve = new THREE.CatmullRomCurve3(points);
   const tubularSegments = SEGMENTS - 1;
-  const radialSegments = 6; // Thin tubes don't need as many radial segments
+  const radialSegments = 5; // Further optimized for mobile
   const radius = 0.015; // Made the lines MUCH thinner as requested
   const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
 
@@ -109,14 +106,19 @@ export function FlowLines() {
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
 
   useEffect(() => {
+    // Basic mobile check for further reduction if needed
+    const isMobile = window.innerWidth < 768;
+    const actualTubeCount = isMobile ? Math.floor(TUBE_COUNT * 0.6) : TUBE_COUNT;
+
     const newGeometries: THREE.TubeGeometry[] = [];
 
-    for (let i = 0; i < TUBE_COUNT; i++) {
+    for (let i = 0; i < actualTubeCount; i++) {
       // Start far upstream (left side of bounds)
       const startX = -BOUNDS;
 
-      // Spread Y and Z in a circle upstream
-      const r = Math.random() * (SPHERE_RADIUS + 8);
+      // Restrict starting points strictly to the central area so they MUST hit the sphere
+      // and curve dramatically, eliminating straight lines
+      const r = Math.random() * (SPHERE_RADIUS * 0.9);
       const theta = Math.random() * Math.PI * 2;
       const startY = r * Math.cos(theta);
       const startZ = r * Math.sin(theta);
