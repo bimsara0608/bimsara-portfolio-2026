@@ -2,11 +2,10 @@ import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-// Optimized for mobile and desktop performance
-const TUBE_COUNT = 120;
-const SEGMENTS = 100;
-const BOUNDS = 25;
-const SPHERE_RADIUS = 9.0; // Increased to create a huge, noticeable curvature
+const TUBE_COUNT = 90; // Reduced count but higher resolution per tube
+const SEGMENTS = 150; // High resolution along the curve
+const BOUNDS = 18; // Tighter bounds to keep geometry on-screen and save performance
+const SPHERE_RADIUS = 9.0;
 
 // Analytical Potential Flow around a Sphere
 function getVelocity(x: number, y: number, z: number) {
@@ -28,19 +27,22 @@ function getVelocity(x: number, y: number, z: number) {
   return new THREE.Vector3(vx, vy, vz);
 }
 
-// Map distance from center to color (Light Cyan in middle -> Yellow -> Red on edges)
-function getPositionColor(y: number, z: number) {
-  const dist = Math.sqrt(y * y + z * z);
-  // Max expected distance is around SPHERE_RADIUS + 6.0
-  const v = Math.min(Math.max(dist / (SPHERE_RADIUS + 6.0), 0), 1);
+// Full CFD Spectrum: Blue at screen corners (far edges), Red in the middle
+function getXPositionColor(x: number) {
+  // Map absolute X from 0 (center) to BOUNDS (edge)
+  const dist = Math.abs(x);
+  const v = Math.min(Math.max(dist / BOUNDS, 0), 1);
 
   const c = new THREE.Color();
-  if (v < 0.33) {
-    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#00ffaa'), v / 0.33); // Light Cyan to Light Green
-  } else if (v < 0.66) {
-    c.lerpColors(new THREE.Color('#00ffaa'), new THREE.Color('#ffff00'), (v - 0.33) / 0.33); // Green to Yellow
+  // Reverse mapping: v=0 (center) is Red, v=1 (edge) is Blue
+  if (v < 0.25) {
+    c.lerpColors(new THREE.Color('#ff0000'), new THREE.Color('#ffff00'), v / 0.25); // Red to Yellow
+  } else if (v < 0.5) {
+    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#00ff00'), (v - 0.25) / 0.25); // Yellow to Green
+  } else if (v < 0.75) {
+    c.lerpColors(new THREE.Color('#00ff00'), new THREE.Color('#00ffff'), (v - 0.5) / 0.25); // Green to Cyan
   } else {
-    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#ff0000'), (v - 0.66) / 0.34); // Yellow to Red
+    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#0000ff'), (v - 0.75) / 0.25); // Cyan to Blue
   }
   return c;
 }
@@ -57,27 +59,33 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
 
     const vel = getVelocity(current.x, current.y, current.z);
 
-    // Color based on radial distance from the center axis
-    colorsArray.push(getPositionColor(current.y, current.z));
+    // Prevent massive jumps near singularity
+    if (vel.length() > 2.0) {
+      vel.setLength(2.0);
+    }
 
-    // We removed centerFade from WebGL because we now use a CSS radial gradient overlay!
-    // We only need to fade at the extreme X edges so they smoothly appear/disappear
-    const edgeFade = THREE.MathUtils.smoothstep(BOUNDS - Math.abs(current.x), 0.0, 5.0);
+    // Full color spectrum based on X coordinate
+    colorsArray.push(getXPositionColor(current.x));
 
-    alphas.push(edgeFade * 1.0); // full opacity where visible
+    // Restore WebGL center fade to protect text, leaving 99% transparency in the exact center
+    const distFromCenterXY = Math.sqrt(current.x * current.x + current.y * current.y);
+    const centerFade = THREE.MathUtils.smoothstep(distFromCenterXY, 5.0, 10.0);
 
-    // Step forward along the velocity vector
-    const step = 0.5;
+    const edgeFade = THREE.MathUtils.smoothstep(BOUNDS - Math.abs(current.x), 0.0, 4.0);
+
+    alphas.push(centerFade * edgeFade * 0.9); // max opacity 0.9
+
+    // Use a smaller step for higher resolution curves
+    const step = 0.35;
     current.add(vel.clone().multiplyScalar(step));
   }
 
   const curve = new THREE.CatmullRomCurve3(points);
   const tubularSegments = SEGMENTS - 1;
-  const radialSegments = 5; // Further optimized for mobile
-  const radius = 0.015; // Made the lines MUCH thinner as requested
+  const radialSegments = 8; // Higher res tube for better quality
+  const radius = 0.015;
   const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
 
-  // Apply RGBA Vertex Colors
   const count = (tubularSegments + 1) * (radialSegments + 1);
   const colors = new Float32Array(count * 4); // RGBA
 
@@ -106,22 +114,20 @@ export function FlowLines() {
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
 
   useEffect(() => {
-    // Basic mobile check for further reduction if needed
+    // Mobile optimization check
     const isMobile = window.innerWidth < 768;
     const actualTubeCount = isMobile ? Math.floor(TUBE_COUNT * 0.6) : TUBE_COUNT;
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
     for (let i = 0; i < actualTubeCount; i++) {
-      // Start far upstream (left side of bounds)
       const startX = -BOUNDS;
 
-      // Restrict starting points strictly to the central area so they MUST hit the sphere
-      // and curve dramatically, eliminating straight lines
-      const r = Math.random() * (SPHERE_RADIUS * 0.9);
+      const r = Math.random() * (SPHERE_RADIUS * 0.95);
       const theta = Math.random() * Math.PI * 2;
-      const startY = r * Math.cos(theta);
-      const startZ = r * Math.sin(theta);
+      // Add a slight random offset to prevent perfectly straight lines hitting exactly y=0,z=0
+      const startY = r * Math.cos(theta) + (Math.random() - 0.5) * 0.1;
+      const startZ = r * Math.sin(theta) + (Math.random() - 0.5) * 0.1;
 
       const geom = generateStreamlineGeometry(startX, startY, startZ);
       newGeometries.push(geom);
@@ -140,7 +146,6 @@ export function FlowLines() {
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.getElapsedTime();
-    // Slowly sway the entire wind tunnel to give it a dynamic feel
     groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.15;
     groupRef.current.rotation.x = Math.cos(time * 0.1) * 0.05;
   });
@@ -149,7 +154,6 @@ export function FlowLines() {
     <group ref={groupRef}>
       {geometries.map((geom, idx) => (
         <mesh key={idx} geometry={geom}>
-          {/* Use MeshStandardMaterial with vertexColors for 3D high-res shading */}
           <meshStandardMaterial
             vertexColors
             transparent
