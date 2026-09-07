@@ -8,13 +8,11 @@ const BOUNDS = 25;
 const SPHERE_RADIUS = 6.0;
 
 // Analytical Potential Flow around a Sphere
-// This gives perfectly smooth laminar CFD streamlines
 function getVelocity(x: number, y: number, z: number) {
-  const U = 1.0; // Free stream velocity
+  const U = 1.0;
   const r2 = x * x + y * y + z * z;
   const r = Math.sqrt(r2);
 
-  // Inside the object
   if (r < SPHERE_RADIUS * 0.99) {
     return new THREE.Vector3(0, 0, 0);
   }
@@ -22,7 +20,6 @@ function getVelocity(x: number, y: number, z: number) {
   const r5 = r2 * r2 * r;
   const coef = (U * Math.pow(SPHERE_RADIUS, 3)) / 2.0;
 
-  // Velocity field equations for flow past a sphere
   const vx = U + (coef * (r2 - 3 * x * x)) / r5;
   const vy = (coef * (-3 * x * y)) / r5;
   const vz = (coef * (-3 * x * z)) / r5;
@@ -30,27 +27,26 @@ function getVelocity(x: number, y: number, z: number) {
   return new THREE.Vector3(vx, vy, vz);
 }
 
-// Map velocity to CFD colors (Blue -> Green -> Yellow -> Red)
-function getVelocityColor(velocity: number) {
-  // Potential flow max velocity is 1.5 * U at the equator
-  const v = Math.min(Math.max(velocity / 1.5, 0), 1);
+// Map distance from center to color (Light Cyan in middle -> Yellow -> Red on edges)
+function getPositionColor(y: number, z: number) {
+  const dist = Math.sqrt(y * y + z * z);
+  // Max expected distance is around SPHERE_RADIUS + 8 = 14
+  const v = Math.min(Math.max(dist / 14.0, 0), 1);
 
   const c = new THREE.Color();
-  if (v < 0.25) {
-    c.lerpColors(new THREE.Color('#0000ff'), new THREE.Color('#00ffff'), v / 0.25);
-  } else if (v < 0.5) {
-    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#00ff00'), (v - 0.25) / 0.25);
-  } else if (v < 0.75) {
-    c.lerpColors(new THREE.Color('#00ff00'), new THREE.Color('#ffff00'), (v - 0.5) / 0.25);
+  if (v < 0.33) {
+    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#00ffaa'), v / 0.33); // Light Cyan to Light Green
+  } else if (v < 0.66) {
+    c.lerpColors(new THREE.Color('#00ffaa'), new THREE.Color('#ffff00'), (v - 0.33) / 0.33); // Green to Yellow
   } else {
-    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#ff0000'), (v - 0.75) / 0.25);
+    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#ff0000'), (v - 0.66) / 0.34); // Yellow to Red
   }
   return c;
 }
 
 function generateStreamlineGeometry(startX: number, startY: number, startZ: number) {
   const points: THREE.Vector3[] = [];
-  const velocities: number[] = [];
+  const colorsArray: THREE.Color[] = [];
   const alphas: number[] = [];
 
   const current = new THREE.Vector3(startX, startY, startZ);
@@ -59,16 +55,14 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
     points.push(current.clone());
 
     const vel = getVelocity(current.x, current.y, current.z);
-    velocities.push(vel.length());
 
-    // Alpha calculation to protect the text in the middle and avoid hard edges
-    // Fade out near the center of the screen (x, y close to 0, in front of the sphere)
-    const distFromCenter = Math.sqrt(current.x * current.x + current.y * current.y);
-    let centerFade = 1.0;
-    if (current.z > 0) {
-      // Only fade the tubes passing in front of the text
-      centerFade = THREE.MathUtils.smoothstep(distFromCenter, 3.0, 9.0);
-    }
+    // Color based on radial distance from the center axis (red on sides, light in middle)
+    colorsArray.push(getPositionColor(current.y, current.z));
+
+    // Alpha calculation to protect the text in the middle
+    // Fade out completely near the center of the screen for ALL depths to clear the text area
+    const distFromCenterXY = Math.sqrt(current.x * current.x + current.y * current.y);
+    const centerFade = THREE.MathUtils.smoothstep(distFromCenterXY, 5.0, 12.0);
 
     // Fade at the extreme X edges so they smoothly appear/disappear
     const edgeFade = THREE.MathUtils.smoothstep(BOUNDS - Math.abs(current.x), 0.0, 5.0);
@@ -82,10 +76,11 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
 
   const curve = new THREE.CatmullRomCurve3(points);
   const tubularSegments = SEGMENTS - 1;
-  const radialSegments = 8; // High res tube to avoid boxy look
-  const geometry = new THREE.TubeGeometry(curve, tubularSegments, 0.05, radialSegments, false);
+  const radialSegments = 6; // Thin tubes don't need as many radial segments
+  const radius = 0.015; // Made the lines MUCH thinner as requested
+  const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
 
-  // Apply RGBA Vertex Colors based on velocity and calculated alpha
+  // Apply RGBA Vertex Colors
   const count = (tubularSegments + 1) * (radialSegments + 1);
   const colors = new Float32Array(count * 4); // RGBA
 
@@ -93,9 +88,8 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
     const t = i / tubularSegments;
     const idxCurve = Math.min(Math.floor(t * SEGMENTS), SEGMENTS - 1);
 
-    const vel = velocities[idxCurve];
+    const color = colorsArray[idxCurve];
     const alpha = alphas[idxCurve];
-    const color = getVelocityColor(vel);
 
     for (let j = 0; j <= radialSegments; j++) {
       const idx = (i * (radialSegments + 1) + j) * 4;
