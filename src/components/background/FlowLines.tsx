@@ -4,24 +4,26 @@ import * as THREE from 'three';
 
 const TUBE_COUNT = 90;
 const SEGMENTS = 150;
-const BOUNDS = 18;
-const DEFAULT_SPHERE_RADIUS = 9.0;
+const BOUNDS = 22;
+const DEFAULT_SPHERE_RADIUS = 5.0; // Base radius (height of the text block)
+const ELLIPSOID_STRETCH_X = 3.0; // Stretches the obstacle horizontally to cover the wide text
 
-// Analytical Potential Flow around a Sphere
-function getVelocity(x: number, y: number, z: number, sphereRadius: number) {
+// Analytical Potential Flow around an Ellipsoid (Approximated via coordinate stretching)
+function getVelocity(x: number, y: number, z: number, sphereRadius: number, stretchX: number) {
   const U = 1.0;
-  const r2 = x * x + y * y + z * z;
+  // Compress X to calculate standard sphere potential flow
+  const effX = x / stretchX;
+  const r2 = effX * effX + y * y + z * z;
   const r = Math.sqrt(r2);
 
-  // Safety check to prevent divide by zero
   if (r < 0.1) return new THREE.Vector3(U, 0, 0);
 
   const r5 = r2 * r2 * r;
   const coef = (U * Math.pow(sphereRadius, 3)) / 2.0;
 
-  const vx = U + (coef * (r2 - 3 * x * x)) / r5;
-  const vy = (coef * (-3 * x * y)) / r5;
-  const vz = (coef * (-3 * x * z)) / r5;
+  const vx = U + (coef * (r2 - 3 * effX * effX)) / r5;
+  const vy = (coef * (-3 * effX * y)) / r5;
+  const vz = (coef * (-3 * effX * z)) / r5;
 
   return new THREE.Vector3(vx, vy, vz);
 }
@@ -32,7 +34,6 @@ function getXPositionColor(x: number, bounds: number) {
   const v = Math.min(Math.max(dist / bounds, 0), 1);
 
   const c = new THREE.Color();
-  // Reverse mapping: v=0 (center) is Red, v=1 (edge) is Blue
   if (v < 0.25) {
     c.lerpColors(new THREE.Color('#ff0000'), new THREE.Color('#ffff00'), v / 0.25);
   } else if (v < 0.5) {
@@ -50,7 +51,8 @@ function generateStreamlineGeometry(
   startY: number,
   startZ: number,
   sphereRadius: number,
-  bounds: number
+  bounds: number,
+  stretchX: number
 ) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
@@ -59,9 +61,16 @@ function generateStreamlineGeometry(
   const current = new THREE.Vector3(startX, startY, startZ);
 
   for (let i = 0; i < SEGMENTS; i++) {
-    // 1. CRITICAL FIX: Never let a point go inside the sphere, which causes 0 velocity and duplicate points (glitching CatmullRom)
-    if (current.length() < sphereRadius) {
-      current.normalize().multiplyScalar(sphereRadius + 0.1);
+    // 1. CRITICAL FIX: Never let a point go inside the ellipsoid obstacle!
+    const effX = current.x / stretchX;
+    const effR = Math.sqrt(effX * effX + current.y * current.y + current.z * current.z);
+
+    if (effR < sphereRadius) {
+      // Project back to ellipsoid surface safely
+      const scale = (sphereRadius + 0.1) / effR;
+      current.x = effX * scale * stretchX;
+      current.y = current.y * scale;
+      current.z = current.z * scale;
     }
 
     // 2. CRITICAL FIX: Ensure no duplicate points are pushed to CatmullRomCurve3
@@ -69,29 +78,25 @@ function generateStreamlineGeometry(
     if (points.length > 0) {
       const lastPoint = points[points.length - 1];
       if (newPoint.distanceTo(lastPoint) < 0.001) {
-        newPoint.add(new THREE.Vector3(0.01, 0.01, 0.01)); // Tiny nudge to prevent explosion
+        newPoint.add(new THREE.Vector3(0.01, 0.01, 0.01));
       }
     }
     points.push(newPoint);
 
-    const vel = getVelocity(current.x, current.y, current.z, sphereRadius);
+    const vel = getVelocity(current.x, current.y, current.z, sphereRadius, stretchX);
 
-    // Prevent massive jumps near singularity
+    // Prevent massive jumps
     if (vel.length() > 2.0) {
       vel.setLength(2.0);
     }
 
     colorsArray.push(getXPositionColor(current.x, bounds));
 
-    const distFromCenterXY = Math.sqrt(current.x * current.x + current.y * current.y);
-    const centerFade = THREE.MathUtils.smoothstep(
-      distFromCenterXY,
-      sphereRadius * 0.5,
-      sphereRadius * 1.1
-    );
+    // Since lines physically part around the text now, we don't need a heavy center fade!
+    // Just a subtle edge fade to make them appear smoothly
     const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 4.0);
 
-    alphas.push(centerFade * edgeFade * 0.9); // max opacity 0.9
+    alphas.push(edgeFade * 1.0); // Keep them fully opaque as they bend around the text
 
     const step = 0.35;
     current.add(vel.clone().multiplyScalar(step));
@@ -133,7 +138,8 @@ export function FlowLines() {
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
     const actualTubeCount = isMobile ? 50 : TUBE_COUNT;
-    const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.5 : DEFAULT_SPHERE_RADIUS;
+    const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.7 : DEFAULT_SPHERE_RADIUS;
+    const actualStretchX = isMobile ? ELLIPSOID_STRETCH_X * 0.6 : ELLIPSOID_STRETCH_X; // Less horizontal stretch on mobile
     const actualBounds = isMobile ? BOUNDS * 0.6 : BOUNDS;
 
     const newGeometries: THREE.TubeGeometry[] = [];
@@ -141,7 +147,7 @@ export function FlowLines() {
     for (let i = 0; i < actualTubeCount; i++) {
       const startX = -actualBounds;
 
-      const r = Math.random() * (actualSphereRadius * 0.95);
+      const r = Math.random() * (actualSphereRadius * 1.2);
       const theta = Math.random() * Math.PI * 2;
       const startY = r * Math.cos(theta) + (Math.random() - 0.5) * 0.1;
       const startZ = r * Math.sin(theta) + (Math.random() - 0.5) * 0.1;
@@ -151,7 +157,8 @@ export function FlowLines() {
         startY,
         startZ,
         actualSphereRadius,
-        actualBounds
+        actualBounds,
+        actualStretchX
       );
       newGeometries.push(geom);
     }
