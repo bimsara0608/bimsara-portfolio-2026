@@ -1,14 +1,11 @@
-'use client';
-
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { createNoise3D } from 'simplex-noise';
 
-// Constants for our fluid simulation
-const PARTICLE_COUNT = 3000;
-const MAX_LIFETIME = 150; // frames
-const BOUNDS = 15; // The box size they spawn in
+const TUBE_COUNT = 150;
+const SEGMENTS = 80;
+const BOUNDS = 20;
 
 // Helper to calculate curl noise from 3D simplex noise
 function computeCurl(
@@ -20,7 +17,6 @@ function computeCurl(
   const eps = 0.0001;
   const eps2 = 2 * eps;
 
-  // Find rate of change in YZ plane
   const n1 = noise3D(x, y + eps, z);
   const n2 = noise3D(x, y - eps, z);
   const a = (n1 - n2) / eps2;
@@ -29,7 +25,6 @@ function computeCurl(
   const n4 = noise3D(x, y, z - eps);
   const b = (n3 - n4) / eps2;
 
-  // Find rate of change in XZ plane
   const n5 = noise3D(x, y, z + eps);
   const n6 = noise3D(x, y, z - eps);
   const c = (n5 - n6) / eps2;
@@ -38,7 +33,6 @@ function computeCurl(
   const n8 = noise3D(x - eps, y, z);
   const d = (n7 - n8) / eps2;
 
-  // Find rate of change in XY plane
   const n9 = noise3D(x + eps, y, z);
   const n10 = noise3D(x - eps, y, z);
   const e = (n9 - n10) / eps2;
@@ -67,132 +61,112 @@ function getVelocityColor(velocity: number) {
   return c;
 }
 
-let particleData: {
-  positions: Float32Array;
-  colors: Float32Array;
-  lifetimes: Float32Array;
-  noise3D: (x: number, y: number, z: number) => number;
-} | null = null;
+function generateStreamlineGeometry(
+  noise3D: (x: number, y: number, z: number) => number,
+  startX: number,
+  startY: number,
+  startZ: number
+) {
+  const points: THREE.Vector3[] = [];
+  const velocities: number[] = [];
 
-function getParticleData() {
-  if (particleData) return particleData;
+  const current = new THREE.Vector3(startX, startY, startZ);
 
-  const pos = new Float32Array(PARTICLE_COUNT * 3);
-  const col = new Float32Array(PARTICLE_COUNT * 3);
-  const life = new Float32Array(PARTICLE_COUNT);
-  const noise = createNoise3D();
+  for (let i = 0; i < SEGMENTS; i++) {
+    points.push(current.clone());
 
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * BOUNDS;
-    pos[i * 3 + 1] = (Math.random() - 0.5) * BOUNDS;
-    pos[i * 3 + 2] = (Math.random() - 0.5) * BOUNDS;
+    const scale = 0.15;
+    const vel = computeCurl(current.x * scale, current.y * scale, current.z * scale, noise3D);
 
-    col[i * 3] = 0;
-    col[i * 3 + 1] = 0;
-    col[i * 3 + 2] = 1; // start blue
+    // Add base flow to ensure they move generally left-to-right like a wind tunnel
+    vel.add(new THREE.Vector3(0.6, 0, 0));
 
-    life[i] = Math.random() * MAX_LIFETIME;
+    velocities.push(vel.length());
+
+    // step forward
+    const step = 0.25;
+    current.add(vel.clone().multiplyScalar(step));
   }
 
-  particleData = { positions: pos, colors: col, lifetimes: life, noise3D: noise };
-  return particleData;
+  const curve = new THREE.CatmullRomCurve3(points);
+  const tubularSegments = SEGMENTS;
+  const radialSegments = 5; // Low poly tube for performance
+  const geometry = new THREE.TubeGeometry(curve, tubularSegments, 0.04, radialSegments, false);
+
+  // Apply Vertex Colors based on velocity
+  const count = (tubularSegments + 1) * (radialSegments + 1);
+  const colors = new Float32Array(count * 3);
+
+  for (let i = 0; i <= tubularSegments; i++) {
+    const t = i / tubularSegments;
+    const velIndex = Math.floor(t * (velocities.length - 1));
+    const color = getVelocityColor(velocities[velIndex]);
+
+    for (let j = 0; j <= radialSegments; j++) {
+      const idx = (i * (radialSegments + 1) + j) * 3;
+      colors[idx] = color.r;
+      colors[idx + 1] = color.g;
+      colors[idx + 2] = color.b;
+    }
+  }
+
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  return geometry;
 }
 
-// Pre-initialize data outside react render
-getParticleData();
-
 export function FlowLines() {
-  const pointsRef = useRef<THREE.Points>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
 
-  useFrame((state) => {
-    if (!pointsRef.current || !particleData) return;
+  // Generate geometries once on mount
+  useEffect(() => {
+    const noise3D = createNoise3D();
+    const newGeometries: THREE.TubeGeometry[] = [];
 
-    const time = state.clock.getElapsedTime();
-    const posAttr = pointsRef.current.geometry.attributes.position;
-    const colAttr = pointsRef.current.geometry.attributes.color;
+    for (let i = 0; i < TUBE_COUNT; i++) {
+      // Spread starting points across the left side of the bounding box
+      const startX = (Math.random() - 0.5) * BOUNDS - BOUNDS / 2;
+      const startY = (Math.random() - 0.5) * BOUNDS;
+      const startZ = (Math.random() - 0.5) * BOUNDS;
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      let x = posAttr.array[i * 3];
-      let y = posAttr.array[i * 3 + 1];
-      let z = posAttr.array[i * 3 + 2];
-
-      particleData.lifetimes[i]--;
-
-      // Respawn particle if it dies or goes out of bounds
-      if (
-        particleData.lifetimes[i] <= 0 ||
-        Math.abs(x) > BOUNDS ||
-        Math.abs(y) > BOUNDS ||
-        Math.abs(z) > BOUNDS
-      ) {
-        x = (Math.random() - 0.5) * BOUNDS;
-        y = (Math.random() - 0.5) * BOUNDS;
-        z = (Math.random() - 0.5) * BOUNDS;
-        particleData.lifetimes[i] = MAX_LIFETIME;
-      } else {
-        // Calculate curl noise at this position
-        // We multiply position by a frequency scale, and add time to animate it
-        const scale = 0.2;
-        const velocity = computeCurl(
-          x * scale,
-          y * scale,
-          z * scale + time * 0.1,
-          particleData.noise3D
-        );
-
-        // Add a base flow direction (e.g., flowing from left to right like a wind tunnel)
-        velocity.add(new THREE.Vector3(0.5, 0, 0));
-
-        // Update position
-        const speedMultiplier = 0.03;
-        x += velocity.x * speedMultiplier;
-        y += velocity.y * speedMultiplier;
-        z += velocity.z * speedMultiplier;
-
-        // Update color based on speed magnitude
-        const speed = velocity.length();
-        const color = getVelocityColor(speed);
-        colAttr.array[i * 3] = color.r;
-        colAttr.array[i * 3 + 1] = color.g;
-        colAttr.array[i * 3 + 2] = color.b;
-      }
-
-      posAttr.array[i * 3] = x;
-      posAttr.array[i * 3 + 1] = y;
-      posAttr.array[i * 3 + 2] = z;
+      const geom = generateStreamlineGeometry(noise3D, startX, startY, startZ);
+      newGeometries.push(geom);
     }
 
-    posAttr.needsUpdate = true;
-    colAttr.needsUpdate = true;
+    // Defer state update to avoid cascading synchronous render in effect
+    const timer = setTimeout(() => {
+      setGeometries(newGeometries);
+    }, 0);
 
-    // Slow camera rotation
-    pointsRef.current.rotation.y = Math.sin(time * 0.1) * 0.2;
-    pointsRef.current.rotation.x = Math.cos(time * 0.1) * 0.1;
+    // Cleanup geometries on unmount
+    return () => {
+      clearTimeout(timer);
+      newGeometries.forEach((g) => g.dispose());
+    };
+  }, []);
+
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const time = state.clock.getElapsedTime();
+
+    // Slowly rotate the entire fluid simulation group to give it life
+    groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.3;
+    groupRef.current.rotation.x = Math.cos(time * 0.1) * 0.1;
   });
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={PARTICLE_COUNT}
-          args={[particleData!.positions, 3]}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={PARTICLE_COUNT}
-          args={[particleData!.colors, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.08}
-        vertexColors
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-      />
-    </points>
+    <group ref={groupRef}>
+      {geometries.map((geom, idx) => (
+        <mesh key={idx} geometry={geom}>
+          <meshBasicMaterial
+            vertexColors
+            transparent
+            opacity={0.4}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
