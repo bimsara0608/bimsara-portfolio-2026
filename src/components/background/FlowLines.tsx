@@ -191,12 +191,13 @@ export function FlowLines() {
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    // Target rotation based on scroll. Max 60 degrees (approx 1.047 radians) at 800px scroll.
     const maxRotation = Math.PI / 3;
-    // REVERSE DIRECTION: negative so flow comes from deep background to foreground
-    const targetScrollRot = -Math.min((scrollYRef.current / 800) * maxRotation, maxRotation);
 
-    // Smoothly interpolate current rotation to target (buttery smooth effect)
+    // REVERSED: at scroll=0 splines are pushed RIGHT. As user scrolls they come to center.
+    // targetScrollRot goes from +maxRotation (scroll=0, right) to 0 (fully scrolled)
+    const scrollProgress = Math.min(scrollYRef.current / 800, 1);
+    const targetScrollRot = maxRotation * (1 - scrollProgress);
+
     currentScrollRot.current = THREE.MathUtils.lerp(
       currentScrollRot.current,
       targetScrollRot,
@@ -208,11 +209,10 @@ export function FlowLines() {
     groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.15 + currentScrollRot.current;
     groupRef.current.rotation.x = Math.cos(time * 0.1) * 0.05;
 
-    // Fix optical illusions caused by extreme perspective distortion:
-    // 1. Push back so the foreground tubes don't clip into the camera and become "large splines"
+    // Push back slightly to prevent clipping at extremes
     groupRef.current.position.z = -Math.abs(currentScrollRot.current) * 8.0;
-    // 2. Shift slightly to balance the visual weight so the wormhole feels perfectly centered
-    groupRef.current.position.x = -currentScrollRot.current * 2.5;
+    // At top: shift right (+x). At center: return to 0.
+    groupRef.current.position.x = currentScrollRot.current * 2.5;
   });
 
   return (

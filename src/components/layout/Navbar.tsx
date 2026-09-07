@@ -1,23 +1,26 @@
 'use client';
 
-// removed link
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Menu, X, Download } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 // Theme toggle removed for permanent dark mode
 
 const NAV_LINKS = [
-  { label: 'Home', href: '#hero', section: 'hero' },
-  { label: 'About', href: '#about', section: 'about' },
-  { label: 'Projects', href: '#projects', section: 'projects' },
-  { label: 'Services', href: '#services', section: 'services' },
-  { label: 'GitHub', href: '#github', section: 'github' },
-  { label: 'Contact', href: '#contact', section: 'contact' },
+  { label: 'Home', href: '/#hero', section: 'hero' },
+  { label: 'About', href: '/#about', section: 'about' },
+  { label: 'Projects', href: '/#projects', section: 'projects' },
+  { label: 'Services', href: '/#services', section: 'services' },
+  { label: 'GitHub', href: '/#github', section: 'github' },
+  { label: 'Contact', href: '/#contact', section: 'contact' },
 ];
 
 export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -26,8 +29,9 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // IntersectionObserver to track active section
+  // IntersectionObserver to track active section (only on home page)
   useEffect(() => {
+    if (!isHome) return;
     const sections = ['hero', 'about', 'projects', 'services', 'github', 'contact'];
     const observers: IntersectionObserver[] = [];
 
@@ -45,7 +49,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
     });
 
     return () => observers.forEach((o) => o.disconnect());
-  }, []);
+  }, [isHome]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -54,13 +58,16 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
     };
   }, [isOpen]);
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     setIsOpen(false);
-    const id = href.replace('#', '');
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Only intercept for smooth scrolling when already on home page
+    if (isHome) {
+      e.preventDefault();
+      const sectionId = href.replace('/#', '');
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    // On other pages, let the browser follow the /#hash href naturally (navigates to home + section)
   };
 
   return (
@@ -73,35 +80,29 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
     >
       <div className="max-w-6xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a
-          href="#hero"
-          onClick={(e) => {
-            e.preventDefault();
-            handleNavClick('#hero');
-          }}
+        <Link
+          href="/#hero"
+          onClick={(e) => handleNavClick(e, '/#hero')}
           className="font-semibold text-sm text-foreground hover:opacity-70 transition-opacity tracking-tight"
         >
           Bimsara
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-7">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavClick(link.href);
-              }}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`text-sm transition-colors duration-150 ${
-                activeSection === link.section
+                isHome && activeSection === link.section
                   ? 'text-foreground font-medium'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -139,21 +140,18 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
       >
         <nav className="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-2">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavClick(link.href);
-              }}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`px-3 py-2.5 text-base rounded-lg transition-colors ${
-                activeSection === link.section
+                isHome && activeSection === link.section
                   ? 'text-foreground font-medium bg-muted'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           <a
             href={resumeUrl || '#'}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { createClient } from '@/utils/supabase/server';
 import { ProjectCard } from '@/components/portfolio/ProjectCard';
 import type { Project } from '@/lib/types';
@@ -43,6 +44,14 @@ export default async function ProjectsPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
+      {/* Back to Home Nav */}
+      <Link
+        href="/#projects"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium mb-8 transition-colors text-sm"
+      >
+        <ArrowLeft size={16} /> Back to Home
+      </Link>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">

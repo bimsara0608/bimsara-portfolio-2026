@@ -42,10 +42,9 @@ export async function GitHubSection() {
   const [repos, ghProfile] = await Promise.all([getGitHubRepos(), getGitHubProfile()]);
 
   return (
-    <section id="github" className="w-full py-24 md:py-32 px-6 lg:px-8">
+    <section id="github" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
-        {/* Heavy dark frosted glass backdrop */}
-        <div className="rounded-[24px] bg-black/90 backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+        <div>
           {/* Header */}
           <div className="mb-12">
             <span className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-white mb-6">

@@ -56,8 +56,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
       {/* Back Nav */}
       <Link
-        href="/projects"
-        className="magnetic inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium mb-12 transition-colors"
+        href="/#projects"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium mb-12 transition-colors"
       >
         <ArrowLeft size={18} /> Back to Projects
       </Link>
@@ -204,7 +204,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               Let&apos;s build something together.
             </p>
             <Link
-              href="/contact"
+              href="/#contact"
               className="inline-flex items-center gap-2 bg-background text-foreground px-4 py-2.5 font-semibold text-sm hover:opacity-90 transition-opacity rounded-full"
             >
               Get in Touch <ArrowRight size={14} />
@@ -224,7 +224,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       {/* Prev/Next Navigation */}
       <div className="border-t border-border pt-12 grid grid-cols-2 gap-8">
         {prevProject ? (
-          <Link href={`/projects/${prevProject.slug}`} className="group magnetic text-left">
+          <Link href={`/projects/${prevProject.slug}`} className="group text-left">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1">
               <ArrowLeft size={12} /> Previous
             </p>
@@ -237,10 +237,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         )}
 
         {nextProject && (
-          <Link
-            href={`/projects/${nextProject.slug}`}
-            className="group magnetic text-right ml-auto"
-          >
+          <Link href={`/projects/${nextProject.slug}`} className="group text-right ml-auto">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2 flex items-center justify-end gap-1">
               Next <ArrowRight size={12} />
             </p>

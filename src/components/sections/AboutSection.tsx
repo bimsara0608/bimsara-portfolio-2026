@@ -29,10 +29,9 @@ export function AboutSection({ profile }: AboutSectionProps) {
     'I specialize in transforming complex engineering challenges into elegant, manufacturable designs. With expertise in SolidWorks and Blender, I bridge the gap between technical precision and visual storytelling.';
 
   return (
-    <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8">
+    <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
-        {/* Heavy dark frosted glass backdrop */}
-        <div className="rounded-[24px] bg-black/90 backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+        <div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Left: Profile card */}
             <div className="lg:col-span-4">
@@ -174,7 +173,6 @@ export function AboutSection({ profile }: AboutSectionProps) {
             </div>
           </div>
         </div>
-        {/* end frosted glass */}
       </div>
     </section>
   );

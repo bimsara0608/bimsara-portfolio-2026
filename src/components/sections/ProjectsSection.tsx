@@ -12,10 +12,9 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const categories = ['All', ...Array.from(new Set(projects.map((p) => p.category))).sort()];
 
   return (
-    <section id="projects" className="w-full py-24 md:py-32 px-6 lg:px-8">
+    <section id="projects" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
-        {/* Heavy dark frosted glass backdrop */}
-        <div className="rounded-[24px] bg-black/90 backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+        <div>
           {/* Header */}
           <div className="flex justify-between items-end mb-10">
             <div>
@@ -72,7 +71,6 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             </Link>
           </div>
         </div>
-        {/* end frosted glass */}
       </div>
     </section>
   );
