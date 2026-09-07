@@ -10,33 +10,38 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Bimsara Gunawardana | Design Engineer',
+  title: 'Bimsara Gunawardana — Design Engineer | CAD, Robotics & 3D Visualization',
   description:
-    'Portfolio of Bimsara Gunawardana, Design Engineer specializing in Product Design and 3D Animation. CSWP Certified.',
+    'Portfolio of Bimsara Gunawardana, Design Engineer & Certified SOLIDWORKS Professional (CSWP). Specializing in parametric 3D CAD modeling, robotics automation, DFM, and photorealistic visualization.',
   keywords: [
     'Design Engineer',
-    '3D Animation',
-    'SolidWorks',
-    'Blender',
+    'Certified SOLIDWORKS Professional',
     'CSWP',
     'Product Design',
-    'Mechanical Engineering',
+    'Parametric CAD',
+    'Robotics and Automation',
+    'DFM',
+    '3D Visualization',
+    'Blender Cycles',
+    'Finite Element Analysis',
+    'University of Colombo',
     'Sri Lanka',
   ],
-  authors: [{ name: 'Bimsara Gunawardana' }],
+  authors: [{ name: 'Bimsara Gunawardana', url: 'https://bimsara-portfolio-2026.vercel.app' }],
   openGraph: {
-    title: 'Bimsara Gunawardana | Design Engineer',
+    title: 'Bimsara Gunawardana — Design Engineer | CAD, Robotics & 3D Visualization',
     description:
-      'Portfolio of Bimsara Gunawardana, Design Engineer specializing in Product Design and 3D Animation.',
-    url: 'https://bimsara.com',
+      'Certified SOLIDWORKS Professional (CSWP) specializing in parametric CAD, robotics automation, DFM, and photorealistic visualization.',
+    url: 'https://bimsara-portfolio-2026.vercel.app',
     siteName: 'Bimsara Gunawardana Portfolio',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bimsara Gunawardana | Design Engineer',
-    description: 'Design Engineer specializing in Product Design and 3D Animation.',
+    title: 'Bimsara Gunawardana — Design Engineer',
+    description:
+      'Certified SOLIDWORKS Professional (CSWP) specializing in parametric CAD, robotics automation, and 3D visualization.',
   },
 };
 
@@ -45,18 +50,37 @@ const jsonLd = {
   '@type': 'Person',
   name: 'Bimsara Gunawardana',
   jobTitle: 'Design Engineer',
-  url: 'https://bimsara.com',
+  email: 'bimsaragunawardana3d@gmail.com',
+  url: 'https://bimsara-portfolio-2026.vercel.app',
+  alumniOf: {
+    '@type': 'EducationalOrganization',
+    name: 'University of Colombo',
+  },
+  hasCredential: [
+    {
+      '@type': 'EducationalOccupationalCredential',
+      name: 'Certified SOLIDWORKS Professional (CSWP)',
+      credentialCategory: 'Professional Certification',
+      recognizedBy: {
+        '@type': 'Organization',
+        name: 'Dassault Systèmes',
+      },
+    },
+  ],
   sameAs: [
     'https://www.linkedin.com/in/bimsara-gunawardana-8a9b07253',
     'https://github.com/bimsara0608',
+    'https://grabcad.com/bimsara.gunawardana-1',
   ],
   knowsAbout: [
-    'Product Design',
-    '3D Animation',
+    'Parametric 3D CAD',
     'SolidWorks',
-    'Blender',
-    'CAD Engineering',
-    '3D Printing',
+    'Blender 3D Visualization',
+    'Robotics & Automation',
+    'Instrumentation & Control',
+    'Design for Manufacturing (DFM)',
+    'Finite Element Analysis (FEA)',
+    'Additive Manufacturing',
   ],
 };
 

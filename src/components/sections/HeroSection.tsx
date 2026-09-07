@@ -2,17 +2,10 @@
 
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import type { Profile } from '@/lib/types';
 
 interface HeroSectionProps {
   profile: Profile;
-}
-
-function parseStat(stat: string) {
-  const match = stat.match(/^(\d+)(.*)$/);
-  if (match) return { value: parseInt(match[1]), suffix: match[2] };
-  return { value: parseInt(stat) || 0, suffix: '' };
 }
 
 const fadeUp = (delay: number) => ({
@@ -21,29 +14,7 @@ const fadeUp = (delay: number) => ({
   transition: { duration: 0.55, delay },
 });
 
-const SOFTWARE_MARQUEE = [
-  'SolidWorks',
-  'Blender',
-  'ANSYS',
-  'AutoCAD',
-  'Fusion 360',
-  'KeyShot',
-  'Cura',
-  'Figma',
-  'SolidWorks',
-  'Blender',
-  'ANSYS',
-  'AutoCAD',
-  'Fusion 360',
-  'KeyShot',
-  'Cura',
-  'Figma',
-];
-
 export function HeroSection({ profile }: HeroSectionProps) {
-  const pStats = parseStat(profile.stat_projects || '60+');
-  const eStats = parseStat(profile.stat_experience || '3+');
-
   const handleScroll = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -99,63 +70,84 @@ export function HeroSection({ profile }: HeroSectionProps) {
           </button>
         </motion.div>
 
-        {/* Stats - below CTA, bigger and horizontal */}
-        <motion.div {...fadeUp(0.45)} className="flex flex-row gap-10 sm:gap-16">
+        {/* Factual Engineering Signals — high credibility, zero fake numbers */}
+        <motion.div
+          {...fadeUp(0.45)}
+          className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 pt-6 border-t border-white/10 max-w-2xl"
+        >
           <div>
-            <AnimatedNumber
-              value={pStats.value}
-              suffix={pStats.suffix}
-              className="block text-5xl sm:text-6xl stat-number text-white font-medium tracking-tight leading-none mb-2"
-            />
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-              Projects Delivered
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+              <span className="text-xl sm:text-2xl font-semibold tracking-tight text-white font-mono">
+                CSWP
+              </span>
+            </div>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Certified SolidWorks Professional
             </p>
           </div>
 
-          <div className="border-l border-white/10 pl-10 sm:pl-16">
-            <AnimatedNumber
-              value={eStats.value}
-              suffix={eStats.suffix}
-              className="block text-5xl sm:text-6xl stat-number text-white font-medium tracking-tight leading-none mb-2"
-            />
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-              Years Experience
+          <div className="border-l border-white/10 pl-6 sm:pl-10">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              <span className="text-xl sm:text-2xl font-semibold tracking-tight text-white font-mono">
+                B.Eng.Tech
+              </span>
+            </div>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Instrumentation &amp; Automation
             </p>
           </div>
 
-          <div className="border-l border-white/10 pl-10 sm:pl-16">
-            <p className="block text-5xl sm:text-6xl stat-number text-white font-medium tracking-tight leading-none mb-2">
-              {profile.stat_certification}
-            </p>
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-              Certified
+          <div className="border-l border-white/10 pl-6 sm:pl-10 col-span-2 sm:col-span-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+              <span className="text-xl sm:text-2xl font-semibold tracking-tight text-white font-mono">
+                DFM &amp; CAD
+              </span>
+            </div>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Manufacturing-Ready
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* Capabilities Marquee – full-width frosted glass bar at bottom of hero */}
+      {/* 4 Categorized Engineering Capabilities Bar */}
       <motion.div
         {...fadeUp(0.6)}
-        className="w-full mt-20 bg-black/50 backdrop-blur-xl border-t border-white/8 py-4 overflow-hidden"
+        className="w-full mt-16 bg-black/60 backdrop-blur-xl border-t border-white/10 py-5 px-6 lg:px-16 relative z-10"
       >
-        <div className="flex items-center gap-0">
-          {/* Static label */}
-          <span className="flex-shrink-0 px-6 text-[11px] font-bold text-muted-foreground uppercase tracking-widest border-r border-white/10 pr-6 mr-0">
-            Capabilities
-          </span>
-          {/* Marquee track */}
-          <div className="overflow-hidden flex-1">
-            <div className="marquee-track">
-              {[...SOFTWARE_MARQUEE, ...SOFTWARE_MARQUEE].map((name, i) => (
-                <span
-                  key={i}
-                  className="flex-shrink-0 px-6 text-[13px] font-medium text-muted-foreground hover:text-white transition-colors cursor-default tracking-wide"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+          <div className="border-l border-white/10 pl-3.5">
+            <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+              01 / CAD &amp; PRODUCT DESIGN
+            </span>
+            <p className="text-xs font-medium text-white/90">SolidWorks · Fusion 360 · AutoCAD</p>
+          </div>
+          <div className="border-l border-white/10 pl-3.5">
+            <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+              02 / 3D &amp; VISUALIZATION
+            </span>
+            <p className="text-xs font-medium text-white/90">
+              Blender · KeyShot · Product Animation
+            </p>
+          </div>
+          <div className="border-l border-white/10 pl-3.5">
+            <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+              03 / AUTOMATION &amp; ROBOTICS
+            </span>
+            <p className="text-xs font-medium text-white/90">
+              PLC · HMI · Embedded Systems · Robotics
+            </p>
+          </div>
+          <div className="border-l border-white/10 pl-3.5">
+            <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+              04 / PROTOTYPING &amp; DFM
+            </span>
+            <p className="text-xs font-medium text-white/90">
+              3D Printing (FDM/SLA) · Rapid Iteration
+            </p>
           </div>
         </div>
       </motion.div>

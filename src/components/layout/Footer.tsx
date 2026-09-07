@@ -36,9 +36,11 @@ export function Footer() {
           {/* Brand + Newsletter */}
           <div className="md:col-span-2">
             <p className="font-semibold text-base mb-1 text-white">Bimsara Gunawardana</p>
-            <p className="text-sm mb-5 text-white/50">Design Engineer · Colombo, Sri Lanka</p>
+            <p className="text-xs font-mono mb-5 text-white/50">
+              Design Engineer · CSWP · Colombo, Sri Lanka
+            </p>
             {subStatus === 'success' ? (
-              <div className="flex items-center gap-2 text-green-400 text-sm">
+              <div className="flex items-center gap-2 text-emerald-400 text-sm">
                 <Mail size={14} /> {subMsg}
               </div>
             ) : (
@@ -49,22 +51,14 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  className="flex-1 px-3.5 py-2 text-sm rounded-[10px] focus:outline-none placeholder:text-white/30 text-white"
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                  }}
+                  className="flex-1 px-3.5 py-2 text-xs rounded-lg focus:outline-none placeholder:text-white/30 text-white font-mono bg-white/[0.04] border border-white/10 focus:border-cyan-400/50 transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={subStatus === 'loading'}
-                  className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0 disabled:opacity-50 transition-opacity hover:opacity-70"
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                  }}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-50 transition-all hover:bg-white/20 bg-white/10 border border-white/15"
                 >
-                  <ArrowRight size={15} className="text-white" />
+                  <ArrowRight size={14} className="text-white" />
                 </button>
               </form>
             )}
@@ -73,21 +67,21 @@ export function Footer() {
 
           {/* Navigation */}
           <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest mb-4 text-white/30">
+            <h3 className="text-[10px] font-mono font-medium uppercase tracking-widest mb-4 text-white/40">
               Navigation
             </h3>
             <ul className="space-y-2.5">
               {[
                 { label: 'About', id: 'about' },
                 { label: 'Projects', id: 'projects' },
-                { label: 'Services', id: 'services' },
-                { label: 'GitHub', id: 'github' },
+                { label: 'Capabilities', id: 'services' },
+                { label: 'Repositories', id: 'github' },
                 { label: 'Contact', id: 'contact' },
               ].map((l) => (
                 <li key={l.id}>
                   <button
                     onClick={() => handleNavClick(l.id)}
-                    className="text-sm text-white/55 hover:text-white transition-colors"
+                    className="text-xs font-medium text-white/60 hover:text-white transition-colors"
                   >
                     {l.label}
                   </button>
@@ -98,8 +92,8 @@ export function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest mb-4 text-white/30">
-              Connect
+            <h3 className="text-[10px] font-mono font-medium uppercase tracking-widest mb-4 text-white/40">
+              Direct &amp; Profiles
             </h3>
             <ul className="space-y-2.5">
               {[
@@ -108,15 +102,18 @@ export function Footer() {
                   href: 'https://linkedin.com/in/bimsara-gunawardana-8a9b07253',
                 },
                 { label: 'GitHub', href: 'https://github.com/bimsara0608' },
-                { label: 'GrabCAD', href: 'https://grabcad.com' },
-                { label: 'hello@bimsara.com', href: 'mailto:hello@bimsara.com' },
+                { label: 'GrabCAD Profile', href: 'https://grabcad.com/bimsara.gunawardana-1' },
+                {
+                  label: 'bimsaragunawardana3d@gmail.com',
+                  href: 'mailto:bimsaragunawardana3d@gmail.com',
+                },
               ].map((l) => (
                 <li key={l.href}>
                   <a
                     href={l.href}
                     target={l.href.startsWith('http') ? '_blank' : undefined}
                     rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-sm text-white/55 hover:text-white transition-colors"
+                    className="text-xs font-mono text-white/60 hover:text-cyan-400 transition-colors break-all"
                   >
                     {l.label}
                   </a>
@@ -128,10 +125,10 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-white/8 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-xs text-white/30">
+          <p className="text-xs text-white/40 font-mono">
             © {new Date().getFullYear()} Bimsara Gunawardana. All rights reserved.
           </p>
-          <p className="text-xs text-white/20">Built with Next.js &amp; Supabase</p>
+          <p className="text-xs text-white/30 font-mono">Design Engineering &amp; Parametric CAD</p>
         </div>
       </div>
     </footer>

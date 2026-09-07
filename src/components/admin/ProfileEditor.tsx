@@ -19,7 +19,7 @@ export function ProfileEditor({ initialProfile }: ProfileEditorProps) {
       title: 'Design Engineer',
       tagline: 'Design Engineer | Product Design & 3D Animation',
       bio: '',
-      email: 'hello@bimsara.com',
+      email: 'bimsaragunawardana3d@gmail.com',
       location: 'Colombo, Sri Lanka',
       linkedin_url: 'https://linkedin.com/in/bimsara',
       github_url: 'https://github.com/bimsara0608',

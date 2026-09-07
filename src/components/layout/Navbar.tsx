@@ -83,9 +83,14 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
         <Link
           href="/#hero"
           onClick={(e) => handleNavClick(e, '/#hero')}
-          className="font-semibold text-sm text-foreground hover:opacity-70 transition-opacity tracking-tight"
+          className="flex items-center gap-2.5 group tracking-tight"
         >
-          Bimsara
+          <span className="font-semibold text-sm text-foreground group-hover:text-white transition-colors">
+            Bimsara Gunawardana
+          </span>
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            CSWP
+          </span>
         </Link>
 
         {/* Desktop nav */}
@@ -95,10 +100,10 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
               key={link.href}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className={`text-sm transition-colors duration-150 ${
+              className={`text-xs font-mono uppercase tracking-wider transition-colors duration-150 ${
                 isHome && activeSection === link.section
-                  ? 'text-foreground font-medium'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'text-white font-semibold'
+                  : 'text-muted-foreground hover:text-white'
               }`}
             >
               {link.label}
@@ -109,13 +114,13 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center gap-3">
           <a
-            href={resumeUrl || '#'}
-            download={!!resumeUrl}
+            href={resumeUrl || '#contact'}
+            download={resumeUrl ? true : undefined}
             target={resumeUrl ? '_blank' : undefined}
             rel={resumeUrl ? 'noopener noreferrer' : undefined}
-            className="inline-flex items-center gap-1.5 bg-foreground text-background px-4 py-2 text-sm font-medium rounded-[10px] hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-1.5 bg-white text-black px-3.5 py-1.5 text-xs font-mono font-semibold rounded-lg hover:bg-white/90 transition-all shadow-sm"
           >
-            <Download size={13} />
+            <Download size={12} />
             Resume
           </a>
         </div>

@@ -11,14 +11,28 @@ const EXPERIENCE = [
     title: 'Design Engineer',
     company: 'Freelance',
     period: '2023 – Present',
-    desc: 'Specializing in product design, CAD modeling, and 3D visualization for clients worldwide.',
+    desc: 'Specializing in end-to-end product design, parametric SolidWorks CAD, mechanical assemblies, and photorealistic 3D visualization for international clients.',
     active: true,
   },
   {
-    title: 'Mechanical Engineering Intern',
-    company: 'Tech Corp',
-    period: '2022 – 2023',
-    desc: 'Assisted in design and prototyping of mechanical assemblies. Conducted FEA analysis.',
+    title: 'Autonomation Engineering Intern',
+    company: 'MAS Bodyline / MAS Holdings',
+    period: 'Process Innovation',
+    desc: 'Engineering projects spanning Zig-Zag auto feeder development, PLC programming, HMI interface design, AGV troubleshooting, yarn break detection, PCB design, CAD modeling, and rapid physical prototyping.',
+    active: false,
+  },
+  {
+    title: 'Co-Founder & Design Engineer',
+    company: 'Lautus Robotics',
+    period: 'Robotics & Automation',
+    desc: 'Robotics mechanical architecture, custom enclosure engineering, sensor mount integration, and autonomous system design.',
+    active: false,
+  },
+  {
+    title: '3D & CAD Specialist',
+    company: 'VirtualPensar Pvt Ltd',
+    period: 'Design & Visualization',
+    desc: 'Parametric CAD modeling, engineering visualization, physical prototype design, and manufacturing asset preparation.',
     active: false,
   },
 ];
@@ -26,7 +40,7 @@ const EXPERIENCE = [
 export function AboutSection({ profile }: AboutSectionProps) {
   const bio =
     profile?.bio ||
-    'I specialize in transforming complex engineering challenges into elegant, manufacturable designs. With expertise in SolidWorks and Blender, I bridge the gap between technical precision and visual storytelling.';
+    'I’m a Design Engineer with an academic background in Instrumentation and Automation Technology from the University of Colombo. I operate at the intersection of parametric CAD, mechanical design, robotics, automation, and 3D visualization to transform engineering concepts into functional, manufacturable products.';
 
   return (
     <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
@@ -41,7 +55,7 @@ export function AboutSection({ profile }: AboutSectionProps) {
                   {profile?.avatar_url ? (
                     <Image
                       src={profile.avatar_url}
-                      alt={profile?.name || 'Bimsara'}
+                      alt={profile?.name || 'Bimsara Gunawardana'}
                       fill
                       sizes="(max-width: 768px) 100vw, 35vw"
                       className="object-cover"
@@ -74,10 +88,10 @@ export function AboutSection({ profile }: AboutSectionProps) {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Mail size={13} className="flex-shrink-0" />
                     <a
-                      href={`mailto:${profile?.email || 'hello@bimsara.com'}`}
+                      href={`mailto:${profile?.email || 'bimsaragunawardana3d@gmail.com'}`}
                       className="hover:text-foreground transition-colors break-all"
                     >
-                      {profile?.email || 'hello@bimsara.com'}
+                      {profile?.email || 'bimsaragunawardana3d@gmail.com'}
                     </a>
                   </div>
 
@@ -120,17 +134,20 @@ export function AboutSection({ profile }: AboutSectionProps) {
               {/* Experience */}
               <h3 className="text-base font-semibold mb-6 flex items-center gap-2 text-foreground">
                 <Briefcase size={16} className="text-muted-foreground" />
-                Experience
+                Verified Experience
               </h3>
               <div className="timeline-line space-y-5 mb-14">
                 {EXPERIENCE.map((exp) => (
                   <div key={exp.title} className="relative">
                     <span className={`timeline-dot ${exp.active ? 'active' : ''}`} />
                     <div className="card p-5">
-                      <h4 className="font-medium text-foreground text-sm">{exp.title}</h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {exp.company} · {exp.period}
-                      </p>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                        <h4 className="font-medium text-foreground text-sm">{exp.title}</h4>
+                        <span className="text-xs font-mono text-muted-foreground">
+                          {exp.period}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{exp.company}</p>
                       <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
                         {exp.desc}
                       </p>
@@ -142,17 +159,20 @@ export function AboutSection({ profile }: AboutSectionProps) {
               {/* Education & Certs */}
               <h3 className="text-base font-semibold mb-6 flex items-center gap-2 text-foreground">
                 <GraduationCap size={16} className="text-muted-foreground" />
-                Education &amp; Certifications
+                Education &amp; Certification
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="card p-6">
                   <Award size={20} className="text-muted-foreground mb-4" strokeWidth={1.5} />
                   <h4 className="font-medium text-foreground text-sm mb-1">
-                    Certified SolidWorks Professional (CSWP)
+                    Certified SOLIDWORKS Professional (CSWP)
                   </h4>
-                  <p className="text-xs text-muted-foreground mb-1.5">Dassault Systèmes</p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1.5">
+                    Dassault Systèmes
+                  </p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Advanced parametric modeling, complex assemblies.
+                    Verified certification in advanced parametric modeling, complex multi-body
+                    assemblies, and manufacturing validation.
                   </p>
                 </div>
                 <div className="card p-6">
@@ -162,11 +182,14 @@ export function AboutSection({ profile }: AboutSectionProps) {
                     strokeWidth={1.5}
                   />
                   <h4 className="font-medium text-foreground text-sm mb-1">
-                    BSc Engineering (Hons)
+                    Bachelor of Engineering Technology (Honours)
                   </h4>
-                  <p className="text-xs text-muted-foreground mb-1.5">University of Moratuwa</p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1.5">
+                    University of Colombo
+                  </p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Mechanical Engineering &amp; Product Design.
+                    Instrumentation and Automation Technology. Multidisciplinary engineering,
+                    robotics, control systems, and automation.
                   </p>
                 </div>
               </div>

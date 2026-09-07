@@ -16,21 +16,25 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       <div className="max-w-6xl mx-auto">
         <div>
           {/* Header */}
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-10">
             <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-white mb-6">
-                Work
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono font-medium tracking-widest uppercase text-white/90 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                SELECTED WORK
               </span>
-              <h2 className="text-fluid-h2 text-white tracking-tight">
-                Selected Projects.{' '}
-                <span className="text-muted-foreground">What I&apos;ve built.</span>
+              <h2 className="text-fluid-h2 text-white tracking-tight mb-3">
+                Featured Engineering &amp; CAD Projects.
               </h2>
+              <p className="text-[15px] text-muted-foreground leading-relaxed max-w-xl">
+                Parametric mechanical assemblies, robotics mechanisms, injection-molded enclosures,
+                and photorealistic visualizations engineered for real-world production.
+              </p>
             </div>
             <Link
               href="/projects"
-              className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-white transition-colors"
             >
-              View all <ArrowRight size={15} />
+              All Projects ({projects.length}) <ArrowRight size={13} />
             </Link>
           </div>
 
@@ -41,7 +45,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 <a
                   key={cat}
                   href={`/projects${cat !== 'All' ? `?category=${encodeURIComponent(cat)}` : ''}`}
-                  className="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium border border-border text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+                  className="whitespace-nowrap px-3.5 py-1.5 rounded-lg text-xs font-mono border border-white/10 bg-white/[0.02] text-muted-foreground hover:text-white hover:border-white/25 transition-all"
                 >
                   {cat}
                 </a>

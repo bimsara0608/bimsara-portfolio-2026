@@ -25,8 +25,11 @@ export default async function Home() {
   const profile: Profile = (profileData as Profile) || {
     id: '',
     name: 'Bimsara Gunawardana',
-    tagline: 'Design Engineer | Product Design & 3D Animation',
-    bio: 'I specialize in transforming complex engineering challenges into elegant, manufacturable designs.',
+    title: 'Design Engineer',
+    tagline: 'Design Engineer | Product Design, CAD, Robotics & 3D Visualization',
+    bio: 'I’m a Design Engineer with a background in Instrumentation and Automation Technology from the University of Colombo, combining CAD, product design, robotics, automation, and 3D visualization to turn engineering concepts into functional products.',
+    email: 'bimsaragunawardana3d@gmail.com',
+    location: 'Colombo, Sri Lanka',
     stat_projects: '60+',
     stat_experience: '3+',
     stat_certification: 'CSWP',
