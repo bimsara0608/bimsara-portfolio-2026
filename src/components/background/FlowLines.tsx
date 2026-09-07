@@ -135,8 +135,16 @@ function generateStreamlineGeometry(
 export function FlowLines() {
   const groupRef = useRef<THREE.Group>(null);
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
+  const scrollYRef = useRef(0);
+  const currentScrollRot = useRef(0);
 
   useEffect(() => {
+    // Scroll listener for the rotation effect
+    const handleScroll = () => {
+      scrollYRef.current = window.scrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     const isMobile = window.innerWidth < 768;
     const actualTubeCount = isMobile ? 50 : TUBE_COUNT;
     const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.5 : DEFAULT_SPHERE_RADIUS;
@@ -174,15 +182,29 @@ export function FlowLines() {
     }, 0);
 
     return () => {
+      window.removeEventListener('scroll', handleScroll);
       clearTimeout(timer);
       newGeometries.forEach((g) => g.dispose());
     };
   }, []);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
+
+    // Target rotation based on scroll. Max 60 degrees (approx 1.047 radians) at 1000px scroll.
+    const maxRotation = Math.PI / 3;
+    const targetScrollRot = Math.min((scrollYRef.current / 1000) * maxRotation, maxRotation);
+
+    // Smoothly interpolate current rotation to target (buttery smooth effect)
+    currentScrollRot.current = THREE.MathUtils.lerp(
+      currentScrollRot.current,
+      targetScrollRot,
+      delta * 5.0
+    );
+
     const time = state.clock.getElapsedTime();
-    groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.15;
+    // Combine idle sway with the scroll rotation
+    groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.15 + currentScrollRot.current;
     groupRef.current.rotation.x = Math.cos(time * 0.1) * 0.05;
   });
 
