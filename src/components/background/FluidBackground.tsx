@@ -13,7 +13,9 @@ export function FluidBackground() {
         gl={{ antialias: true, alpha: true }}
       >
         {/* Soft ambient lighting */}
-        <ambientLight intensity={1.5} />
+        <ambientLight intensity={2.0} />
+        <directionalLight position={[10, 10, 10]} intensity={2.5} />
+        <directionalLight position={[-10, -10, -10]} intensity={1.0} color="#00aaff" />
 
         {/* The procedural CFD simulation */}
         <FlowLines />
