@@ -1,47 +1,154 @@
 import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-const TUBE_COUNT = 90;
-const SEGMENTS = 150;
+const TUBE_COUNT = 64;
+const SEGMENTS = 140;
 const BOUNDS = 18;
-const DEFAULT_SPHERE_RADIUS = 9.0;
 
-// Analytical Potential Flow around a Sphere
-function getVelocity(x: number, y: number, z: number, sphereRadius: number) {
+// Analytical Aerodynamic CFD Flow field around the drone (scaled to match drone)
+function getDroneAeroVelocity(x: number, y: number, z: number) {
   const U = 1.0;
-  const r2 = x * x + y * y + z * z;
-  const r = Math.sqrt(r2);
+  let vx = U;
+  let vy = 0;
+  let vz = 0;
 
-  // Safety check to prevent divide by zero
-  if (r < 0.1) return new THREE.Vector3(U, 0, 0);
+  // 1. Upper Canopy Deflection (centered at y = +1.4, front at x = -0.5)
+  const cy = 1.4;
+  const cx = -0.5;
+  const dx1 = (x - cx) / 3.0;
+  const dy1 = (y - cy) / 1.4;
+  const dz1 = z / 2.6;
+  const r1_sq = dx1 * dx1 + dy1 * dy1 + dz1 * dz1 + 0.3;
+  const r1 = Math.sqrt(r1_sq);
 
-  const r5 = r2 * r2 * r;
-  const coef = (U * Math.pow(sphereRadius, 3)) / 2.0;
+  if (r1 < 4.5) {
+    const r1_5 = r1_sq * r1_sq * r1;
+    const coef1 = 0.45;
+    vx += (coef1 * (r1_sq - 3 * dx1 * dx1)) / r1_5;
+    vy += (coef1 * (-3 * dx1 * dy1)) / r1_5;
+    vz += (coef1 * (-3 * dx1 * dz1)) / r1_5;
+  }
 
-  const vx = U + (coef * (r2 - 3 * x * x)) / r5;
-  const vy = (coef * (-3 * x * y)) / r5;
-  const vz = (coef * (-3 * x * z)) / r5;
+  // 2. Lower Cargo, Battery & Landing Skids Deflection (centered at y = -0.8)
+  const by = -0.8;
+  const bx = 0.0;
+  const dx2 = (x - bx) / 3.8;
+  const dy2 = (y - by) / 1.8;
+  const dz2 = z / 2.6;
+  const r2_sq = dx2 * dx2 + dy2 * dy2 + dz2 * dz2 + 0.3;
+  const r2 = Math.sqrt(r2_sq);
+
+  if (r2 < 4.5) {
+    const r2_5 = r2_sq * r2_sq * r2;
+    const coef2 = 0.42;
+    vx += (coef2 * (r2_sq - 3 * dx2 * dx2)) / r2_5;
+    vy += (coef2 * (-3 * dx2 * dy2)) / r2_5;
+    vz += (coef2 * (-3 * dx2 * dz2)) / r2_5;
+  }
+
+  // 3. Four Rotor Arm Hubs at (±3.2, +0.6, ±3.2) with softened denominator to prevent loops
+  const armX = 3.2;
+  const armZ = 3.2;
+  const motorPositions = [
+    { x: -armX, y: 0.6, z: -armZ },
+    { x: -armX, y: 0.6, z: armZ },
+    { x: armX, y: 0.6, z: -armZ },
+    { x: armX, y: 0.6, z: armZ },
+  ];
+
+  for (const pos of motorPositions) {
+    const dxm = (x - pos.x) / 1.1;
+    const dym = (y - pos.y) / 0.8;
+    const dzm = (z - pos.z) / 1.1;
+    const rm_sq = dxm * dxm + dym * dym + dzm * dzm + 0.5; // Softening factor prevents singularities
+    const rm = Math.sqrt(rm_sq);
+    if (rm < 3.0) {
+      const rm5 = rm_sq * rm_sq * rm;
+      const coefM = 0.06;
+      vx += (coefM * (rm_sq - 3 * dxm * dxm)) / rm5;
+      vy += (coefM * (-3 * dxm * dym)) / rm5;
+      vz += (coefM * (-3 * dxm * dzm)) / rm5;
+    }
+  }
+
+  // 4. Aerodynamic Wake Expansion on Downstream side (x > 0):
+  // Keeps streamlines widely spaced and clearly visible on the right side
+  if (x > 0.0) {
+    const wakeFactor = Math.min(x / 14.0, 1.0);
+    vy += (y > 0 ? 0.04 : -0.04) * wakeFactor;
+    vz += (z > 0 ? 0.03 : -0.03) * wakeFactor;
+  }
+
+  // Strictly enforce forward flow (no negative vx, completely preventing loops)
+  vx = Math.max(vx, 0.35);
 
   return new THREE.Vector3(vx, vy, vz);
 }
 
-// Full CFD Spectrum: Blue at screen corners (far edges), Red in the middle
-function getXPositionColor(x: number, bounds: number) {
-  const dist = Math.abs(x);
-  const v = Math.min(Math.max(dist / bounds, 0), 1);
-
+// Authentic CFD Colormap:
+// - Upstream Inflow (x < -10): Electric Blue into Radiant Cyan
+// - Hero Text Area (-10 <= x < -4.5): Cyan into Neon Green
+// - Drone Approach (-4.5 <= x < -1.8): Pure vivid Neon Green (shifted into yellow area)
+// - Drone Fuselage (-1.8 <= x < 1.4): Golden Yellow contouring (close lines only); red stagnation point exclusively at nose impact; outer lines stay green
+// - Wake (x >= 1.4): Green into Cyan and deep Blue downstream
+function getStreamlinePointColor(
+  x: number,
+  distFromDrone: number,
+  isClosest: boolean,
+  bounds: number
+): THREE.Color {
   const c = new THREE.Color();
-  // Reverse mapping: v=0 (center) is Red, v=1 (edge) is Blue
-  if (v < 0.25) {
-    c.lerpColors(new THREE.Color('#ff0000'), new THREE.Color('#ffff00'), v / 0.25);
-  } else if (v < 0.5) {
-    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#00ff00'), (v - 0.25) / 0.25);
-  } else if (v < 0.75) {
-    c.lerpColors(new THREE.Color('#00ff00'), new THREE.Color('#00ffff'), (v - 0.5) / 0.25);
+
+  if (x < -10.0) {
+    // 1. Far Upstream Inflow: Electric Blue into Cyan
+    const t = Math.min((x - -bounds) / (bounds - 10.0), 1.0);
+    c.lerpColors(new THREE.Color('#0044ff'), new THREE.Color('#00d4ff'), t);
+  } else if (x < -4.5) {
+    // 2. Upstream through Hero Text: Cyan into Neon Green
+    const t = (x - -10.0) / 5.5;
+    c.lerpColors(new THREE.Color('#00d4ff'), new THREE.Color('#00ff66'), t);
+  } else if (x < -1.8) {
+    // 3. Pre-Drone Approach: Pure luminous Neon Green (occupying yellow area)
+    c.set('#00ff66');
+  } else if (x < 1.4) {
+    // 4. Drone Interaction Zone: controlled, tiny amount of yellow and red
+    if (isClosest && x >= -1.0 && x <= -0.1) {
+      // Tiny, crisp red stagnation accent right at the blunt nose leading edge
+      const distToNose = Math.abs(x - -0.5);
+      const redAmount = Math.max(0, 1.0 - distToNose / 0.45);
+      c.lerpColors(new THREE.Color('#ffc800'), new THREE.Color('#ff2200'), redAmount * 0.9);
+    } else {
+      const t = (x - -1.8) / 3.2;
+      const bellCurve = Math.sin(t * Math.PI);
+
+      if (distFromDrone <= 2.5) {
+        // Filaments close to the drone: radiant golden yellow
+        const yellowFactor = THREE.MathUtils.clamp((2.5 - distFromDrone) / 1.6 + 0.4, 0.45, 1.0);
+        c.lerpColors(
+          new THREE.Color('#00ff66'),
+          new THREE.Color('#ffd000'),
+          bellCurve * yellowFactor
+        );
+      } else if (distFromDrone <= 3.6) {
+        // Mid wind-tunnel streamlines: subtle warm chartreuse/lime
+        c.lerpColors(new THREE.Color('#00ff66'), new THREE.Color('#88ff00'), bellCurve * 0.5);
+      } else {
+        // Distant wind-tunnel filaments: stay crisp Neon Green (zero yellow, zero red)
+        c.lerpColors(new THREE.Color('#00ff66'), new THREE.Color('#44ff22'), bellCurve * 0.25);
+      }
+    }
+  } else if (x < 7.0) {
+    // 5. Downstream Wake: Neon Green into radiant Cyan
+    const t = (x - 1.4) / 5.6;
+    c.lerpColors(new THREE.Color('#00ff66'), new THREE.Color('#00e5ff'), t);
   } else {
-    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#0000ff'), (v - 0.75) / 0.25);
+    // 6. Far Downstream Exit: Radiant Cyan into Electric Blue
+    const t = Math.min((x - 7.0) / (bounds - 7.0), 1.0);
+    c.lerpColors(new THREE.Color('#00e5ff'), new THREE.Color('#0055ff'), t);
   }
+
   return c;
 }
 
@@ -49,64 +156,84 @@ function generateStreamlineGeometry(
   startX: number,
   startY: number,
   startZ: number,
-  sphereRadius: number,
   bounds: number,
-  fadeBoxWidth: number,
-  fadeBoxHeight: number
+  isClosest: boolean
 ) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
   const alphas: number[] = [];
 
   const current = new THREE.Vector3(startX, startY, startZ);
+  const distFromDrone = Math.sqrt((startY - 0.2) * (startY - 0.2) + startZ * startZ);
 
   for (let i = 0; i < SEGMENTS; i++) {
-    // 1. CRITICAL FIX: Never let a point go inside the sphere, which causes 0 velocity and duplicate points (glitching CatmullRom)
-    if (current.length() < sphereRadius) {
-      current.normalize().multiplyScalar(sphereRadius + 0.1);
+    // Surface contour hugging: deflect smoothly around scaled canopy
+    const cy = 1.4;
+    const cx = -0.5;
+    const distCanopySq =
+      ((current.x - cx) * (current.x - cx)) / (3.0 * 3.0) +
+      ((current.y - cy) * (current.y - cy)) / (1.4 * 1.4) +
+      (current.z * current.z) / (2.6 * 2.6);
+    if (distCanopySq < 1.0) {
+      const scaleFactor = 1.06 / Math.sqrt(distCanopySq);
+      current.y = cy + (current.y - cy) * scaleFactor;
+      current.z = current.z * scaleFactor;
     }
 
-    // 2. CRITICAL FIX: Ensure no duplicate points are pushed to CatmullRomCurve3
+    // Surface contour hugging: deflect smoothly around scaled battery and skids
+    const by = -0.8;
+    const bx = 0.0;
+    const distBatterySq =
+      ((current.x - bx) * (current.x - bx)) / (3.8 * 3.8) +
+      ((current.y - by) * (current.y - by)) / (1.8 * 1.8) +
+      (current.z * current.z) / (2.6 * 2.6);
+    if (distBatterySq < 1.0) {
+      const scaleFactor = 1.06 / Math.sqrt(distBatterySq);
+      current.y = by + (current.y - by) * scaleFactor;
+      current.z = current.z * scaleFactor;
+    }
+
+    // Add point to streamline
     const newPoint = current.clone();
     if (points.length > 0) {
       const lastPoint = points[points.length - 1];
       if (newPoint.distanceTo(lastPoint) < 0.001) {
-        newPoint.add(new THREE.Vector3(0.01, 0.01, 0.01)); // Tiny nudge to prevent explosion
+        newPoint.add(new THREE.Vector3(0.01, 0.01, 0.01));
       }
     }
     points.push(newPoint);
 
-    const vel = getVelocity(current.x, current.y, current.z, sphereRadius);
+    const vel = getDroneAeroVelocity(current.x, current.y, current.z);
 
-    // Prevent massive jumps near singularity
+    // Limit maximum step jump
     if (vel.length() > 2.0) {
       vel.setLength(2.0);
     }
 
-    colorsArray.push(getXPositionColor(current.x, bounds));
+    colorsArray.push(getStreamlinePointColor(current.x, distFromDrone, isClosest, bounds));
 
-    // Rectangular bounding box fade!
-    // This perfectly matches the shape of the text without making the whole screen dark.
-    // It calculates the distance from a rounded rectangle.
-    const dx = Math.max(0, Math.abs(current.x) - fadeBoxWidth);
-    const dy = Math.max(0, Math.abs(current.y) - fadeBoxHeight);
-    const distFromBox = Math.sqrt(dx * dx + dy * dy);
+    // Smooth flow alpha: Far left upstream lines start with a clean opacity (0.55)
+    // and smoothly ramp up to vibrant brilliance (0.98) over the drone and wake
+    const flowProgress = THREE.MathUtils.smoothstep(current.x, -bounds, -4.0);
+    const alphaFlow = THREE.MathUtils.lerp(0.55, 0.98, flowProgress);
 
-    // Fade over 5 units outside the box, restoring original brightness levels
-    const centerFade = THREE.MathUtils.smoothstep(distFromBox, 0.5, 5.5);
+    // Fade out smoothly at outer stream boundaries
+    const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 1.5);
 
-    const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 4.0);
-
-    alphas.push(centerFade * edgeFade * 0.9); // max opacity 0.9
+    alphas.push(alphaFlow * edgeFade);
 
     const step = 0.35;
-    current.add(vel.clone().multiplyScalar(step));
+    // Strictly forward monotonic step: mathematically impossible to loop backwards
+    const dx = Math.max(vel.x * step, 0.18);
+    current.x += dx;
+    current.y += vel.y * step;
+    current.z += vel.z * step;
   }
 
   const curve = new THREE.CatmullRomCurve3(points);
   const tubularSegments = SEGMENTS - 1;
   const radialSegments = 8;
-  const radius = 0.015;
+  const radius = 0.013; // Finer, sleeker, razor-sharp neon CFD filaments
   const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
 
   const count = (tubularSegments + 1) * (radialSegments + 1);
@@ -134,9 +261,42 @@ function generateStreamlineGeometry(
 
 export function FlowLines() {
   const groupRef = useRef<THREE.Group>(null);
+  const dronePivotRef = useRef<THREE.Group>(null);
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
+  const [droneModel, setDroneModel] = useState<THREE.Group | null>(null);
   const scrollYRef = useRef(0);
-  const currentScrollRot = useRef(0);
+  const currentScrollRotY = useRef(0);
+  const currentScrollRotX = useRef(0);
+  const currentPosX = useRef(0);
+  const currentPosZ = useRef(0);
+
+  // Load the Decimated 3D Drone Model from public/models/fyp-drone.glb
+  useEffect(() => {
+    const loader = new GLTFLoader();
+    loader.load(
+      '/models/fyp-drone.glb',
+      (gltf) => {
+        const model = gltf.scene;
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            if (mesh.material) {
+              const mat = mesh.material as THREE.MeshStandardMaterial;
+              mat.roughness = Math.max(mat.roughness, 0.25);
+              mat.metalness = Math.min(mat.metalness, 0.5);
+            }
+          }
+        });
+        setDroneModel(model);
+      },
+      undefined,
+      (err) => {
+        console.error('Failed to load drone model:', err);
+      }
+    );
+  }, []);
 
   useEffect(() => {
     // Scroll listener for the rotation effect
@@ -146,34 +306,84 @@ export function FlowLines() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     const isMobile = window.innerWidth < 768;
-    const actualTubeCount = isMobile ? 50 : TUBE_COUNT;
-    const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.5 : DEFAULT_SPHERE_RADIUS;
+    const actualTubeCount = isMobile ? 36 : TUBE_COUNT;
     const actualBounds = isMobile ? BOUNDS * 0.6 : BOUNDS;
-
-    // Adapt the dark area exactly to the shape of the text.
-    // Desktop text is wide and short. Mobile text is narrower and taller.
-    const fadeBoxWidth = isMobile ? 3.0 : 7.0;
-    const fadeBoxHeight = isMobile ? 3.0 : 1.5;
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
+    // Harmoniously balanced CFD streamline seeding:
+    // 1. 16 Upper wind-tunnel streamlines
+    // 2. 16 Lower wind-tunnel streamlines (balancing top and bottom)
+    // 3. 14 Front canopy streamlines
+    // 4. 12 Front cargo & skid streamlines
+    // 5. 6 Flank & arm streamlines
+    const topY = [2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2, 2.5, 2.9, 3.5];
+    const topZ = [
+      0.0, -1.2, 1.2, -2.4, 2.4, -0.6, 0.6, -1.8, 1.8, -3.0, 3.0, 0.0, -1.0, 1.0, -2.0, 2.0,
+    ];
+
+    const bottomY = [
+      -2.0, -2.4, -2.8, -3.2, -3.6, -4.0, -4.4, -2.2, -2.6, -3.0, -3.4, -3.8, -4.2, -2.5, -2.9,
+      -3.5,
+    ];
+    const bottomZ = [
+      0.0, 1.2, -1.2, 2.4, -2.4, 0.6, -0.6, 1.8, -1.8, 3.0, -3.0, 0.0, 1.0, -1.0, 2.0, -2.0,
+    ];
+
+    const frontCanopyY = [
+      0.4, 0.7, 1.0, 1.3, 1.6, 1.9, 0.55, 0.85, 1.15, 1.45, 1.75, 0.6, 0.9, 1.2,
+    ];
+    const frontCanopyZ = [
+      0.0, -0.6, 0.6, -1.2, 1.2, -1.8, 1.8, -0.3, 0.3, -0.9, 0.9, 0.0, -1.5, 1.5,
+    ];
+
+    const frontCargoY = [
+      -0.2, -0.5, -0.8, -1.1, -1.4, -1.8, -0.35, -0.65, -0.95, -1.25, -1.6, -0.4,
+    ];
+    const frontCargoZ = [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 0.3, -0.3, 0.9, -0.9, 0.0];
+
+    const flankY = [0.0, 0.5, -0.4, 0.8, -0.6, 0.3];
+    const flankZ = [-2.6, 2.6, -3.4, 3.4, -4.2, 4.2];
+
     for (let i = 0; i < actualTubeCount; i++) {
       const startX = -actualBounds;
+      let startY = 0;
+      let startZ = 0;
+      let isClosest = false;
 
-      const r = Math.random() * (actualSphereRadius * 0.95);
-      const theta = Math.random() * Math.PI * 2;
-      const startY = r * Math.cos(theta) + (Math.random() - 0.5) * 0.1;
-      const startZ = r * Math.sin(theta) + (Math.random() - 0.5) * 0.1;
+      if (i < 16) {
+        // Upper wind-tunnel streamlines
+        startY = topY[i % topY.length];
+        startZ = topZ[i % topZ.length];
+      } else if (i < 32) {
+        // Lower wind-tunnel streamlines (balances top and bottom)
+        const idx = i - 16;
+        startY = bottomY[idx % bottomY.length];
+        startZ = bottomZ[idx % bottomZ.length];
+      } else if (i < 46) {
+        // Front canopy streamlines: direct nose-impact filaments get red stagnation
+        const idx = i - 32;
+        startY = frontCanopyY[idx % frontCanopyY.length];
+        startZ = frontCanopyZ[idx % frontCanopyZ.length];
+        if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
+          isClosest = true;
+        }
+      } else if (i < 58) {
+        // Front cargo & skid streamlines: battery leading edge filaments get red stagnation
+        const idx = i - 46;
+        startY = frontCargoY[idx % frontCargoY.length];
+        startZ = frontCargoZ[idx % frontCargoZ.length];
+        if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
+          isClosest = true;
+        }
+      } else {
+        // Flank & arm streamlines
+        const idx = i - 58;
+        startY = flankY[idx % flankY.length];
+        startZ = flankZ[idx % flankZ.length];
+      }
 
-      const geom = generateStreamlineGeometry(
-        startX,
-        startY,
-        startZ,
-        actualSphereRadius,
-        actualBounds,
-        fadeBoxWidth,
-        fadeBoxHeight
-      );
+      const geom = generateStreamlineGeometry(startX, startY, startZ, actualBounds, isClosest);
       newGeometries.push(geom);
     }
 
@@ -191,40 +401,79 @@ export function FlowLines() {
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    const maxRotation = Math.PI / 3;
+    const isMobile = window.innerWidth < 768;
+    // At top (hero):
+    // Yaw rotation increased to 0.55 rad (~31.5 deg) for deep 3D perspective along blue arrow
+    // Pitch: -0.065 rad
+    const maxRotY = 0.55;
+    const maxRotX = -0.065;
+    const maxPosX = isMobile ? 1.8 : 5.0;
+    const maxPosZ = isMobile ? 2.2 : 4.6;
 
-    // REVERSED: at scroll=0 splines are pushed RIGHT. As user scrolls they come to center.
-    // targetScrollRot goes from +maxRotation (scroll=0, right) to 0 (fully scrolled)
+    // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
-    const targetScrollRot = maxRotation * (1 - scrollProgress);
+    const targetRotY = maxRotY * (1 - scrollProgress);
+    const targetRotX = maxRotX * (1 - scrollProgress);
+    const targetPosX = maxPosX * (1 - scrollProgress);
+    const targetPosZ = -maxPosZ * (1 - scrollProgress);
 
-    currentScrollRot.current = THREE.MathUtils.lerp(
-      currentScrollRot.current,
-      targetScrollRot,
+    currentScrollRotY.current = THREE.MathUtils.lerp(
+      currentScrollRotY.current,
+      targetRotY,
       delta * 5.0
     );
 
-    const time = performance.now() / 1000;
-    // Combine idle sway with the scroll rotation
-    groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.15 + currentScrollRot.current;
-    groupRef.current.rotation.x = Math.cos(time * 0.1) * 0.05;
+    currentScrollRotX.current = THREE.MathUtils.lerp(
+      currentScrollRotX.current,
+      targetRotX,
+      delta * 5.0
+    );
 
-    // Push back slightly to prevent clipping at extremes
-    groupRef.current.position.z = -Math.abs(currentScrollRot.current) * 8.0;
-    // At top: shift right (+x). At center: return to 0.
-    groupRef.current.position.x = currentScrollRot.current * 2.5;
+    currentPosX.current = THREE.MathUtils.lerp(currentPosX.current, targetPosX, delta * 5.0);
+
+    currentPosZ.current = THREE.MathUtils.lerp(currentPosZ.current, targetPosZ, delta * 5.0);
+
+    const time = performance.now() / 1000;
+    const sway = 1 - 0.5 * (1 - scrollProgress);
+
+    // Living aerodynamic fluid sway animation on the entire tunnel:
+    groupRef.current.rotation.y = Math.sin(time * 0.25) * 0.06 * sway + currentScrollRotY.current;
+    groupRef.current.rotation.x = Math.cos(time * 0.2) * 0.035 * sway + currentScrollRotX.current;
+    groupRef.current.position.y = Math.sin(time * 0.3) * 0.18 * sway;
+
+    groupRef.current.position.z = currentPosZ.current;
+    groupRef.current.position.x = currentPosX.current;
+
+    // Gentle aerodynamic hovering and banking trim motion on the drone model:
+    if (dronePivotRef.current) {
+      dronePivotRef.current.position.y = -0.6 + Math.sin(time * 1.5) * 0.12 * sway;
+      dronePivotRef.current.rotation.z = Math.sin(time * 1.1) * 0.025 * sway;
+      dronePivotRef.current.rotation.x = Math.cos(time * 1.4) * 0.02 * sway;
+    }
   });
 
   return (
     <group ref={groupRef}>
+      {/* 3D Drone Model with natural 11 deg forward pitch into oncoming airflow */}
+      {droneModel && (
+        <group ref={dronePivotRef} position={[0, -0.6, 0]}>
+          <primitive
+            object={droneModel}
+            scale={8.2}
+            rotation={new THREE.Euler(11.0 * (Math.PI / 180), -Math.PI / 2, 0, 'YXZ')}
+            position={[0, 0, 0]}
+          />
+        </group>
+      )}
+
+      {/* Clean, distinct CFD Streamlines */}
       {geometries.map((geom, idx) => (
         <mesh key={idx} geometry={geom}>
-          {/* Use MeshStandardMaterial with vertexColors for 3D high-res shading */}
           <meshStandardMaterial
             vertexColors
             transparent
-            roughness={0.4}
-            metalness={0.1}
+            roughness={0.25}
+            metalness={0.2}
             depthWrite={false}
           />
         </mesh>

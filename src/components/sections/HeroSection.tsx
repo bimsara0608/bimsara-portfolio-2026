@@ -51,10 +51,13 @@ export function HeroSection({ profile }: HeroSectionProps) {
   return (
     <section
       id="hero"
-      className="w-full min-h-[100svh] flex flex-col justify-center pt-28 pb-0 relative"
+      className="w-full min-h-[100svh] flex flex-col justify-center pt-28 pb-0 relative overflow-hidden"
     >
+      {/* Left gradient protecting the hero text area, fully preserving typography readability while leaving the splines open */}
+      <div className="absolute inset-y-0 left-0 w-full md:w-[50%] lg:w-[48%] pointer-events-none bg-gradient-to-r from-background via-background/90 via-60% to-transparent z-0" />
+
       {/* Left-aligned content */}
-      <div className="flex-1 flex flex-col justify-center px-6 lg:px-16 max-w-5xl">
+      <div className="flex-1 flex flex-col justify-center px-6 lg:px-16 max-w-5xl relative z-10">
         {/* Status badge */}
         <motion.div {...fadeUp(0)} className="flex mb-10">
           <span className="hero-badge bg-black/40 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide text-white uppercase flex items-center gap-2.5 shadow-sm">
