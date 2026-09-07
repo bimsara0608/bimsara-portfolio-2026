@@ -1,11 +1,12 @@
 'use client';
 
-import Link from 'next/link';
+// removed link
 import { useState, useEffect } from 'react';
 import { Menu, X, Download } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const NAV_LINKS = [
+  { label: 'Home', href: '#hero', section: 'hero' },
   { label: 'About', href: '#about', section: 'about' },
   { label: 'Projects', href: '#projects', section: 'projects' },
   { label: 'Services', href: '#services', section: 'services' },

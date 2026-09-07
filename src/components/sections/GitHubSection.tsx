@@ -45,11 +45,15 @@ export async function GitHubSection() {
     <section id="github" className="w-full py-24 md:py-32 px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Heavy dark frosted glass backdrop */}
-        <div className="rounded-3xl bg-black/70 backdrop-blur-xl border border-white/8 p-8 md:p-12">
+        <div className="rounded-[24px] bg-black/90 backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
           {/* Header */}
           <div className="mb-12">
-            <span className="section-label">Open Source</span>
-            <h2 className="text-fluid-h2 text-foreground">GitHub Activity</h2>
+            <span className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-white mb-6">
+              Open Source
+            </span>
+            <h2 className="text-fluid-h2 text-white tracking-tight">
+              GitHub Activity. <span className="text-muted-foreground">Code in the open.</span>
+            </h2>
           </div>
 
           {/* Profile card */}

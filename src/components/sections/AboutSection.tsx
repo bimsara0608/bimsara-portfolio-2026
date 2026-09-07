@@ -32,7 +32,7 @@ export function AboutSection({ profile }: AboutSectionProps) {
     <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Heavy dark frosted glass backdrop */}
-        <div className="rounded-3xl bg-black/70 backdrop-blur-xl border border-white/8 p-8 md:p-12">
+        <div className="rounded-[24px] bg-black/90 backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Left: Profile card */}
             <div className="lg:col-span-4">
@@ -99,8 +99,12 @@ export function AboutSection({ profile }: AboutSectionProps) {
             {/* Right: Bio + experience */}
             <div className="lg:col-span-8">
               {/* Section label + heading */}
-              <span className="section-label">About</span>
-              <h2 className="text-fluid-h2 text-foreground mb-6">Engineering meets design.</h2>
+              <span className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-white mb-6">
+                About
+              </span>
+              <h2 className="text-fluid-h2 text-white mb-8 tracking-tight">
+                Engineering <span className="text-muted-foreground">meets design.</span>
+              </h2>
 
               {/* Bio paragraphs */}
               <div className="space-y-4 text-muted-foreground text-[15px] leading-relaxed mb-14">

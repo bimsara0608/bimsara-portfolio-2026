@@ -60,13 +60,16 @@ export function ContactSection() {
     <section id="contact" className="w-full py-24 md:py-32 px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Heavy dark frosted glass backdrop */}
-        <div className="rounded-3xl bg-black/70 backdrop-blur-xl border border-white/8 p-8 md:p-12">
+        <div className="rounded-[24px] bg-black/90 backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-20">
             {/* Left: Info */}
             <div>
-              <span className="section-label">Contact</span>
-              <h2 className="text-fluid-h2 text-foreground mb-5 leading-tight">
-                Ready to collaborate?
+              <span className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold tracking-widest uppercase text-white mb-6">
+                Contact
+              </span>
+              <h2 className="text-fluid-h2 text-white mb-5 leading-tight tracking-tight">
+                Ready to collaborate?{' '}
+                <span className="text-muted-foreground">Let&apos;s talk.</span>
               </h2>
               <p className="text-[15px] text-muted-foreground mb-10 leading-relaxed max-w-sm">
                 Whether you have a specific project in mind or just want to explore possibilities,
