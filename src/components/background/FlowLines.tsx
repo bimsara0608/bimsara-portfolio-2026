@@ -50,7 +50,8 @@ function generateStreamlineGeometry(
   startY: number,
   startZ: number,
   sphereRadius: number,
-  bounds: number
+  bounds: number,
+  fadeStretchX: number
 ) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
@@ -83,12 +84,12 @@ function generateStreamlineGeometry(
 
     colorsArray.push(getXPositionColor(current.x, bounds));
 
-    const distFromCenterXY = Math.sqrt(current.x * current.x + current.y * current.y);
-    const centerFade = THREE.MathUtils.smoothstep(
-      distFromCenterXY,
-      sphereRadius * 0.5,
-      sphereRadius * 1.1
-    );
+    // Elliptical center fade to match the bounding box of the text!
+    // By dividing X by fadeStretchX, we make the dark area wider horizontally
+    const effX = current.x / fadeStretchX;
+    const distFromCenterXY = Math.sqrt(effX * effX + current.y * current.y);
+    const centerFade = THREE.MathUtils.smoothstep(distFromCenterXY, 4.0, 9.0);
+
     const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 4.0);
 
     alphas.push(centerFade * edgeFade * 0.9); // max opacity 0.9
@@ -136,6 +137,10 @@ export function FlowLines() {
     const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.5 : DEFAULT_SPHERE_RADIUS;
     const actualBounds = isMobile ? BOUNDS * 0.6 : BOUNDS;
 
+    // Stretch the dark fade area horizontally.
+    // Desktop: text is very wide. Mobile: text is stacked and narrower.
+    const fadeStretchX = isMobile ? 1.5 : 3.0;
+
     const newGeometries: THREE.TubeGeometry[] = [];
 
     for (let i = 0; i < actualTubeCount; i++) {
@@ -151,7 +156,8 @@ export function FlowLines() {
         startY,
         startZ,
         actualSphereRadius,
-        actualBounds
+        actualBounds,
+        fadeStretchX
       );
       newGeometries.push(geom);
     }
