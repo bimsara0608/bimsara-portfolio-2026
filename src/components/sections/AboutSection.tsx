@@ -38,7 +38,7 @@ export function AboutSection({ profile }: AboutSectionProps) {
             <div className="lg:col-span-4">
               <div className="card overflow-hidden">
                 {/* Photo */}
-                <div className="w-full aspect-[4/5] relative bg-muted">
+                <div className="w-full aspect-[4/5] relative bg-black/20">
                   {profile?.avatar_url ? (
                     <Image
                       src={profile.avatar_url}
@@ -76,7 +76,7 @@ export function AboutSection({ profile }: AboutSectionProps) {
                     <Mail size={13} className="flex-shrink-0" />
                     <a
                       href={`mailto:${profile?.email || 'hello@bimsara.com'}`}
-                      className="hover:text-foreground transition-colors truncate"
+                      className="hover:text-foreground transition-colors break-all"
                     >
                       {profile?.email || 'hello@bimsara.com'}
                     </a>

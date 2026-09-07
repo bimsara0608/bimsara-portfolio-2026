@@ -43,7 +43,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
   return (
     <section
       id="hero"
-      className="w-full min-h-[110svh] flex flex-col items-center justify-center pt-28 pb-24 px-6 lg:px-8"
+      className="w-full min-h-[110svh] flex flex-col items-center justify-center pt-28 pb-32 md:pb-40 px-6 lg:px-8"
     >
       <div className="max-w-4xl mx-auto text-center w-full">
         {/* Status badge */}
@@ -57,7 +57,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
         {/* Heading - Two color effect */}
         <motion.h1 {...fadeUp(0.1)} className="text-fluid-h1 mb-6 text-balance tracking-tight">
           <span className="text-white font-medium">Hi, I&apos;m {profile.name.split(' ')[0]}.</span>{' '}
-          <span className="text-muted-foreground font-medium">Design Engineer & 3D Artist.</span>
+          <span className="text-muted-foreground font-medium">Let&apos;s build together.</span>
         </motion.h1>
 
         {/* Tagline */}
@@ -88,7 +88,10 @@ export function HeroSection({ profile }: HeroSectionProps) {
         </motion.div>
 
         {/* Stats */}
-        <motion.div {...fadeUp(0.45)} className="mt-24 grid grid-cols-3 gap-8 max-w-md mx-auto">
+        <motion.div
+          {...fadeUp(0.45)}
+          className="mt-24 flex flex-wrap justify-center gap-6 sm:gap-10 max-w-md mx-auto"
+        >
           <div className="text-center">
             <AnimatedNumber
               value={pStats.value}
@@ -100,7 +103,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
             </p>
           </div>
 
-          <div className="text-center border-x border-white/10 px-4">
+          <div className="text-center border-l border-white/10 pl-6 sm:pl-10">
             <AnimatedNumber
               value={eStats.value}
               suffix={eStats.suffix}
@@ -111,7 +114,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
             </p>
           </div>
 
-          <div className="text-center">
+          <div className="text-center border-l border-white/10 pl-6 sm:pl-10 w-full sm:w-auto border-t sm:border-t-0 pt-6 sm:pt-0 mt-2 sm:mt-0">
             <p className="block text-4xl stat-number mb-2 text-white font-medium tracking-tight">
               {profile.stat_certification}
             </p>
@@ -122,7 +125,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
         </motion.div>
 
         {/* Tools & Technologies */}
-        <motion.div {...fadeUp(0.6)} className="mt-20">
+        <motion.div {...fadeUp(0.6)} className="mt-20 max-w-lg mx-auto">
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-6">
             Tools &amp; Technologies
           </p>

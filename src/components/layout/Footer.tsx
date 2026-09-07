@@ -30,7 +30,7 @@ export function Footer() {
   };
 
   return (
-    <footer style={{ background: '#0f172a' }} className="mt-0">
+    <footer className="mt-0 bg-background border-t border-border">
       <div className="max-w-6xl mx-auto px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
           {/* Brand + Newsletter */}

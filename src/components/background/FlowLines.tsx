@@ -203,7 +203,7 @@ export function FlowLines() {
       delta * 5.0
     );
 
-    const time = state.clock.getElapsedTime();
+    const time = performance.now() / 1000;
     // Combine idle sway with the scroll rotation
     groupRef.current.rotation.y = Math.sin(time * 0.1) * 0.15 + currentScrollRot.current;
     groupRef.current.rotation.x = Math.cos(time * 0.1) * 0.05;

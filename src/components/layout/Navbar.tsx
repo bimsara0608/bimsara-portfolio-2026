@@ -3,7 +3,7 @@
 // removed link
 import { useState, useEffect } from 'react';
 import { Menu, X, Download } from 'lucide-react';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+// Theme toggle removed for permanent dark mode
 
 const NAV_LINKS = [
   { label: 'Home', href: '#hero', section: 'hero' },
@@ -107,7 +107,6 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
 
         {/* Desktop right actions */}
         <div className="hidden md:flex items-center gap-3">
-          <ThemeToggle />
           <a
             href={resumeUrl || '#'}
             download={!!resumeUrl}
@@ -122,7 +121,6 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
 
         {/* Mobile actions */}
         <div className="flex md:hidden items-center gap-2">
-          <ThemeToggle />
           <button
             className="p-2 -mr-1 rounded-lg text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsOpen((v) => !v)}
@@ -135,11 +133,11 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-out border-b border-border ${
-          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-        } bg-background`}
+        className={`md:hidden overflow-y-auto transition-all duration-300 ease-out absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border ${
+          isOpen ? 'h-[calc(100vh-64px)] opacity-100' : 'h-0 opacity-0 pointer-events-none'
+        }`}
       >
-        <nav className="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-1">
+        <nav className="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-2">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
