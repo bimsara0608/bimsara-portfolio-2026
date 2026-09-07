@@ -2,23 +2,22 @@ import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const TUBE_COUNT = 90; // Reduced count but higher resolution per tube
-const SEGMENTS = 150; // High resolution along the curve
-const BOUNDS = 18; // Tighter bounds to keep geometry on-screen and save performance
-const SPHERE_RADIUS = 9.0;
+const TUBE_COUNT = 90;
+const SEGMENTS = 150;
+const BOUNDS = 18;
+const DEFAULT_SPHERE_RADIUS = 9.0;
 
 // Analytical Potential Flow around a Sphere
-function getVelocity(x: number, y: number, z: number) {
+function getVelocity(x: number, y: number, z: number, sphereRadius: number) {
   const U = 1.0;
   const r2 = x * x + y * y + z * z;
   const r = Math.sqrt(r2);
 
-  if (r < SPHERE_RADIUS * 0.99) {
-    return new THREE.Vector3(0, 0, 0);
-  }
+  // Safety check to prevent divide by zero
+  if (r < 0.1) return new THREE.Vector3(U, 0, 0);
 
   const r5 = r2 * r2 * r;
-  const coef = (U * Math.pow(SPHERE_RADIUS, 3)) / 2.0;
+  const coef = (U * Math.pow(sphereRadius, 3)) / 2.0;
 
   const vx = U + (coef * (r2 - 3 * x * x)) / r5;
   const vy = (coef * (-3 * x * y)) / r5;
@@ -28,26 +27,31 @@ function getVelocity(x: number, y: number, z: number) {
 }
 
 // Full CFD Spectrum: Blue at screen corners (far edges), Red in the middle
-function getXPositionColor(x: number) {
-  // Map absolute X from 0 (center) to BOUNDS (edge)
+function getXPositionColor(x: number, bounds: number) {
   const dist = Math.abs(x);
-  const v = Math.min(Math.max(dist / BOUNDS, 0), 1);
+  const v = Math.min(Math.max(dist / bounds, 0), 1);
 
   const c = new THREE.Color();
   // Reverse mapping: v=0 (center) is Red, v=1 (edge) is Blue
   if (v < 0.25) {
-    c.lerpColors(new THREE.Color('#ff0000'), new THREE.Color('#ffff00'), v / 0.25); // Red to Yellow
+    c.lerpColors(new THREE.Color('#ff0000'), new THREE.Color('#ffff00'), v / 0.25);
   } else if (v < 0.5) {
-    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#00ff00'), (v - 0.25) / 0.25); // Yellow to Green
+    c.lerpColors(new THREE.Color('#ffff00'), new THREE.Color('#00ff00'), (v - 0.25) / 0.25);
   } else if (v < 0.75) {
-    c.lerpColors(new THREE.Color('#00ff00'), new THREE.Color('#00ffff'), (v - 0.5) / 0.25); // Green to Cyan
+    c.lerpColors(new THREE.Color('#00ff00'), new THREE.Color('#00ffff'), (v - 0.5) / 0.25);
   } else {
-    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#0000ff'), (v - 0.75) / 0.25); // Cyan to Blue
+    c.lerpColors(new THREE.Color('#00ffff'), new THREE.Color('#0000ff'), (v - 0.75) / 0.25);
   }
   return c;
 }
 
-function generateStreamlineGeometry(startX: number, startY: number, startZ: number) {
+function generateStreamlineGeometry(
+  startX: number,
+  startY: number,
+  startZ: number,
+  sphereRadius: number,
+  bounds: number
+) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
   const alphas: number[] = [];
@@ -55,34 +59,47 @@ function generateStreamlineGeometry(startX: number, startY: number, startZ: numb
   const current = new THREE.Vector3(startX, startY, startZ);
 
   for (let i = 0; i < SEGMENTS; i++) {
-    points.push(current.clone());
+    // 1. CRITICAL FIX: Never let a point go inside the sphere, which causes 0 velocity and duplicate points (glitching CatmullRom)
+    if (current.length() < sphereRadius) {
+      current.normalize().multiplyScalar(sphereRadius + 0.1);
+    }
 
-    const vel = getVelocity(current.x, current.y, current.z);
+    // 2. CRITICAL FIX: Ensure no duplicate points are pushed to CatmullRomCurve3
+    const newPoint = current.clone();
+    if (points.length > 0) {
+      const lastPoint = points[points.length - 1];
+      if (newPoint.distanceTo(lastPoint) < 0.001) {
+        newPoint.add(new THREE.Vector3(0.01, 0.01, 0.01)); // Tiny nudge to prevent explosion
+      }
+    }
+    points.push(newPoint);
+
+    const vel = getVelocity(current.x, current.y, current.z, sphereRadius);
 
     // Prevent massive jumps near singularity
     if (vel.length() > 2.0) {
       vel.setLength(2.0);
     }
 
-    // Full color spectrum based on X coordinate
-    colorsArray.push(getXPositionColor(current.x));
+    colorsArray.push(getXPositionColor(current.x, bounds));
 
-    // Restore WebGL center fade to protect text, leaving 99% transparency in the exact center
     const distFromCenterXY = Math.sqrt(current.x * current.x + current.y * current.y);
-    const centerFade = THREE.MathUtils.smoothstep(distFromCenterXY, 5.0, 10.0);
-
-    const edgeFade = THREE.MathUtils.smoothstep(BOUNDS - Math.abs(current.x), 0.0, 4.0);
+    const centerFade = THREE.MathUtils.smoothstep(
+      distFromCenterXY,
+      sphereRadius * 0.5,
+      sphereRadius * 1.1
+    );
+    const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 4.0);
 
     alphas.push(centerFade * edgeFade * 0.9); // max opacity 0.9
 
-    // Use a smaller step for higher resolution curves
     const step = 0.35;
     current.add(vel.clone().multiplyScalar(step));
   }
 
   const curve = new THREE.CatmullRomCurve3(points);
   const tubularSegments = SEGMENTS - 1;
-  const radialSegments = 8; // Higher res tube for better quality
+  const radialSegments = 8;
   const radius = 0.015;
   const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
 
@@ -114,22 +131,28 @@ export function FlowLines() {
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
 
   useEffect(() => {
-    // Mobile optimization check
     const isMobile = window.innerWidth < 768;
-    const actualTubeCount = isMobile ? Math.floor(TUBE_COUNT * 0.6) : TUBE_COUNT;
+    const actualTubeCount = isMobile ? 50 : TUBE_COUNT;
+    const actualSphereRadius = isMobile ? DEFAULT_SPHERE_RADIUS * 0.5 : DEFAULT_SPHERE_RADIUS;
+    const actualBounds = isMobile ? BOUNDS * 0.6 : BOUNDS;
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
     for (let i = 0; i < actualTubeCount; i++) {
-      const startX = -BOUNDS;
+      const startX = -actualBounds;
 
-      const r = Math.random() * (SPHERE_RADIUS * 0.95);
+      const r = Math.random() * (actualSphereRadius * 0.95);
       const theta = Math.random() * Math.PI * 2;
-      // Add a slight random offset to prevent perfectly straight lines hitting exactly y=0,z=0
       const startY = r * Math.cos(theta) + (Math.random() - 0.5) * 0.1;
       const startZ = r * Math.sin(theta) + (Math.random() - 0.5) * 0.1;
 
-      const geom = generateStreamlineGeometry(startX, startY, startZ);
+      const geom = generateStreamlineGeometry(
+        startX,
+        startY,
+        startZ,
+        actualSphereRadius,
+        actualBounds
+      );
       newGeometries.push(geom);
     }
 
