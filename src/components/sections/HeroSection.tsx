@@ -32,35 +32,41 @@ export function HeroSection({ profile }: HeroSectionProps) {
   return (
     <section
       id="hero"
-      className="w-full min-h-[95svh] flex items-center justify-center pt-24 pb-20 px-6 lg:px-8"
+      className="w-full min-h-[95svh] flex items-center pt-24 pb-20 px-6 lg:px-16 xl:px-24"
     >
-      <div className="max-w-3xl mx-auto text-center w-full">
-        {/* Status badge */}
-        <motion.div {...fadeUp(0)} className="flex justify-center mb-8">
-          <span className="hero-badge">
+      {/* Left-aligned on desktop, centered on mobile */}
+      <div className="w-full max-w-2xl lg:mx-0 mx-auto text-center lg:text-left">
+        {/* Status badge — frosted glass pill */}
+        <motion.div {...fadeUp(0)} className="flex justify-center lg:justify-start mb-8">
+          <span className="hero-badge backdrop-blur-md bg-black/40 border border-white/10">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
             Available for freelance work
           </span>
         </motion.div>
 
-        {/* Heading */}
-        <motion.h1 {...fadeUp(0.1)} className="text-fluid-h1 mb-5 text-balance">
-          <span className="text-muted-foreground font-normal">Hi, I&apos;m </span>
-          <span className="text-foreground">{profile.name.split(' ')[0]}</span>
-        </motion.h1>
-
-        {/* Tagline */}
-        <motion.p
-          {...fadeUp(0.2)}
-          className="text-fluid-p text-muted-foreground mb-10 text-balance max-w-xl mx-auto"
+        {/* Heading — frosted glass card */}
+        <motion.div
+          {...fadeUp(0.1)}
+          className="rounded-2xl backdrop-blur-md bg-black/30 border border-white/5 px-6 py-5 mb-5 inline-block w-full"
         >
-          {profile.tagline}
-        </motion.p>
+          <h1 className="text-fluid-h1 text-balance">
+            <span className="text-muted-foreground font-normal">Hi, I&apos;m </span>
+            <span className="text-foreground">{profile.name.split(' ')[0]}</span>
+          </h1>
+        </motion.div>
+
+        {/* Tagline — frosted glass card */}
+        <motion.div
+          {...fadeUp(0.2)}
+          className="rounded-xl backdrop-blur-md bg-black/30 border border-white/5 px-6 py-4 mb-10 inline-block w-full"
+        >
+          <p className="text-fluid-p text-muted-foreground text-balance">{profile.tagline}</p>
+        </motion.div>
 
         {/* CTA Buttons */}
         <motion.div
           {...fadeUp(0.3)}
-          className="flex flex-col sm:flex-row gap-3 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start items-center"
         >
           <button
             onClick={() => handleScroll('projects')}
@@ -76,8 +82,11 @@ export function HeroSection({ profile }: HeroSectionProps) {
           </button>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div {...fadeUp(0.45)} className="mt-20 grid grid-cols-3 gap-8 max-w-sm mx-auto">
+        {/* Stats — frosted glass bar */}
+        <motion.div
+          {...fadeUp(0.45)}
+          className="mt-16 rounded-2xl backdrop-blur-md bg-black/30 border border-white/5 px-6 py-5 grid grid-cols-3 gap-4 max-w-sm mx-auto lg:mx-0"
+        >
           <div className="text-center">
             <AnimatedNumber
               value={pStats.value}
@@ -89,7 +98,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
             </p>
           </div>
 
-          <div className="text-center border-x border-border px-4">
+          <div className="text-center border-x border-white/10 px-4">
             <AnimatedNumber
               value={eStats.value}
               suffix={eStats.suffix}
