@@ -41,15 +41,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col">
       <HeroSection profile={profile} />
-      <div
-        className="relative z-10"
-        style={{
-          background:
-            'linear-gradient(90deg, transparent 0%, rgba(9,9,11,0) max(0px, calc(50vw - 640px)), rgba(9,9,11,0.92) max(0px, calc(50vw - 600px)), #09090b max(0px, calc(50vw - 580px)), #09090b min(100vw, calc(50vw + 580px)), rgba(9,9,11,0.92) min(100vw, calc(50vw + 600px)), rgba(9,9,11,0) min(100vw, calc(50vw + 640px)), transparent 100%)',
-        }}
-      >
-        {/* Subtle top divider that fades out towards the flanks to keep splines continuous */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent pointer-events-none" />
+      <div className="relative z-10 bg-[#09090b]/95 backdrop-blur-[4px] border-t border-white/[0.08] shadow-[0_-25px_60px_rgba(0,0,0,0.95)]">
         <AboutSection profile={profile} />
         <ProjectsSection projects={projects} />
         <ServicesSection />
