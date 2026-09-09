@@ -1,6 +1,7 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Profile } from '@/lib/types';
 
@@ -13,6 +14,72 @@ const fadeUp = (delay: number) => ({
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.55, delay },
 });
+
+// Ascending animated counter for factual engineering numbers
+function AscendingCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp: number | null = null;
+    const duration = 1600;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(eased * target));
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setCount(target);
+      }
+    };
+
+    const frameId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [target]);
+
+  return (
+    <span>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
+// 26 Technical Skills categorized across 2 balanced marquee rows (matching reference design)
+const SKILLS_ROW_1 = [
+  { name: 'SOLIDWORKS', color: '#f43f5e' },
+  { name: 'PLC', color: '#06b6d4' },
+  { name: 'PYTHON', color: '#facc15' },
+  { name: 'AUTOCAD', color: '#ef4444' },
+  { name: 'HMI', color: '#14b8a6' },
+  { name: 'C', color: '#3b82f6' },
+  { name: 'INVENTOR', color: '#f97316' },
+  { name: 'LADDER LOGIC', color: '#10b981' },
+  { name: 'MATLAB', color: '#ea580c' },
+  { name: 'BLENDER', color: '#38bdf8' },
+  { name: 'SENSORS', color: '#84cc16' },
+  { name: 'JAVASCRIPT', color: '#eab308' },
+  { name: 'ANSYS', color: '#fbbf24' },
+];
+
+const SKILLS_ROW_2 = [
+  { name: 'ACTUATORS', color: '#f59e0b' },
+  { name: 'SQL', color: '#0ea5e9' },
+  { name: 'RASPBERRY PI', color: '#e11d48' },
+  { name: 'ROBOTICS', color: '#22d3ee' },
+  { name: '3D PRINTING', color: '#34d399' },
+  { name: 'ESP32', color: '#2dd4bf' },
+  { name: 'UAV SYSTEMS', color: '#60a5fa' },
+  { name: 'PCB DESIGN', color: '#4ade80' },
+  { name: 'ARDUINO', color: '#06b6d4' },
+  { name: 'KINEMATICS', color: '#a78bfa' },
+  { name: 'DFM', color: '#a3e635' },
+  { name: 'VHDL', color: '#c084fc' },
+  { name: 'EMBEDDED SYSTEMS', color: '#818cf8' },
+];
 
 export function HeroSection({ profile }: HeroSectionProps) {
   const handleScroll = (id: string) => {
@@ -29,15 +96,15 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
       {/* Left-aligned content */}
       <div className="flex-1 flex flex-col justify-center px-6 lg:px-16 max-w-5xl relative z-10">
-        {/* Status badge */}
+        {/* Status badge - Updated to AVAILABLE FOR ENGINEERING & DESIGN PROJECTS */}
         <motion.div {...fadeUp(0)} className="flex mb-8">
           <span className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#111114]/80 backdrop-blur-md border border-white/10 text-xs font-mono font-medium tracking-wide text-white/90 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-            AVAILABLE FOR DESIGN &amp; CAD ENGINEERING
+            AVAILABLE FOR ENGINEERING &amp; DESIGN PROJECTS
           </span>
         </motion.div>
 
-        {/* Heading - Attio Inter precision */}
+        {/* Heading - Kept strictly as is */}
         <motion.h1
           {...fadeUp(0.1)}
           className="text-fluid-h1 mb-6 tracking-tight text-left leading-[1.05]"
@@ -46,12 +113,12 @@ export function HeroSection({ profile }: HeroSectionProps) {
           <span className="text-zinc-400 font-medium block">Meets Design.</span>
         </motion.h1>
 
-        {/* Tagline */}
+        {/* Subtitle - Updated specification */}
         <motion.p
           {...fadeUp(0.2)}
-          className="text-fluid-p text-zinc-300 mb-10 max-w-lg text-left leading-relaxed"
+          className="text-sm sm:text-base md:text-lg text-zinc-300 mb-10 max-w-xl text-left leading-relaxed font-normal"
         >
-          {profile.tagline}
+          CSWP Certified CAD Designer | Building Autonomous &amp; Intelligent Robotic Systems
         </motion.p>
 
         {/* CTA Buttons */}
@@ -70,84 +137,104 @@ export function HeroSection({ profile }: HeroSectionProps) {
           </button>
         </motion.div>
 
-        {/* Factual Engineering Signals */}
+        {/* Factual Engineering Stats with Ascending Counter Animation */}
         <motion.div
           {...fadeUp(0.45)}
           className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 pt-6 border-t border-white/10 max-w-2xl"
         >
+          {/* Block 1: Projects Delivered */}
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
               <span className="text-xl sm:text-2xl font-semibold tracking-tight text-white font-mono">
-                CSWP
+                <AscendingCounter target={60} suffix="+" />
               </span>
             </div>
             <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Certified SolidWorks Professional
+              Projects Delivered
             </p>
           </div>
 
+          {/* Block 2: 3D & Design Experience */}
           <div className="border-l border-white/10 pl-6 sm:pl-10">
             <div className="flex items-center gap-2 mb-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
               <span className="text-xl sm:text-2xl font-semibold tracking-tight text-white font-mono">
-                B.Eng.Tech
+                <AscendingCounter target={3} suffix="+" /> Years
               </span>
             </div>
             <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Instrumentation &amp; Automation
+              3D &amp; Design Experience
             </p>
           </div>
 
+          {/* Block 3: CSWP with CSW in white and P in red */}
           <div className="border-l border-white/10 pl-6 sm:pl-10 col-span-2 sm:col-span-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
-              <span className="text-xl sm:text-2xl font-semibold tracking-tight text-white font-mono">
-                DFM &amp; CAD
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+              <span className="text-xl sm:text-2xl font-semibold tracking-tight font-mono">
+                <span className="text-white">CSW</span>
+                <span className="text-[#ef4444] font-bold">P</span>
               </span>
             </div>
             <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Manufacturing-Ready
+              Certified SOLIDWORKS Professional
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* 4 Categorized Engineering Capabilities Bar */}
+      {/* 2-Layer Technical Skills Marquee Grid (Matching Image 2 Reference) */}
       <motion.div
         {...fadeUp(0.6)}
-        className="w-full mt-16 bg-[#09090b]/80 backdrop-blur-xl border-t border-white/[0.08] py-5 px-6 lg:px-16 relative z-10"
+        className="w-full mt-16 relative z-10 overflow-hidden border-y border-white/[0.08] bg-[#0c0c0f]/80 backdrop-blur-md"
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
-          <div className="border-l border-white/10 pl-3.5">
-            <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
-              01 / CAD &amp; PRODUCT DESIGN
-            </span>
-            <p className="text-xs font-medium text-white/90">SolidWorks · Fusion 360 · AutoCAD</p>
+        {/* Soft edge fade masks for smooth entrance/exit */}
+        <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent_0%,black_6%,black_94%,transparent_100%)]">
+          {/* Layer 1 */}
+          <div className="border-b border-white/[0.08]">
+            <div className="marquee-track flex">
+              {[...SKILLS_ROW_1, ...SKILLS_ROW_1].map((skill, index) => (
+                <div
+                  key={`r1-${skill.name}-${index}`}
+                  className="group relative flex items-center justify-center h-14 sm:h-16 px-6 sm:px-8 min-w-[170px] sm:min-w-[210px] border-r border-white/[0.08] hover:bg-white/[0.04] transition-colors cursor-default"
+                >
+                  <ArrowUpRight
+                    size={11}
+                    className="absolute top-2 right-2 text-zinc-600 group-hover:text-zinc-300 transition-colors"
+                  />
+                  <span
+                    className="font-mono text-xs sm:text-[13px] font-bold tracking-wider uppercase transition-all duration-200 group-hover:scale-105"
+                    style={{ color: skill.color }}
+                  >
+                    {skill.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="border-l border-white/10 pl-3.5">
-            <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
-              02 / 3D &amp; VISUALIZATION
-            </span>
-            <p className="text-xs font-medium text-white/90">
-              Blender · KeyShot · Product Animation
-            </p>
-          </div>
-          <div className="border-l border-white/10 pl-3.5">
-            <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
-              03 / AUTOMATION &amp; ROBOTICS
-            </span>
-            <p className="text-xs font-medium text-white/90">
-              PLC · HMI · Embedded Systems · Robotics
-            </p>
-          </div>
-          <div className="border-l border-white/10 pl-3.5">
-            <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-widest block mb-1">
-              04 / PROTOTYPING &amp; DFM
-            </span>
-            <p className="text-xs font-medium text-white/90">
-              3D Printing (FDM/SLA) · Rapid Iteration
-            </p>
+
+          {/* Layer 2 */}
+          <div>
+            <div className="marquee-track flex">
+              {[...SKILLS_ROW_2, ...SKILLS_ROW_2].map((skill, index) => (
+                <div
+                  key={`r2-${skill.name}-${index}`}
+                  className="group relative flex items-center justify-center h-14 sm:h-16 px-6 sm:px-8 min-w-[170px] sm:min-w-[210px] border-r border-white/[0.08] hover:bg-white/[0.04] transition-colors cursor-default"
+                >
+                  <ArrowUpRight
+                    size={11}
+                    className="absolute top-2 right-2 text-zinc-600 group-hover:text-zinc-300 transition-colors"
+                  />
+                  <span
+                    className="font-mono text-xs sm:text-[13px] font-bold tracking-wider uppercase transition-all duration-200 group-hover:scale-105"
+                    style={{ color: skill.color }}
+                  >
+                    {skill.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </motion.div>

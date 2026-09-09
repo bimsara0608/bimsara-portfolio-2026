@@ -88,9 +88,6 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
           <span className="font-semibold text-sm text-foreground group-hover:text-white transition-colors">
             Bimsara Gunawardana
           </span>
-          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-            CSWP
-          </span>
         </Link>
 
         {/* Desktop nav */}

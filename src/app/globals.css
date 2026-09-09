@@ -407,7 +407,8 @@ select option {
 }
 
 /* =============================================
-   MARQUEE ANIMATION (Capabilities Bar)
+/* =============================================
+   MARQUEE ANIMATION (Capabilities & Skills Grid)
    ============================================= */
 @keyframes marquee-scroll {
   0% {
@@ -418,12 +419,30 @@ select option {
   }
 }
 
+@keyframes marquee-scroll-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-scroll 25s linear infinite;
+  animation: marquee-scroll 40s linear infinite;
+  will-change: transform;
 }
 
-.marquee-track:hover {
+.marquee-track-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll-reverse 40s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover,
+.marquee-track-reverse:hover {
   animation-play-state: paused;
 }
