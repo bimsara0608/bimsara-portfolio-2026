@@ -39,25 +39,25 @@
 }
 
 /* =============================================
-   DARK MODE — Attio Deep Black
+   DARK MODE — Attio Deep Black & Charcoal
    ============================================= */
 .dark {
   --bg: #09090b;
   --fg: #fafafa;
 
-  --card: #18181b;
+  --card: #111114;
   --card-fg: #fafafa;
 
   --border: rgba(255, 255, 255, 0.08);
 
-  --muted: #27272a;
+  --muted: #1c1c20;
   --muted-fg: #a1a1aa;
 
   --accent: #fafafa;
   --accent-fg: #09090b;
 
   /* Section alternation */
-  --section-alt: #111113;
+  --section-alt: #0d0d10;
 }
 
 /* =============================================
@@ -79,19 +79,19 @@ body {
 }
 
 /* =============================================
-   TYPOGRAPHY SCALE
+   TYPOGRAPHY SCALE — Attio Inter Precision
    ============================================= */
 .text-fluid-h1 {
   font-size: clamp(2.75rem, 6vw, 4.5rem);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
   font-weight: 500;
 }
 
 .text-fluid-h2 {
   font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.12;
-  letter-spacing: -0.025em;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
   font-weight: 500;
 }
 
@@ -101,24 +101,22 @@ body {
 }
 
 /* =============================================
-   CARDS — Solid, Opaque (no glassmorphism)
+   CARDS — Attio Refined Charcoal Panel
    ============================================= */
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: #111114;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   transition:
-    transform 0.25s ease,
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
     box-shadow 0.25s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.dark .card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* =============================================

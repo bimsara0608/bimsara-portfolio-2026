@@ -69,9 +69,9 @@ export function ContactSection() {
   }
 
   const fieldClass =
-    'w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-cyan-400/60 transition-colors';
+    'w-full bg-[#16161a] border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/30 transition-colors';
   const labelClass =
-    'block text-[11px] font-mono font-medium text-muted-foreground mb-1.5 uppercase tracking-wider';
+    'block text-[11px] font-mono font-medium text-zinc-400 mb-1.5 uppercase tracking-wider';
 
   return (
     <section id="contact" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
@@ -79,31 +79,31 @@ export function ContactSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-24">
           {/* Left: Info */}
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono font-medium tracking-widest uppercase text-white/90 mb-6">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-medium tracking-widest uppercase text-white/80 mb-5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               LET&apos;S COLLABORATE
             </span>
             <h2 className="text-fluid-h2 text-white mb-5 leading-tight tracking-tight">
               Have an engineering challenge?{' '}
-              <span className="text-muted-foreground block md:inline">Let&apos;s build it.</span>
+              <span className="text-zinc-400 block md:inline">Let&apos;s build it.</span>
             </h2>
-            <p className="text-[15px] text-muted-foreground mb-10 leading-relaxed max-w-md">
+            <p className="text-[15px] text-zinc-400 mb-10 leading-relaxed max-w-md">
               Whether you need precision SolidWorks modeling, finite element analysis, 3D
               visualization, or manufacturing consulting, let&apos;s discuss specifications.
             </p>
 
             <div className="space-y-5">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center flex-shrink-0 text-white">
+                <div className="w-10 h-10 bg-[#111114] border border-white/[0.08] rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-sm">
                   <Mail size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-0.5">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-0.5">
                     Direct Email
                   </p>
                   <a
                     href="mailto:bimsaragunawardana3d@gmail.com"
-                    className="text-sm font-mono font-medium text-foreground hover:text-cyan-400 transition-colors"
+                    className="text-sm font-mono font-medium text-white hover:text-cyan-400 transition-colors"
                   >
                     bimsaragunawardana3d@gmail.com
                   </a>
@@ -111,14 +111,14 @@ export function ContactSection() {
               </div>
 
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center flex-shrink-0 text-white">
+                <div className="w-10 h-10 bg-[#111114] border border-white/[0.08] rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-sm">
                   <MapPin size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-0.5">
-                    Location & Availability
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 mb-0.5">
+                    Location &amp; Availability
                   </p>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-white">
                     Colombo, Sri Lanka · Available for Worldwide Remote Collaboration
                   </p>
                 </div>
@@ -129,7 +129,7 @@ export function ContactSection() {
                   href="https://linkedin.com/in/bimsara-gunawardana-8a9b07253"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 border border-white/10 bg-white/[0.02] px-3 py-1.5 rounded-lg text-xs font-mono font-medium text-muted-foreground hover:text-white hover:border-white/30 transition-all"
+                  className="inline-flex items-center gap-1.5 border border-white/10 bg-[#111114] px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium text-zinc-300 hover:text-white hover:border-white/25 transition-all shadow-sm"
                 >
                   <ExternalLink size={12} /> LinkedIn
                 </a>
@@ -137,7 +137,7 @@ export function ContactSection() {
                   href="https://github.com/bimsara0608"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 border border-white/10 bg-white/[0.02] px-3 py-1.5 rounded-lg text-xs font-mono font-medium text-muted-foreground hover:text-white hover:border-white/30 transition-all"
+                  className="inline-flex items-center gap-1.5 border border-white/10 bg-[#111114] px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium text-zinc-300 hover:text-white hover:border-white/25 transition-all shadow-sm"
                 >
                   <ExternalLink size={12} /> GitHub
                 </a>
@@ -145,7 +145,7 @@ export function ContactSection() {
                   href="https://grabcad.com/bimsara.gunawardana-1"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 border border-white/10 bg-white/[0.02] px-3 py-1.5 rounded-lg text-xs font-mono font-medium text-muted-foreground hover:text-white hover:border-white/30 transition-all"
+                  className="inline-flex items-center gap-1.5 border border-white/10 bg-[#111114] px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium text-zinc-300 hover:text-white hover:border-white/25 transition-all shadow-sm"
                 >
                   <ExternalLink size={12} /> GrabCAD
                 </a>
@@ -154,16 +154,14 @@ export function ContactSection() {
           </div>
 
           {/* Right: Form */}
-          <div className="card p-7 md:p-8 bg-white/[0.02] border-white/10">
+          <div className="card p-7 md:p-8 bg-[#111114] border-white/[0.08] shadow-xl">
             {status === 'success' ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
                   <CheckCircle2 size={24} />
                 </div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Message Dispatched</h3>
-                <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                  {message}
-                </p>
+                <h3 className="text-base font-semibold text-white mb-2">Message Dispatched</h3>
+                <p className="text-sm text-zinc-400 max-w-sm mx-auto leading-relaxed">{message}</p>
                 <button
                   type="button"
                   onClick={() => setStatus('idle')}
@@ -209,11 +207,11 @@ export function ContactSection() {
                       Project Scope
                     </label>
                     <select name="subject" id="subject" className={fieldClass}>
-                      <option value="" className="bg-neutral-900">
+                      <option value="" className="bg-[#16161a]">
                         Select inquiry type...
                       </option>
                       {SUBJECTS.map((s) => (
-                        <option key={s} value={s} className="bg-neutral-900">
+                        <option key={s} value={s} className="bg-[#16161a]">
                           {s}
                         </option>
                       ))}
@@ -225,11 +223,11 @@ export function ContactSection() {
                       Estimated Budget
                     </label>
                     <select name="budget" id="budget" className={fieldClass}>
-                      <option value="" className="bg-neutral-900">
+                      <option value="" className="bg-[#16161a]">
                         Select range...
                       </option>
                       {BUDGETS.map((b) => (
-                        <option key={b} value={b} className="bg-neutral-900">
+                        <option key={b} value={b} className="bg-[#16161a]">
                           {b}
                         </option>
                       ))}
@@ -239,7 +237,7 @@ export function ContactSection() {
 
                 <div>
                   <label htmlFor="message" className={labelClass}>
-                    Project Specifications & Requirements *
+                    Project Specifications &amp; Requirements *
                   </label>
                   <textarea
                     name="message"
@@ -261,7 +259,7 @@ export function ContactSection() {
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="w-full bg-white text-black font-semibold py-3 px-6 text-xs font-mono uppercase tracking-wider hover:bg-white/90 transition-all flex justify-center items-center gap-2 disabled:opacity-50 rounded-lg shadow-md"
+                  className="w-full bg-white text-black font-semibold py-3 px-6 text-xs font-mono uppercase tracking-wider hover:bg-zinc-200 transition-all flex justify-center items-center gap-2 disabled:opacity-50 rounded-lg shadow-md"
                 >
                   {status === 'loading' ? 'Dispatching Specifications...' : 'Submit Inquiry'}
                   <ArrowRight size={14} />
@@ -274,33 +272,35 @@ export function ContactSection() {
         {/* Engineering FAQ */}
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground block mb-1">
+            <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 block mb-1">
               FAQ
             </span>
-            <h3 className="text-xl font-medium text-foreground">Common Engineering Questions</h3>
+            <h3 className="text-xl font-semibold text-white tracking-tight">
+              Common Engineering Questions
+            </h3>
           </div>
 
           <div className="space-y-2.5">
             {FAQ.map((item, idx) => (
               <div
                 key={idx}
-                className="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden transition-colors"
+                className="rounded-xl border border-white/[0.08] bg-[#111114] overflow-hidden transition-colors shadow-sm"
               >
                 <button
                   type="button"
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-medium text-foreground hover:bg-white/[0.02] transition-colors"
+                  className="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-medium text-white hover:bg-white/[0.02] transition-colors"
                 >
                   <span>{item.q}</span>
                   <ChevronDown
                     size={16}
-                    className={`text-muted-foreground flex-shrink-0 transition-transform duration-200 ml-4 ${
+                    className={`text-zinc-400 flex-shrink-0 transition-transform duration-200 ml-4 ${
                       openFaq === idx ? 'rotate-180 text-cyan-400' : ''
                     }`}
                   />
                 </button>
                 {openFaq === idx && (
-                  <div className="px-5 pb-4 text-xs text-muted-foreground leading-relaxed border-t border-white/5 pt-3">
+                  <div className="px-5 pb-4 text-xs text-zinc-400 leading-relaxed border-t border-white/[0.08] pt-3">
                     {item.a}
                   </div>
                 )}

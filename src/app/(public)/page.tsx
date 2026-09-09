@@ -41,11 +41,13 @@ export default async function Home() {
   return (
     <div className="flex flex-col">
       <HeroSection profile={profile} />
-      <AboutSection profile={profile} />
-      <ProjectsSection projects={projects} />
-      <ServicesSection />
-      <GitHubSection />
-      <ContactSection />
+      <div className="relative z-10 bg-background border-t border-white/[0.08] shadow-[0_-25px_60px_rgba(0,0,0,0.95)]">
+        <AboutSection profile={profile} />
+        <ProjectsSection projects={projects} />
+        <ServicesSection />
+        <GitHubSection />
+        <ContactSection />
+      </div>
     </div>
   );
 }

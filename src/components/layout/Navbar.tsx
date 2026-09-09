@@ -139,7 +139,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-y-auto transition-all duration-300 ease-out absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border ${
+        className={`md:hidden overflow-y-auto transition-all duration-300 ease-out absolute top-16 left-0 right-0 bg-[#09090b] border-b border-white/10 shadow-2xl ${
           isOpen ? 'h-[calc(100vh-64px)] opacity-100' : 'h-0 opacity-0 pointer-events-none'
         }`}
       >
@@ -159,13 +159,13 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             </Link>
           ))}
           <a
-            href={resumeUrl || '#'}
-            download={!!resumeUrl}
+            href={resumeUrl || '#contact'}
+            download={resumeUrl ? true : undefined}
             target={resumeUrl ? '_blank' : undefined}
             rel={resumeUrl ? 'noopener noreferrer' : undefined}
-            className="mt-2 flex items-center justify-center gap-2 bg-foreground text-background px-4 py-2.5 font-medium rounded-[10px] hover:opacity-80 transition-opacity text-sm"
+            className="mt-3 flex items-center justify-center gap-2 bg-white text-black px-4 py-2.5 font-semibold rounded-lg hover:bg-zinc-200 transition-all text-xs font-mono uppercase tracking-wider shadow-sm"
           >
-            <Download size={15} /> Download Resume
+            <Download size={14} /> Download Resume
           </a>
         </nav>
       </div>
