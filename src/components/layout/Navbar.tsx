@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 const NAV_LINKS = [
   { label: 'Home', href: '/#hero', section: 'hero' },
   { label: 'About', href: '/#about', section: 'about' },
+  { label: 'Skills', href: '/#skills', section: 'skills' },
   { label: 'Projects', href: '/#projects', section: 'projects' },
   { label: 'Services', href: '/#services', section: 'services' },
   { label: 'GitHub', href: '/#github', section: 'github' },
@@ -32,7 +33,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
   // IntersectionObserver to track active section (only on home page)
   useEffect(() => {
     if (!isHome) return;
-    const sections = ['hero', 'about', 'projects', 'services', 'github', 'contact'];
+    const sections = ['hero', 'about', 'skills', 'projects', 'services', 'github', 'contact'];
     const observers: IntersectionObserver[] = [];
 
     sections.forEach((id) => {
@@ -97,7 +98,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
               key={link.href}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className={`text-xs font-mono uppercase tracking-wider transition-colors duration-150 ${
+              className={`text-xs font-medium uppercase tracking-wider transition-colors duration-150 ${
                 isHome && activeSection === link.section
                   ? 'text-white font-semibold'
                   : 'text-muted-foreground hover:text-white'
@@ -115,7 +116,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             download={resumeUrl ? true : undefined}
             target={resumeUrl ? '_blank' : undefined}
             rel={resumeUrl ? 'noopener noreferrer' : undefined}
-            className="inline-flex items-center gap-1.5 bg-white text-black px-3.5 py-1.5 text-xs font-mono font-semibold rounded-lg hover:bg-white/90 transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 bg-white text-black px-3.5 py-1.5 text-xs font-medium rounded-lg hover:bg-white/90 transition-all shadow-sm"
           >
             <Download size={12} />
             Resume
@@ -160,7 +161,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
             download={resumeUrl ? true : undefined}
             target={resumeUrl ? '_blank' : undefined}
             rel={resumeUrl ? 'noopener noreferrer' : undefined}
-            className="mt-3 flex items-center justify-center gap-2 bg-white text-black px-4 py-2.5 font-semibold rounded-lg hover:bg-zinc-200 transition-all text-xs font-mono uppercase tracking-wider shadow-sm"
+            className="mt-3 flex items-center justify-center gap-2 bg-white text-black px-4 py-2.5 font-medium rounded-lg hover:bg-zinc-200 transition-all text-xs uppercase tracking-wider shadow-sm"
           >
             <Download size={14} /> Download Resume
           </a>

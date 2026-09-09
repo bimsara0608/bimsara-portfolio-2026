@@ -3,9 +3,9 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-const TUBE_COUNT = 64;
-const SEGMENTS = 140;
-const BOUNDS = 18;
+const TUBE_COUNT = 96;
+const SEGMENTS = 205;
+const BOUNDS = 34;
 
 // Analytical Aerodynamic CFD Flow field around the drone (scaled to match drone)
 function getDroneAeroVelocity(x: number, y: number, z: number) {
@@ -212,15 +212,21 @@ function generateStreamlineGeometry(
 
     colorsArray.push(getStreamlinePointColor(current.x, distFromDrone, isClosest, bounds));
 
-    // Smooth flow alpha: Far left upstream lines start with a clean opacity (0.55)
+    // Smooth flow alpha: Far left upstream lines start with a clean opacity (0.50)
     // and smoothly ramp up to vibrant brilliance (0.98) over the drone and wake
     const flowProgress = THREE.MathUtils.smoothstep(current.x, -bounds, -4.0);
-    const alphaFlow = THREE.MathUtils.lerp(0.55, 0.98, flowProgress);
+    const alphaFlow = THREE.MathUtils.lerp(0.5, 0.98, flowProgress);
 
     // Fade out smoothly at outer stream boundaries
-    const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 1.5);
+    const edgeFade = THREE.MathUtils.smoothstep(bounds - Math.abs(current.x), 0.0, 2.5);
 
-    alphas.push(alphaFlow * edgeFade);
+    // Atmospheric depth for distant wind-tunnel boundary streamlines
+    const heightFade =
+      distFromDrone > 4.5
+        ? THREE.MathUtils.clamp(1.0 - ((distFromDrone - 4.5) / 5.0) * 0.35, 0.52, 1.0)
+        : 1.0;
+
+    alphas.push(alphaFlow * edgeFade * heightFade);
 
     const step = 0.35;
     // Strictly forward monotonic step: mathematically impossible to loop backwards
@@ -306,44 +312,52 @@ export function FlowLines() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     const isMobile = window.innerWidth < 768;
-    const actualTubeCount = isMobile ? 36 : TUBE_COUNT;
-    const actualBounds = isMobile ? BOUNDS * 0.6 : BOUNDS;
+    const actualTubeCount = isMobile ? 48 : TUBE_COUNT;
+    const actualBounds = isMobile ? BOUNDS * 0.65 : BOUNDS;
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
-    // Harmoniously balanced CFD streamline seeding:
-    // 1. 16 Upper wind-tunnel streamlines
-    // 2. 16 Lower wind-tunnel streamlines (balancing top and bottom)
-    // 3. 14 Front canopy streamlines
-    // 4. 12 Front cargo & skid streamlines
-    // 5. 6 Flank & arm streamlines
-    const topY = [2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2, 2.5, 2.9, 3.5];
+    // Expansive full-canvas CFD streamline seeding:
+    // 1. 28 Upper wind-tunnel & atmospheric streamlines (Y: 2.0 to 7.6) -> sweeps through top-right corner
+    // 2. 28 Lower wind-tunnel & floor streamlines (Y: -2.0 to -7.6) -> sweeps through bottom-right corner
+    // 3. 18 Front canopy streamlines (hugging drone nose & canopy)
+    // 4. 14 Front cargo & skid streamlines (hugging battery & skids)
+    // 5. 8 Flank & outer streamlines (framing drone wings & arms)
+    const topY = [
+      2.0, 2.5, 3.0, 3.5, 4.0, 4.6, 5.2, 5.8, 6.4, 7.0, 7.6, 2.2, 2.7, 3.2, 3.8, 4.3, 4.9, 5.5, 6.1,
+      6.7, 7.3, 2.4, 3.4, 4.4, 5.0, 5.9, 6.5, 7.1,
+    ];
     const topZ = [
-      0.0, -1.2, 1.2, -2.4, 2.4, -0.6, 0.6, -1.8, 1.8, -3.0, 3.0, 0.0, -1.0, 1.0, -2.0, 2.0,
+      0.0, -1.2, 1.2, -2.4, 2.4, -0.6, 0.6, -1.8, 1.8, -3.0, 3.0, 0.0, -1.0, 1.0, -2.0, 2.0, -2.8,
+      2.8, -1.4, 1.4, 0.5, -0.5, 1.6, -1.6, 2.5, -2.5, 0.0, 1.0,
     ];
 
     const bottomY = [
-      -2.0, -2.4, -2.8, -3.2, -3.6, -4.0, -4.4, -2.2, -2.6, -3.0, -3.4, -3.8, -4.2, -2.5, -2.9,
-      -3.5,
+      -2.0, -2.5, -3.0, -3.5, -4.0, -4.6, -5.2, -5.8, -6.4, -7.0, -7.6, -2.2, -2.7, -3.2, -3.8,
+      -4.3, -4.9, -5.5, -6.1, -6.7, -7.3, -2.4, -3.4, -4.4, -5.0, -5.9, -6.5, -7.1,
     ];
     const bottomZ = [
-      0.0, 1.2, -1.2, 2.4, -2.4, 0.6, -0.6, 1.8, -1.8, 3.0, -3.0, 0.0, 1.0, -1.0, 2.0, -2.0,
+      0.0, 1.2, -1.2, 2.4, -2.4, 0.6, -0.6, 1.8, -1.8, 3.0, -3.0, 0.0, 1.0, -1.0, 2.0, -2.0, 2.8,
+      -2.8, 1.4, -1.4, -0.5, 0.5, -1.6, 1.6, -2.5, 2.5, 0.0, -1.0,
     ];
 
     const frontCanopyY = [
-      0.4, 0.7, 1.0, 1.3, 1.6, 1.9, 0.55, 0.85, 1.15, 1.45, 1.75, 0.6, 0.9, 1.2,
+      0.4, 0.7, 1.0, 1.3, 1.6, 1.9, 0.55, 0.85, 1.15, 1.45, 1.75, 0.6, 0.9, 1.2, 0.5, 0.8, 1.1, 1.4,
     ];
     const frontCanopyZ = [
-      0.0, -0.6, 0.6, -1.2, 1.2, -1.8, 1.8, -0.3, 0.3, -0.9, 0.9, 0.0, -1.5, 1.5,
+      0.0, -0.6, 0.6, -1.2, 1.2, -1.8, 1.8, -0.3, 0.3, -0.9, 0.9, 0.0, -1.5, 1.5, -0.4, 0.4, -0.8,
+      0.8,
     ];
 
     const frontCargoY = [
-      -0.2, -0.5, -0.8, -1.1, -1.4, -1.8, -0.35, -0.65, -0.95, -1.25, -1.6, -0.4,
+      -0.2, -0.5, -0.8, -1.1, -1.4, -1.8, -0.35, -0.65, -0.95, -1.25, -1.6, -0.4, -0.7, -1.0,
     ];
-    const frontCargoZ = [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 0.3, -0.3, 0.9, -0.9, 0.0];
+    const frontCargoZ = [
+      0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 0.3, -0.3, 0.9, -0.9, 0.0, 0.5, -0.5,
+    ];
 
-    const flankY = [0.0, 0.5, -0.4, 0.8, -0.6, 0.3];
-    const flankZ = [-2.6, 2.6, -3.4, 3.4, -4.2, 4.2];
+    const flankY = [0.0, 0.5, -0.4, 0.8, -0.6, 0.3, 1.0, -1.0];
+    const flankZ = [-2.6, 2.6, -3.4, 3.4, -4.2, 4.2, -3.0, 3.0];
 
     for (let i = 0; i < actualTubeCount; i++) {
       const startX = -actualBounds;
@@ -351,26 +365,26 @@ export function FlowLines() {
       let startZ = 0;
       let isClosest = false;
 
-      if (i < 16) {
-        // Upper wind-tunnel streamlines
+      if (i < 28) {
+        // Upper wind-tunnel & atmospheric streamlines
         startY = topY[i % topY.length];
         startZ = topZ[i % topZ.length];
-      } else if (i < 32) {
-        // Lower wind-tunnel streamlines (balances top and bottom)
-        const idx = i - 16;
+      } else if (i < 56) {
+        // Lower wind-tunnel & floor streamlines
+        const idx = i - 28;
         startY = bottomY[idx % bottomY.length];
         startZ = bottomZ[idx % bottomZ.length];
-      } else if (i < 46) {
+      } else if (i < 74) {
         // Front canopy streamlines: direct nose-impact filaments get red stagnation
-        const idx = i - 32;
+        const idx = i - 56;
         startY = frontCanopyY[idx % frontCanopyY.length];
         startZ = frontCanopyZ[idx % frontCanopyZ.length];
         if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
           isClosest = true;
         }
-      } else if (i < 58) {
+      } else if (i < 88) {
         // Front cargo & skid streamlines: battery leading edge filaments get red stagnation
-        const idx = i - 46;
+        const idx = i - 74;
         startY = frontCargoY[idx % frontCargoY.length];
         startZ = frontCargoZ[idx % frontCargoZ.length];
         if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
@@ -378,7 +392,7 @@ export function FlowLines() {
         }
       } else {
         // Flank & arm streamlines
-        const idx = i - 58;
+        const idx = i - 88;
         startY = flankY[idx % flankY.length];
         startZ = flankZ[idx % flankZ.length];
       }
@@ -407,7 +421,7 @@ export function FlowLines() {
     // Pitch: -0.065 rad
     const maxRotY = 0.55;
     const maxRotX = -0.065;
-    const maxPosX = isMobile ? 1.8 : 5.0;
+    const maxPosX = isMobile ? 1.8 : 7.2;
     const maxPosZ = isMobile ? 2.2 : 4.6;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
@@ -469,12 +483,13 @@ export function FlowLines() {
       {/* Clean, distinct CFD Streamlines */}
       {geometries.map((geom, idx) => (
         <mesh key={idx} geometry={geom}>
-          <meshStandardMaterial
+          <meshBasicMaterial
             vertexColors
             transparent
-            roughness={0.25}
-            metalness={0.2}
+            opacity={1.0}
             depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
           />
         </mesh>
       ))}

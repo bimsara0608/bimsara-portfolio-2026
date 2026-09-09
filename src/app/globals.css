@@ -14,6 +14,22 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-fg);
   --font-sans: var(--font-inter);
+  --font-mono: var(--font-inter);
+}
+
+/* =============================================
+   UNIVERSAL TYPOGRAPHY — Hero Font (Inter) Across Whole Site
+   ============================================= */
+*,
+*::before,
+*::after {
+  font-family:
+    var(--font-inter),
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif !important;
 }
 
 /* =============================================
@@ -443,6 +459,8 @@ select option {
 }
 
 .marquee-track:hover,
-.marquee-track-reverse:hover {
-  animation-play-state: paused;
+.marquee-track-reverse:hover,
+.marquee-grid-wrapper:hover .marquee-track,
+.marquee-grid-wrapper:hover .marquee-track-reverse {
+  animation-play-state: paused !important;
 }

@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { HeroSection } from '@/components/sections/HeroSection';
+import { SkillsSection } from '@/components/sections/SkillsSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
@@ -43,6 +44,7 @@ export default async function Home() {
       <HeroSection profile={profile} />
       <div className="relative z-10 bg-[#09090b]/95 backdrop-blur-[4px] border-t border-white/[0.08] shadow-[0_-25px_60px_rgba(0,0,0,0.95)]">
         <AboutSection profile={profile} />
+        <SkillsSection />
         <ProjectsSection projects={projects} />
         <ServicesSection />
         <GitHubSection />
