@@ -6,34 +6,42 @@ import { FlowLines } from './FlowLines';
 import { PreloaderOverlay, type PreloaderPhase } from './PreloaderOverlay';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
-// Module-level flag: resets on every hard page load, but persists for the
-// lifetime of the SPA session (FluidBackground stays mounted in the layout).
-let _preloaderDone = false;
-
 // Map the 4-state overlay phase down to the 3-state FlowLines phase
 function toFlowPhase(phase: PreloaderPhase): 'loading' | 'flying' | 'done' {
   if (phase === 'loading') return 'loading';
   if (phase === 'flying') return 'flying';
-  return 'done';
+  return 'done'; // settling + done both map to done
 }
 
 export function FluidBackground() {
-  const [phase, setPhase] = useState<PreloaderPhase>(_preloaderDone ? 'done' : 'loading');
+  // Read sessionStorage synchronously via lazy initializer so we never render
+  // an unnecessary loading frame on second visits (avoids calling setState in an effect).
+  const [phase, setPhase] = useState<PreloaderPhase>(() => {
+    if (typeof window === 'undefined') return 'loading';
+    try {
+      if (sessionStorage.getItem('preloader-played')) return 'done';
+    } catch {
+      // sessionStorage blocked (private browsing edge case) — just play it
+    }
+    return 'loading';
+  });
 
   useEffect(() => {
-    // Already done (SPA navigation re-mount edge case) — nothing to schedule
-    if (_preloaderDone) return;
+    // If sessionStorage said 'done' from the start, nothing to schedule
+    if (phase === 'done') return;
 
     // Sequence timings:
-    //  0ms   → loading  (splines spin as a CFD vortex, drone hidden, black overlay)
-    //  1000ms → flying   (drone flies in from the right, scene transitions to hero pose)
-    //  2200ms → settling (black overlay fades out)
-    //  2800ms → done     (overlay gone, normal scroll-driven hero takes over)
+    //  0ms  → loading  (splines spin, drone hidden, black overlay)
+    // 1000ms → flying   (drone flies in from right, splines settle)
+    // 2200ms → settling (overlay fades out)
+    // 2800ms → done     (overlay gone, normal scroll-driven hero)
     const t1 = setTimeout(() => setPhase('flying'), 1000);
     const t2 = setTimeout(() => setPhase('settling'), 2200);
     const t3 = setTimeout(() => {
       setPhase('done');
-      _preloaderDone = true;
+      try {
+        sessionStorage.setItem('preloader-played', '1');
+      } catch {}
     }, 2800);
 
     return () => {
@@ -41,6 +49,7 @@ export function FluidBackground() {
       clearTimeout(t2);
       clearTimeout(t3);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
