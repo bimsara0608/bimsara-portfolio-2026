@@ -3,6 +3,12 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+type PreloadPhase = 'loading' | 'flying' | 'done';
+
+interface FlowLinesProps {
+  preloadPhase: PreloadPhase;
+}
+
 const TUBE_COUNT = 96;
 const SEGMENTS = 205;
 const BOUNDS = 34;
@@ -265,7 +271,7 @@ function generateStreamlineGeometry(
   return geometry;
 }
 
-export function FlowLines() {
+export function FlowLines({ preloadPhase }: FlowLinesProps) {
   const groupRef = useRef<THREE.Group>(null);
   const dronePivotRef = useRef<THREE.Group>(null);
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
@@ -275,6 +281,13 @@ export function FlowLines() {
   const currentScrollRotX = useRef(0);
   const currentPosX = useRef(0);
   const currentPosZ = useRef(0);
+
+  // Preload animation refs
+  const phaseRef = useRef<PreloadPhase>(preloadPhase);
+  const spinAngleRef = useRef(0);
+  const flyingProgressRef = useRef(0);
+  const lastSpinRotY = useRef(0);
+  const lastSpinRotX = useRef(0);
 
   // Load the Decimated 3D Drone Model from public/models/fyp-drone.glb
   useEffect(() => {
@@ -412,19 +425,94 @@ export function FlowLines() {
     };
   }, []);
 
-  useFrame((state, delta) => {
+  // Sync preload phase ref; when transitioning to 'flying', reset progress
+  // and seed scroll refs to hero resting values so 'done' phase has no jump.
+  useEffect(() => {
+    phaseRef.current = preloadPhase;
+    if (preloadPhase === 'flying') {
+      flyingProgressRef.current = 0;
+    }
+    if (preloadPhase === 'done') {
+      const isMobile = window.innerWidth < 768;
+      // Seed scroll-driven refs to hero resting values → no discontinuity
+      currentScrollRotY.current = 0.55;
+      currentScrollRotX.current = -0.065;
+      currentPosX.current = isMobile ? 1.8 : 7.2;
+      currentPosZ.current = -(isMobile ? 2.2 : 4.6);
+    }
+  }, [preloadPhase]);
+
+  useFrame((_state, delta) => {
     if (!groupRef.current) return;
 
+    const phase = phaseRef.current;
     const isMobile = window.innerWidth < 768;
-    // At top (hero):
-    // Yaw rotation increased to 0.55 rad (~31.5 deg) for deep 3D perspective along blue arrow
-    // Pitch: -0.065 rad
+    const time = performance.now() / 1000;
+
+    // ─────────────────────────────────────────────────────────────
+    // PRELOAD PHASE: LOADING
+    // Spin the entire CFD scene like a vortex; drone stays hidden.
+    // ─────────────────────────────────────────────────────────────
+    if (phase === 'loading') {
+      spinAngleRef.current += delta * 1.5;
+      const sa = spinAngleRef.current;
+      groupRef.current.rotation.y = sa;
+      groupRef.current.rotation.x = Math.sin(sa * 0.55) * 0.14;
+      groupRef.current.position.set(0, Math.sin(time * 0.9) * 0.25, 0);
+      // Cache last spin pose so the flying phase can smoothly start from here
+      lastSpinRotY.current = sa;
+      lastSpinRotX.current = Math.sin(sa * 0.55) * 0.14;
+      if (dronePivotRef.current) {
+        dronePivotRef.current.visible = false;
+        dronePivotRef.current.position.x = 20; // off-screen right, ready for fly-in
+      }
+      return;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // PRELOAD PHASE: FLYING
+    // Drone swoops in from the right (local x: 20 → 0).
+    // Scene transitions from vortex spin to hero resting pose.
+    // ─────────────────────────────────────────────────────────────
+    if (phase === 'flying') {
+      flyingProgressRef.current = Math.min(flyingProgressRef.current + delta / 1.2, 1.0);
+      const t = 1 - Math.pow(1 - flyingProgressRef.current, 3); // cubic ease-out
+
+      const heroRotY = 0.55;
+      const heroRotX = -0.065;
+      const heroPosX = isMobile ? 1.8 : 7.2;
+      const heroPosZ = isMobile ? -2.2 : -4.6;
+
+      groupRef.current.rotation.y =
+        THREE.MathUtils.lerp(lastSpinRotY.current, heroRotY, t) + Math.sin(time * 0.25) * 0.06 * t;
+      groupRef.current.rotation.x =
+        THREE.MathUtils.lerp(lastSpinRotX.current, heroRotX, t) + Math.cos(time * 0.2) * 0.035 * t;
+      groupRef.current.position.x = THREE.MathUtils.lerp(0, heroPosX, t);
+      groupRef.current.position.z = THREE.MathUtils.lerp(0, heroPosZ, t);
+      groupRef.current.position.y = Math.sin(time * 0.3) * 0.18;
+
+      // Drone flies in from far right, then settles into hover
+      if (dronePivotRef.current) {
+        dronePivotRef.current.visible = true;
+        dronePivotRef.current.position.x = THREE.MathUtils.lerp(20, 0, t);
+        dronePivotRef.current.position.y = -0.6 + Math.sin(time * 1.5) * 0.12;
+        dronePivotRef.current.rotation.z = Math.sin(time * 1.1) * 0.025;
+        dronePivotRef.current.rotation.x = Math.cos(time * 1.4) * 0.02;
+      }
+      return;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // NORMAL PHASE: DONE
+    // Existing scroll-driven hero animation — completely unchanged.
+    // Scroll refs were seeded to hero values on phase transition so
+    // there is no positional jump when this block first executes.
+    // ─────────────────────────────────────────────────────────────
     const maxRotY = 0.55;
     const maxRotX = -0.065;
     const maxPosX = isMobile ? 1.8 : 7.2;
     const maxPosZ = isMobile ? 2.2 : 4.6;
 
-    // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
     const targetRotY = maxRotY * (1 - scrollProgress);
     const targetRotX = maxRotX * (1 - scrollProgress);
@@ -436,30 +524,27 @@ export function FlowLines() {
       targetRotY,
       delta * 5.0
     );
-
     currentScrollRotX.current = THREE.MathUtils.lerp(
       currentScrollRotX.current,
       targetRotX,
       delta * 5.0
     );
-
     currentPosX.current = THREE.MathUtils.lerp(currentPosX.current, targetPosX, delta * 5.0);
-
     currentPosZ.current = THREE.MathUtils.lerp(currentPosZ.current, targetPosZ, delta * 5.0);
 
-    const time = performance.now() / 1000;
     const sway = 1 - 0.5 * (1 - scrollProgress);
 
     // Living aerodynamic fluid sway animation on the entire tunnel:
     groupRef.current.rotation.y = Math.sin(time * 0.25) * 0.06 * sway + currentScrollRotY.current;
     groupRef.current.rotation.x = Math.cos(time * 0.2) * 0.035 * sway + currentScrollRotX.current;
     groupRef.current.position.y = Math.sin(time * 0.3) * 0.18 * sway;
-
     groupRef.current.position.z = currentPosZ.current;
     groupRef.current.position.x = currentPosX.current;
 
     // Gentle aerodynamic hovering and banking trim motion on the drone model:
     if (dronePivotRef.current) {
+      dronePivotRef.current.visible = true;
+      dronePivotRef.current.position.x = 0; // ensure no residual fly-in offset
       dronePivotRef.current.position.y = -0.6 + Math.sin(time * 1.5) * 0.12 * sway;
       dronePivotRef.current.rotation.z = Math.sin(time * 1.1) * 0.025 * sway;
       dronePivotRef.current.rotation.x = Math.cos(time * 1.4) * 0.02 * sway;
