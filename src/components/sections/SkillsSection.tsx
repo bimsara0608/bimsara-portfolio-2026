@@ -141,7 +141,7 @@ export function SkillsSection() {
         </div>
 
         {/* 4 Bento Cards (Always maintaining balanced 4-column architecture) */}
-        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none gap-5 pb-8 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 md:grid-cols-2 lg:grid-cols-4 hide-scrollbar">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {SKILL_DOMAINS.map((domain) => {
             const Icon = domain.icon;
             const isSelected = activeTab === domain.id;
@@ -154,7 +154,7 @@ export function SkillsSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4 }}
-                className={`min-w-[85vw] sm:min-w-[60vw] md:min-w-0 snap-center md:snap-align-none shrink-0 md:shrink group relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 shadow-lg ${
+                className={`group relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 shadow-lg ${
                   isSelected
                     ? 'border-white/30 bg-[#16161c] shadow-[0_0_30px_rgba(255,255,255,0.06)]'
                     : isDimmed

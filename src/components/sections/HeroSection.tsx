@@ -107,10 +107,10 @@ export function HeroSection({ profile }: HeroSectionProps) {
         {/* Section 1: Enlarged Factual Stats - Even bigger (text-4xl to 6xl), 2-line labels, no dots, CSW white and P red */}
         <motion.div
           {...fadeUp(0.45)}
-          className="flex flex-row items-start gap-8 sm:gap-12 pt-6 border-t border-white/10 max-w-2xl overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none pb-6 sm:pb-0 -mx-6 px-6 sm:mx-0 sm:px-0 hide-scrollbar"
+          className="flex flex-row items-start gap-8 sm:gap-12 pt-6 border-t border-white/10 max-w-2xl"
         >
           {/* Block 1: Projects Delivered */}
-          <div className="flex-shrink-0 snap-start">
+          <div className="flex-shrink-0">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-2 leading-none">
               <AscendingCounter target={60} suffix="+" />
             </div>
@@ -122,7 +122,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
           </div>
 
           {/* Block 2: 3D & Design Experience */}
-          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0 snap-start">
+          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-2 leading-none">
               <AscendingCounter target={3} suffix="+" />{' '}
               <span className="text-2xl sm:text-3xl font-medium text-zinc-300">Years</span>
@@ -135,7 +135,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
           </div>
 
           {/* Block 3: CSWP (CSW white and P red) */}
-          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0 snap-start pr-6 sm:pr-0">
+          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight mb-2 leading-none">
               <span className="text-white">CSW</span>
               <span className="text-[#ef4444] font-semibold">P</span>
