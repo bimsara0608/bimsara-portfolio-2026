@@ -271,10 +271,10 @@ export function FlowLines() {
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
   const [droneModel, setDroneModel] = useState<THREE.Group | null>(null);
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-  const initRotY = 0.55;
+  const initRotY = isMobile ? 0.38 : 0.55;
   const initRotX = -0.065;
-  const initPosX = isMobile ? 1.8 : 7.2;
-  const initPosZ = -(isMobile ? 2.2 : 4.6);
+  const initPosX = isMobile ? 0.0 : 7.2;
+  const initPosZ = -(isMobile ? 2.6 : 4.6);
 
   const scrollYRef = useRef(0);
   const currentScrollRotY = useRef(initRotY);
@@ -320,19 +320,31 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     const actualTubeCount = isMobile ? 48 : TUBE_COUNT;
     const actualBounds = isMobile ? BOUNDS * 0.65 : BOUNDS;
-    const actualPosX = isMobile ? 1.8 : 7.2;
-    const actualPosZ = -(isMobile ? 2.2 : 4.6);
+    const actualPosX = isMobile ? 0.0 : 7.2;
+    const actualPosZ = -(isMobile ? 2.6 : 4.6);
+    const actualRotY = isMobile ? 0.38 : 0.55;
 
     currentPosX.current = actualPosX;
     currentPosZ.current = actualPosZ;
-    currentScrollRotY.current = initRotY;
+    currentScrollRotY.current = actualRotY;
     currentScrollRotX.current = initRotX;
     if (groupRef.current) {
       groupRef.current.position.x = actualPosX;
       groupRef.current.position.z = actualPosZ;
-      groupRef.current.rotation.y = initRotY;
+      groupRef.current.rotation.y = actualRotY;
       groupRef.current.rotation.x = initRotX;
     }
+
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      const posX = mobile ? 0.0 : 7.2;
+      const posZ = -(mobile ? 2.6 : 4.6);
+      const rotY = mobile ? 0.38 : 0.55;
+      currentPosX.current = posX;
+      currentPosZ.current = posZ;
+      currentScrollRotY.current = rotY;
+    };
+    window.addEventListener('resize', handleResize);
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
@@ -426,6 +438,7 @@ export function FlowLines() {
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
       clearTimeout(timer);
       newGeometries.forEach((g) => g.dispose());
     };
@@ -436,12 +449,13 @@ export function FlowLines() {
 
     const isMobile = window.innerWidth < 768;
     // At top (hero):
-    // Yaw rotation increased to 0.55 rad (~31.5 deg) for deep 3D perspective along blue arrow
-    // Pitch: -0.065 rad
-    const maxRotY = 0.55;
+    // Desktop: Yaw 0.55 rad (~31.5 deg), pitch -0.065 rad, posX 7.2, posZ 4.6
+    // Mobile: Yaw 0.38 rad (~21.8 deg), pitch -0.065 rad, posX 0.0 (dead center), posZ 2.6, posY 0.38
+    const maxRotY = isMobile ? 0.38 : 0.55;
     const maxRotX = -0.065;
-    const maxPosX = isMobile ? 1.8 : 7.2;
-    const maxPosZ = isMobile ? 2.2 : 4.6;
+    const maxPosX = isMobile ? 0.0 : 7.2;
+    const maxPosZ = isMobile ? 2.6 : 4.6;
+    const maxPosY = isMobile ? 0.38 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
@@ -449,6 +463,7 @@ export function FlowLines() {
     const targetRotX = maxRotX * (1 - scrollProgress);
     const targetPosX = maxPosX * (1 - scrollProgress);
     const targetPosZ = -maxPosZ * (1 - scrollProgress);
+    const targetPosY = maxPosY * (1 - scrollProgress);
 
     currentScrollRotY.current = THREE.MathUtils.lerp(
       currentScrollRotY.current,
@@ -472,7 +487,7 @@ export function FlowLines() {
     // Living aerodynamic fluid sway animation on the entire tunnel:
     groupRef.current.rotation.y = Math.sin(time * 0.25) * 0.06 * sway + currentScrollRotY.current;
     groupRef.current.rotation.x = Math.cos(time * 0.2) * 0.035 * sway + currentScrollRotX.current;
-    groupRef.current.position.y = Math.sin(time * 0.3) * 0.18 * sway;
+    groupRef.current.position.y = targetPosY + Math.sin(time * 0.3) * 0.18 * sway;
 
     groupRef.current.position.z = currentPosZ.current;
     groupRef.current.position.x = currentPosX.current;
@@ -492,7 +507,7 @@ export function FlowLines() {
         <group ref={dronePivotRef} position={[0, -0.6, 0]}>
           <primitive
             object={droneModel}
-            scale={8.2}
+            scale={isMobile ? 5.8 : 8.2}
             rotation={new THREE.Euler(11.0 * (Math.PI / 180), -Math.PI / 2, 0, 'YXZ')}
             position={[0, 0, 0]}
           />
