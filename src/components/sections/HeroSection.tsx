@@ -77,18 +77,18 @@ export function HeroSection({ profile }: HeroSectionProps) {
       <div className="hidden md:block absolute inset-y-0 left-0 w-full md:w-[56%] lg:w-[52%] pointer-events-none bg-gradient-to-r from-background via-background/90 via-55% to-transparent z-0" />
 
       {/* Top & Bottom protective gradient scrims - Mobile only: solid backing behind text, gentle fade toward drone window */}
-      <div className="md:hidden absolute top-0 left-0 right-0 h-[42%] pointer-events-none bg-gradient-to-b from-[#09090b] via-[#09090b] via-[52%] to-transparent z-0" />
-      <div className="md:hidden absolute bottom-0 left-0 right-0 h-[50%] pointer-events-none bg-gradient-to-t from-[#09090b] via-[#09090b] via-[50%] to-transparent z-0" />
+      <div className="md:hidden absolute top-0 left-0 right-0 h-[38%] pointer-events-none bg-gradient-to-b from-[#09090b] via-[#09090b] via-[50%] to-transparent z-0" />
+      <div className="md:hidden absolute bottom-0 left-0 right-0 h-[46%] pointer-events-none bg-gradient-to-t from-[#09090b] via-[#09090b] via-[48%] to-transparent z-0" />
 
       {/* Hero content - Centered on mobile, left-aligned on desktop */}
-      <div className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left px-5 sm:px-8 md:pl-20 lg:pl-28 xl:pl-36 md:pr-6 max-w-5xl mx-auto md:mx-0 w-full relative z-10 -translate-y-2 sm:-translate-y-4 md:-translate-y-8">
+      <div className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left px-5 sm:px-8 md:pl-20 lg:pl-28 xl:pl-36 md:pr-6 max-w-5xl mx-auto md:mx-0 w-full relative z-10 -translate-y-10 sm:-translate-y-4 md:-translate-y-8">
         {/* Status badge */}
         <motion.div
           {...fadeUp(0)}
-          className="flex justify-center md:justify-start mb-4 sm:mb-6 md:mb-8 w-full"
+          className="flex justify-center md:justify-start mb-2.5 sm:mb-6 md:mb-8 w-full"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111114]/95 backdrop-blur-lg border border-white/20 text-[11.5px] xs:text-xs font-bold tracking-wider text-white shadow-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 md:px-4 md:py-2 rounded-full bg-[#111114]/95 backdrop-blur-lg border border-white/20 text-[9px] md:text-[11.5px] font-bold tracking-widest text-white shadow-md uppercase">
+            <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
             AVAILABLE FOR ENGINEERING &amp; DESIGN PROJECTS
           </span>
         </motion.div>
@@ -96,7 +96,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
         {/* Heading - Maximum impact, large, confident, and heroic on mobile */}
         <motion.h1
           {...fadeUp(0.1)}
-          className="text-[2.95rem] xs:text-[3.35rem] sm:text-6xl md:text-fluid-h1 md:leading-[1.05] mb-3 sm:mb-4 md:mb-6 tracking-tight font-extrabold leading-[1.01] text-center md:text-left drop-shadow-[0_4px_24px_rgba(0,0,0,1)]"
+          className="text-[2.95rem] xs:text-[3.35rem] sm:text-6xl md:text-fluid-h1 md:leading-[1.05] mb-2 sm:mb-4 md:mb-6 tracking-tight font-extrabold leading-[1.01] text-center md:text-left drop-shadow-[0_4px_24px_rgba(0,0,0,1)]"
         >
           <span className="text-white block">Engineering</span>
           <span className="text-zinc-100 block">Meets Design.</span>
@@ -104,14 +104,14 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
         {/* 3D Drone & CFD Flowlines Window (Mobile only, dedicated transparent spacer between title & subtitle) */}
         <div
-          className="h-44 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
+          className="h-40 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
           aria-hidden="true"
         />
 
         {/* Subtitle - Large, prominent, high-contrast on mobile */}
         <motion.p
           {...fadeUp(0.2)}
-          className="text-base xs:text-[17px] sm:text-lg md:text-lg text-zinc-100 max-w-sm sm:max-w-md md:max-w-xl mb-7 sm:mb-8 md:mb-10 text-center md:text-left leading-relaxed font-medium mx-auto md:mx-0 drop-shadow-[0_2px_16px_rgba(0,0,0,1)]"
+          className="text-base xs:text-[17px] sm:text-lg md:text-lg text-zinc-100 max-w-sm sm:max-w-md md:max-w-xl mb-4 sm:mb-8 md:mb-10 text-center md:text-left leading-relaxed font-medium mx-auto md:mx-0 drop-shadow-[0_2px_16px_rgba(0,0,0,1)]"
         >
           CSWP Certified CAD Designer | Building Autonomous &amp; Intelligent Robotic Systems
         </motion.p>
