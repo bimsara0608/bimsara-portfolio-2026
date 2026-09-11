@@ -10,38 +10,53 @@ interface HeroSectionProps {
 }
 
 const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, delay },
+  transition: { duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] as const },
 });
 
-// Ascending animated counter for factual engineering numbers
-function AscendingCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
+// Ascending animated counter for factual engineering numbers with smooth cubic ease-out
+function AscendingCounter({
+  target,
+  suffix = '',
+  delay = 500,
+}: {
+  target: number;
+  suffix?: string;
+  delay?: number;
+}) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    let frameId: number;
     let startTimestamp: number | null = null;
-    const duration = 1600;
+    const duration = 1400;
 
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setCount(Math.floor(eased * target));
+    const timeoutId = setTimeout(() => {
+      const step = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // Smooth cubic ease-out: gentle, silky deceleration instead of sudden blur
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setCount(Math.floor(eased * target));
 
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      } else {
-        setCount(target);
-      }
+        if (progress < 1) {
+          frameId = window.requestAnimationFrame(step);
+        } else {
+          setCount(target);
+        }
+      };
+      frameId = window.requestAnimationFrame(step);
+    }, delay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (frameId) window.cancelAnimationFrame(frameId);
     };
-
-    const frameId = window.requestAnimationFrame(step);
-    return () => window.cancelAnimationFrame(frameId);
-  }, [target]);
+  }, [target, delay]);
 
   return (
-    <span>
+    <span className="tabular-nums inline-block">
       {count}
       {suffix}
     </span>
@@ -104,14 +119,14 @@ export function HeroSection({ profile }: HeroSectionProps) {
           </button>
         </motion.div>
 
-        {/* Section 1: Enlarged Factual Stats - Even bigger (text-4xl to 6xl), 2-line labels, no dots, CSW white and P red */}
+        {/* Section 1: Enlarged Factual Stats - Fixed column widths + tabular-nums to prevent any vibration/jitter */}
         <motion.div
           {...fadeUp(0.45)}
           className="flex flex-row items-start gap-8 sm:gap-12 pt-6 border-t border-white/10 max-w-2xl"
         >
-          {/* Block 1: Projects Delivered */}
-          <div className="flex-shrink-0">
-            <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-2 leading-none">
+          {/* Block 1: Projects Delivered (fixed min-width prevents pushing adjacent blocks) */}
+          <div className="flex-shrink-0 min-w-[135px] sm:min-w-[160px]">
+            <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-2 leading-none tabular-nums">
               <AscendingCounter target={60} suffix="+" />
             </div>
             <p className="text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider leading-snug">
@@ -121,11 +136,10 @@ export function HeroSection({ profile }: HeroSectionProps) {
             </p>
           </div>
 
-          {/* Block 2: 3D & Design Experience */}
-          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0">
-            <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-2 leading-none">
-              <AscendingCounter target={3} suffix="+" />{' '}
-              <span className="text-2xl sm:text-3xl font-medium text-zinc-300">Years</span>
+          {/* Block 2: 3D & Design Experience (fixed min-width and static 3+ to stay completely anchored) */}
+          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0 min-w-[140px] sm:min-w-[170px]">
+            <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white mb-2 leading-none tabular-nums">
+              3+ <span className="text-2xl sm:text-3xl font-medium text-zinc-300">Years</span>
             </div>
             <p className="text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider leading-snug">
               3D &amp; DESIGN
@@ -134,8 +148,8 @@ export function HeroSection({ profile }: HeroSectionProps) {
             </p>
           </div>
 
-          {/* Block 3: CSWP (CSW white and P red) */}
-          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0">
+          {/* Block 3: CSWP (CSW white and P red - anchored) */}
+          <div className="border-l border-white/10 pl-8 sm:pl-12 flex-shrink-0 min-w-[140px] sm:min-w-[170px]">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight mb-2 leading-none">
               <span className="text-white">CSW</span>
               <span className="text-[#ef4444] font-semibold">P</span>

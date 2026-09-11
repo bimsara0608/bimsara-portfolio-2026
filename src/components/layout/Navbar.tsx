@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Menu, X, Download } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 // Theme toggle removed for permanent dark mode
 
 const NAV_LINKS = [
@@ -72,8 +73,11 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <motion.header
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] as const }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
         scrolled || isOpen
           ? 'bg-background/90 backdrop-blur-md border-b border-border shadow-sm'
           : 'bg-background/80 backdrop-blur-md border-b border-transparent'
@@ -167,6 +171,6 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
           </a>
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 }

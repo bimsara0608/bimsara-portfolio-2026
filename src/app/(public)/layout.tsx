@@ -2,6 +2,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { createClient } from '@/utils/supabase/server';
 import { FluidBackground } from '@/components/background/FluidBackground';
+import { SmoothEntrance } from '@/components/layout/SmoothEntrance';
 
 export default async function PublicLayout({
   children,
@@ -13,6 +14,7 @@ export default async function PublicLayout({
 
   return (
     <>
+      <SmoothEntrance />
       <FluidBackground />
       <Navbar resumeUrl={profile?.resume_url} />
       <main className="flex-grow">{children}</main>

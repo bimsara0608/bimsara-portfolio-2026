@@ -270,11 +270,17 @@ export function FlowLines() {
   const dronePivotRef = useRef<THREE.Group>(null);
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
   const [droneModel, setDroneModel] = useState<THREE.Group | null>(null);
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  const initRotY = 0.55;
+  const initRotX = -0.065;
+  const initPosX = isMobile ? 1.8 : 7.2;
+  const initPosZ = -(isMobile ? 2.2 : 4.6);
+
   const scrollYRef = useRef(0);
-  const currentScrollRotY = useRef(0);
-  const currentScrollRotX = useRef(0);
-  const currentPosX = useRef(0);
-  const currentPosZ = useRef(0);
+  const currentScrollRotY = useRef(initRotY);
+  const currentScrollRotX = useRef(initRotX);
+  const currentPosX = useRef(initPosX);
+  const currentPosZ = useRef(initPosZ);
 
   // Load the Decimated 3D Drone Model from public/models/fyp-drone.glb
   useEffect(() => {
@@ -314,6 +320,19 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     const actualTubeCount = isMobile ? 48 : TUBE_COUNT;
     const actualBounds = isMobile ? BOUNDS * 0.65 : BOUNDS;
+    const actualPosX = isMobile ? 1.8 : 7.2;
+    const actualPosZ = -(isMobile ? 2.2 : 4.6);
+
+    currentPosX.current = actualPosX;
+    currentPosZ.current = actualPosZ;
+    currentScrollRotY.current = initRotY;
+    currentScrollRotX.current = initRotX;
+    if (groupRef.current) {
+      groupRef.current.position.x = actualPosX;
+      groupRef.current.position.z = actualPosZ;
+      groupRef.current.rotation.y = initRotY;
+      groupRef.current.rotation.x = initRotX;
+    }
 
     const newGeometries: THREE.TubeGeometry[] = [];
 
@@ -467,7 +486,7 @@ export function FlowLines() {
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[initPosX, 0, initPosZ]} rotation={[initRotX, initRotY, 0]}>
       {/* 3D Drone Model with natural 11 deg forward pitch into oncoming airflow */}
       {droneModel && (
         <group ref={dronePivotRef} position={[0, -0.6, 0]}>
