@@ -478,7 +478,7 @@ export function FlowLines() {
     const maxRotX = -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
     const maxPosZ = isMobile ? 2.6 : 4.6;
-    const maxPosY = isMobile ? 1.05 : 0.0;
+    const maxPosY = isMobile ? 0.6 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
@@ -516,8 +516,8 @@ export function FlowLines() {
     groupRef.current.position.x = currentPosX.current;
 
     // Gentle aerodynamic hovering and banking trim motion on the drone model:
-    // On desktop: resting base Y is -0.6. On mobile: resting base Y is 0.0 to keep skids above subtitle
-    const baseDroneY = isMobile ? 0.0 : -0.6;
+    // On desktop: resting base Y is -0.6. On mobile: resting base Y is -0.15 (centred in gap)
+    const baseDroneY = isMobile ? -0.15 : -0.6;
     if (dronePivotRef.current) {
       dronePivotRef.current.position.y = baseDroneY + Math.sin(time * 1.5) * 0.12 * sway;
       dronePivotRef.current.rotation.z = Math.sin(time * 1.1) * 0.025 * sway;
