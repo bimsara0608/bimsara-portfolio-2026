@@ -73,8 +73,12 @@ export function HeroSection({ profile }: HeroSectionProps) {
       id="hero"
       className="w-full min-h-[100svh] flex flex-col justify-center pt-20 sm:pt-24 pb-12 sm:pb-16 relative overflow-hidden"
     >
-      {/* Left protective gradient scrim - Desktop only so mobile drone center is clean & luminous */}
+      {/* Left protective gradient scrim - Desktop only */}
       <div className="hidden md:block absolute inset-y-0 left-0 w-full md:w-[56%] lg:w-[52%] pointer-events-none bg-gradient-to-r from-background via-background/90 via-55% to-transparent z-0" />
+
+      {/* Top & Bottom protective gradient scrims - Mobile only: Keeps title and subtitle 100% legible against dark backdrop */}
+      <div className="md:hidden absolute top-0 left-0 right-0 h-[36%] pointer-events-none bg-gradient-to-b from-[#09090b] via-[#09090b]/85 to-transparent z-0" />
+      <div className="md:hidden absolute bottom-0 left-0 right-0 h-[46%] pointer-events-none bg-gradient-to-t from-[#09090b] via-[#09090b]/90 via-50% to-transparent z-0" />
 
       {/* Hero content - Centered on mobile, left-aligned on desktop */}
       <div className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left px-5 sm:px-8 md:pl-20 lg:pl-28 xl:pl-36 md:pr-6 max-w-5xl mx-auto md:mx-0 w-full relative z-10 -translate-y-2 sm:-translate-y-4 md:-translate-y-8">
@@ -92,22 +96,22 @@ export function HeroSection({ profile }: HeroSectionProps) {
         {/* Heading */}
         <motion.h1
           {...fadeUp(0.1)}
-          className="text-[2.35rem] leading-[1.08] sm:text-5xl md:text-fluid-h1 md:leading-[1.05] mb-2 sm:mb-4 md:mb-6 tracking-tight font-medium text-center md:text-left"
+          className="text-[2.35rem] leading-[1.08] sm:text-5xl md:text-fluid-h1 md:leading-[1.05] mb-2 sm:mb-4 md:mb-6 tracking-tight font-medium text-center md:text-left drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
         >
           <span className="text-white block">Engineering</span>
-          <span className="text-zinc-400 block">Meets Design.</span>
+          <span className="text-zinc-300 block">Meets Design.</span>
         </motion.h1>
 
         {/* 3D Drone & CFD Flowlines Window (Mobile only, dedicated transparent spacer between title & subtitle) */}
         <div
-          className="h-44 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
+          className="h-48 sm:h-56 w-full my-1 sm:my-2 relative pointer-events-none md:hidden"
           aria-hidden="true"
         />
 
         {/* Subtitle */}
         <motion.p
           {...fadeUp(0.2)}
-          className="text-sm sm:text-base md:text-lg text-zinc-300 max-w-sm sm:max-w-md md:max-w-xl mb-6 md:mb-10 text-center md:text-left leading-relaxed font-normal mx-auto md:mx-0"
+          className="text-sm sm:text-base md:text-lg text-zinc-200 max-w-sm sm:max-w-md md:max-w-xl mb-6 md:mb-10 text-center md:text-left leading-relaxed font-normal mx-auto md:mx-0 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
         >
           CSWP Certified CAD Designer | Building Autonomous &amp; Intelligent Robotic Systems
         </motion.p>

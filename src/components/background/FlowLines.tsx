@@ -318,7 +318,7 @@ export function FlowLines() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     const isMobile = window.innerWidth < 768;
-    const actualTubeCount = isMobile ? 48 : TUBE_COUNT;
+    const actualTubeCount = isMobile ? 40 : TUBE_COUNT;
     const actualBounds = isMobile ? BOUNDS * 0.65 : BOUNDS;
     const actualPosX = isMobile ? 0.0 : 7.2;
     const actualPosZ = -(isMobile ? 2.6 : 4.6);
@@ -396,36 +396,68 @@ export function FlowLines() {
       let startZ = 0;
       let isClosest = false;
 
-      if (i < 28) {
-        // Upper wind-tunnel & atmospheric streamlines
-        startY = topY[i % topY.length];
-        startZ = topZ[i % topZ.length];
-      } else if (i < 56) {
-        // Lower wind-tunnel & floor streamlines
-        const idx = i - 28;
-        startY = bottomY[idx % bottomY.length];
-        startZ = bottomZ[idx % bottomZ.length];
-      } else if (i < 74) {
-        // Front canopy streamlines: direct nose-impact filaments get red stagnation
-        const idx = i - 56;
-        startY = frontCanopyY[idx % frontCanopyY.length];
-        startZ = frontCanopyZ[idx % frontCanopyZ.length];
-        if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
-          isClosest = true;
-        }
-      } else if (i < 88) {
-        // Front cargo & skid streamlines: battery leading edge filaments get red stagnation
-        const idx = i - 74;
-        startY = frontCargoY[idx % frontCargoY.length];
-        startZ = frontCargoZ[idx % frontCargoZ.length];
-        if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
-          isClosest = true;
+      if (isMobile) {
+        // On mobile: Curate streamlines tightly around the drone fuselage & arms
+        // so the top headline and bottom stats remain clean, open, and unobstructed
+        if (i < 14) {
+          // Front canopy streamlines hugging drone
+          startY = frontCanopyY[i % frontCanopyY.length];
+          startZ = frontCanopyZ[i % frontCanopyZ.length];
+          if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
+            isClosest = true;
+          }
+        } else if (i < 26) {
+          // Front cargo & skid streamlines hugging battery
+          const idx = i - 14;
+          startY = frontCargoY[idx % frontCargoY.length];
+          startZ = frontCargoZ[idx % frontCargoZ.length];
+          if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
+            isClosest = true;
+          }
+        } else if (i < 32) {
+          // Flank streamlines framing drone arms
+          const idx = i - 26;
+          startY = flankY[idx % flankY.length];
+          startZ = flankZ[idx % flankZ.length];
+        } else if (i < 36) {
+          // Close upper lines (near canopy, staying clear of title)
+          const idx = i - 32;
+          startY = topY[idx % 3];
+          startZ = topZ[idx % 3];
+        } else {
+          // Close lower lines (near skids, staying clear of stats)
+          const idx = i - 36;
+          startY = bottomY[idx % 3];
+          startZ = bottomZ[idx % 3];
         }
       } else {
-        // Flank & arm streamlines
-        const idx = i - 88;
-        startY = flankY[idx % flankY.length];
-        startZ = flankZ[idx % flankZ.length];
+        // Desktop: Full expansive 96-streamline CFD tunnel (100% UNCHANGED)
+        if (i < 28) {
+          startY = topY[i % topY.length];
+          startZ = topZ[i % topZ.length];
+        } else if (i < 56) {
+          const idx = i - 28;
+          startY = bottomY[idx % bottomY.length];
+          startZ = bottomZ[idx % bottomZ.length];
+        } else if (i < 74) {
+          const idx = i - 56;
+          startY = frontCanopyY[idx % frontCanopyY.length];
+          startZ = frontCanopyZ[idx % frontCanopyZ.length];
+          if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
+            isClosest = true;
+          }
+        } else if (i < 88) {
+          const idx = i - 74;
+          startY = frontCargoY[idx % frontCargoY.length];
+          startZ = frontCargoZ[idx % frontCargoZ.length];
+          if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
+            isClosest = true;
+          }
+        } else {
+          const idx = i - 88;
+          startY = flankY[idx % flankY.length];
+          startZ = flankZ[idx % flankZ.length];
+        }
       }
 
       const geom = generateStreamlineGeometry(startX, startY, startZ, actualBounds, isClosest);
@@ -450,12 +482,12 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     // At top (hero):
     // Desktop: Yaw 0.55 rad (~31.5 deg), pitch -0.065 rad, posX 7.2, posZ 4.6
-    // Mobile: Yaw 0.38 rad (~21.8 deg), pitch -0.065 rad, posX 0.0 (dead center), posZ 2.6, posY 0.38
+    // Mobile: Yaw 0.38 rad (~21.8 deg), pitch -0.065 rad, posX 0.0 (dead center), posZ 2.6, posY 0.65 (centered in window)
     const maxRotY = isMobile ? 0.38 : 0.55;
     const maxRotX = -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
     const maxPosZ = isMobile ? 2.6 : 4.6;
-    const maxPosY = isMobile ? 0.38 : 0.0;
+    const maxPosY = isMobile ? 0.65 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
@@ -507,7 +539,7 @@ export function FlowLines() {
         <group ref={dronePivotRef} position={[0, -0.6, 0]}>
           <primitive
             object={droneModel}
-            scale={isMobile ? 5.8 : 8.2}
+            scale={isMobile ? 3.8 : 8.2}
             rotation={new THREE.Euler(11.0 * (Math.PI / 180), -Math.PI / 2, 0, 'YXZ')}
             position={[0, 0, 0]}
           />
@@ -520,7 +552,7 @@ export function FlowLines() {
           <meshBasicMaterial
             vertexColors
             transparent
-            opacity={1.0}
+            opacity={isMobile ? 0.72 : 1.0}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             toneMapped={false}
