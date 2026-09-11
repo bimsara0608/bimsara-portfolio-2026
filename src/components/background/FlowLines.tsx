@@ -318,8 +318,8 @@ export function FlowLines() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     const isMobile = window.innerWidth < 768;
-    const actualTubeCount = isMobile ? 40 : TUBE_COUNT;
-    const actualBounds = isMobile ? BOUNDS * 0.65 : BOUNDS;
+    const actualTubeCount = isMobile ? 38 : TUBE_COUNT;
+    const actualBounds = isMobile ? BOUNDS * 0.55 : BOUNDS;
     const actualPosX = isMobile ? 0.0 : 7.2;
     const actualPosZ = -(isMobile ? 2.6 : 4.6);
     const actualRotY = isMobile ? 0.38 : 0.55;
@@ -397,38 +397,29 @@ export function FlowLines() {
       let isClosest = false;
 
       if (isMobile) {
-        // On mobile: Curate streamlines tightly around the drone fuselage & arms
-        // so the top headline and bottom stats remain clean, open, and unobstructed
-        if (i < 14) {
-          // Front canopy streamlines hugging drone
+        // On mobile: strictly confine streamlines to the drone's aerodynamic envelope
+        // (-0.85 <= Y <= +1.25, -1.6 <= Z <= +1.6) so flowlines stay 100% inside the center gap
+        // and NEVER shoot upward behind the headline or downward behind the subtitle/stats.
+        if (i < 16) {
+          // Front canopy streamlines hugging white top fuselage & nose
           startY = frontCanopyY[i % frontCanopyY.length];
-          startZ = frontCanopyZ[i % frontCanopyZ.length];
+          startZ = frontCanopyZ[i % frontCanopyZ.length] * 0.75;
           if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
             isClosest = true;
           }
-        } else if (i < 26) {
-          // Front cargo & skid streamlines hugging battery
-          const idx = i - 14;
+        } else if (i < 30) {
+          // Front cargo & battery streamlines hugging payload & skids
+          const idx = i - 16;
           startY = frontCargoY[idx % frontCargoY.length];
-          startZ = frontCargoZ[idx % frontCargoZ.length];
+          startZ = frontCargoZ[idx % frontCargoZ.length] * 0.75;
           if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
             isClosest = true;
           }
-        } else if (i < 32) {
-          // Flank streamlines framing drone arms
-          const idx = i - 26;
-          startY = flankY[idx % flankY.length];
-          startZ = flankZ[idx % flankZ.length];
-        } else if (i < 36) {
-          // Close upper lines (near canopy, staying clear of title)
-          const idx = i - 32;
-          startY = topY[idx % 3];
-          startZ = topZ[idx % 3];
         } else {
-          // Close lower lines (near skids, staying clear of stats)
-          const idx = i - 36;
-          startY = bottomY[idx % 3];
-          startZ = bottomZ[idx % 3];
+          // Flank streamlines framing drone quadcopter arms
+          const idx = i - 30;
+          startY = flankY[idx % flankY.length] * 0.6;
+          startZ = flankZ[idx % flankZ.length] * 0.45;
         }
       } else {
         // Desktop: Full expansive 96-streamline CFD tunnel (100% UNCHANGED)
@@ -482,12 +473,12 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     // At top (hero):
     // Desktop: Yaw 0.55 rad (~31.5 deg), pitch -0.065 rad, posX 7.2, posZ 4.6
-    // Mobile: Yaw 0.38 rad (~21.8 deg), pitch -0.065 rad, posX 0.0 (dead center), posZ 2.6, posY 0.65 (centered in window)
+    // Mobile: Yaw 0.38 rad (~21.8 deg), pitch -0.065 rad, posX 0.0 (dead center), posZ 2.6, posY 0.95 (centered in window)
     const maxRotY = isMobile ? 0.38 : 0.55;
     const maxRotX = -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
     const maxPosZ = isMobile ? 2.6 : 4.6;
-    const maxPosY = isMobile ? 0.65 : 0.0;
+    const maxPosY = isMobile ? 1.05 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
@@ -525,8 +516,10 @@ export function FlowLines() {
     groupRef.current.position.x = currentPosX.current;
 
     // Gentle aerodynamic hovering and banking trim motion on the drone model:
+    // On desktop: resting base Y is -0.6. On mobile: resting base Y is 0.0 to keep skids above subtitle
+    const baseDroneY = isMobile ? 0.0 : -0.6;
     if (dronePivotRef.current) {
-      dronePivotRef.current.position.y = -0.6 + Math.sin(time * 1.5) * 0.12 * sway;
+      dronePivotRef.current.position.y = baseDroneY + Math.sin(time * 1.5) * 0.12 * sway;
       dronePivotRef.current.rotation.z = Math.sin(time * 1.1) * 0.025 * sway;
       dronePivotRef.current.rotation.x = Math.cos(time * 1.4) * 0.02 * sway;
     }
@@ -536,10 +529,10 @@ export function FlowLines() {
     <group ref={groupRef} position={[initPosX, 0, initPosZ]} rotation={[initRotX, initRotY, 0]}>
       {/* 3D Drone Model with natural 11 deg forward pitch into oncoming airflow */}
       {droneModel && (
-        <group ref={dronePivotRef} position={[0, -0.6, 0]}>
+        <group ref={dronePivotRef} position={[0, isMobile ? 0.0 : -0.6, 0]}>
           <primitive
             object={droneModel}
-            scale={isMobile ? 3.8 : 8.2}
+            scale={isMobile ? 3.3 : 8.2}
             rotation={new THREE.Euler(11.0 * (Math.PI / 180), -Math.PI / 2, 0, 'YXZ')}
             position={[0, 0, 0]}
           />
