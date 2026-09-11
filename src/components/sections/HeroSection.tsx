@@ -81,7 +81,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
       <div className="md:hidden absolute bottom-0 left-0 right-0 h-[46%] pointer-events-none bg-gradient-to-t from-[#09090b] via-[#09090b] via-[48%] to-transparent z-0" />
 
       {/* Hero content - Centered on mobile, left-aligned on desktop */}
-      <div className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left px-5 sm:px-8 md:pl-20 lg:pl-28 xl:pl-36 md:pr-6 max-w-5xl mx-auto md:mx-0 w-full relative z-10 -translate-y-10 sm:-translate-y-4 md:-translate-y-8">
+      <div className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left px-5 sm:px-8 md:pl-20 lg:pl-28 xl:pl-36 md:pr-6 max-w-5xl mx-auto md:mx-0 w-full relative z-10 -translate-y-2 sm:-translate-y-4 md:-translate-y-8">
         {/* Status badge */}
         <motion.div
           {...fadeUp(0)}
@@ -102,9 +102,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
           <span className="text-zinc-100 block">Meets Design.</span>
         </motion.h1>
 
-        {/* 3D Drone & CFD Flowlines Window (Mobile only, dedicated transparent spacer between title & subtitle) */}
+        {/* 3D Drone & CFD Flowlines Window (Mobile only: bigger gap between title and subtitle) */}
         <div
-          className="h-40 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
+          className="h-52 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
           aria-hidden="true"
         />
 
