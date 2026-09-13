@@ -275,7 +275,7 @@ export function FlowLines() {
   const initRotX = isMobile ? -0.02 : -0.065;
   const initPosX = isMobile ? 0.0 : 7.2;
   const initPosY = isMobile ? 0.2 : 0.0;
-  const initPosZ = -(isMobile ? 5.2 : 4.6);
+  const initPosZ = -(isMobile ? 8.0 : 4.6);
 
   const scrollYRef = useRef(0);
   const currentScrollRotY = useRef(initRotY);
@@ -322,7 +322,7 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     const actualPosX = isMobile ? 0.0 : 7.2;
     const actualPosY = isMobile ? 0.2 : 0.0;
-    const actualPosZ = -(isMobile ? 5.2 : 4.6);
+    const actualPosZ = -(isMobile ? 8.0 : 4.6);
     const actualRotY = isMobile ? 0.7 : 0.55;
     const actualRotX = isMobile ? -0.02 : -0.065;
 
@@ -344,7 +344,7 @@ export function FlowLines() {
       const mobile = window.innerWidth < 768;
       const posX = mobile ? 0.0 : 7.2;
       const posY = mobile ? 0.2 : 0.0;
-      const posZ = -(mobile ? 5.2 : 4.6);
+      const posZ = -(mobile ? 8.0 : 4.6);
       const rotY = mobile ? 0.7 : 0.55;
       const rotX = mobile ? -0.02 : -0.065;
       currentPosX.current = posX;
@@ -458,7 +458,7 @@ export function FlowLines() {
     const maxRotY = isMobile ? 0.7 : 0.55;
     const maxRotX = isMobile ? -0.02 : -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
-    const maxPosZ = isMobile ? 5.2 : 4.6;
+    const maxPosZ = isMobile ? 8.0 : 4.6;
     const maxPosY = isMobile ? 0.2 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
