@@ -123,7 +123,13 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
           .single();
 
         if (error) {
-          setErrorMessage(error.message);
+          if (error.message.includes("Could not find the table 'public.education'")) {
+            setErrorMessage(
+              "Table 'education' has not been created in your Supabase database yet. Please run the SQL migration query in your Supabase SQL Editor."
+            );
+          } else {
+            setErrorMessage(error.message);
+          }
         } else if (data) {
           setEducationList((prev) =>
             prev.map((item) => (item.id === editing.id ? (data as Education) : item))
@@ -139,7 +145,13 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
           .single();
 
         if (error) {
-          setErrorMessage(error.message);
+          if (error.message.includes("Could not find the table 'public.education'")) {
+            setErrorMessage(
+              "Table 'education' has not been created in your Supabase database yet. Please run the SQL migration query in your Supabase SQL Editor."
+            );
+          } else {
+            setErrorMessage(error.message);
+          }
         } else if (data) {
           setEducationList((prev) => [...prev, data as Education]);
           setShowForm(false);
