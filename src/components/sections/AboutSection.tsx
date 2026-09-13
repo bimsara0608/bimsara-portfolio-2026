@@ -176,7 +176,7 @@ export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSecti
                   >
                     <div>
                       <div className="flex items-start gap-3.5 mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 p-1.5 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                        <div className="w-12 h-12 rounded-xl bg-white p-1.5 flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-sm">
                           {edu.logo_url ? (
                             <Image
                               src={edu.logo_url}
@@ -186,7 +186,7 @@ export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSecti
                               className="object-contain w-full h-full"
                             />
                           ) : (
-                            <GraduationCap size={22} className="text-emerald-400" />
+                            <GraduationCap size={22} className="text-zinc-800" />
                           )}
                         </div>
                         <div className="min-w-0 flex-1">

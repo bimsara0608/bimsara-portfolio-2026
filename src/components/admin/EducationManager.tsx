@@ -240,7 +240,7 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
                 className="bg-card border border-border rounded-xl p-5 hover:border-border/80 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div className="flex items-start gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                  <div className="w-12 h-12 rounded-lg border border-border bg-white flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-sm">
                     {edu.logo_url ? (
                       <Image
                         src={edu.logo_url}
@@ -250,7 +250,7 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
                         className="object-contain w-full h-full p-1"
                       />
                     ) : (
-                      <GraduationCap size={22} className="text-muted-foreground" />
+                      <GraduationCap size={22} className="text-zinc-800" />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -368,7 +368,7 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
                   Institution Logo
                 </label>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                  <div className="w-12 h-12 rounded-lg border border-border bg-white flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-sm">
                     {form.logo_url ? (
                       <Image
                         src={form.logo_url}
@@ -378,7 +378,7 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
                         className="object-contain w-full h-full p-1"
                       />
                     ) : (
-                      <GraduationCap size={20} className="text-muted-foreground" />
+                      <GraduationCap size={20} className="text-zinc-800" />
                     )}
                   </div>
                   <div className="flex-1 space-y-1.5">
