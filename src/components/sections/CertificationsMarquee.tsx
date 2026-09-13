@@ -1,9 +1,8 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Award, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, useMotionValue, useAnimationFrame } from 'framer-motion';
 import type { Certification } from '@/lib/types';
 
 interface CertificationsMarqueeProps {
@@ -11,13 +10,19 @@ interface CertificationsMarqueeProps {
 }
 
 export function CertificationsMarquee({ certifications }: CertificationsMarqueeProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const x = useMotionValue(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const setRef = useRef<HTMLDivElement>(null);
   const [setWidth, setSetWidth] = useState(0);
 
-  // Build a base set with enough cards (at least 4) to ensure continuous coverage
+  const isPausedRef = useRef(false);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const hasMovedRef = useRef(false);
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isGrabbing, setIsGrabbing] = useState(false);
+
+  // Build a base set with enough cards (at least 3-4) for smooth repetition
   const baseItems =
     certifications.length === 0
       ? []
@@ -29,7 +34,7 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
             ? [...certifications, ...certifications]
             : certifications;
 
-  // Measure the pixel width of one complete set of cards including gap
+  // Measure the pixel width of one complete set of cards
   useEffect(() => {
     const updateWidth = () => {
       if (setRef.current) {
@@ -41,47 +46,121 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
     return () => window.removeEventListener('resize', updateWidth);
   }, [baseItems.length]);
 
-  // Infinite seamless marquee auto-scroll loop
-  useAnimationFrame((_time, delta) => {
-    if (isHovered || isDragging || setWidth <= 0) return;
-
-    // Smooth ~40px per second velocity
-    const moveBy = (40 * delta) / 1000;
-    let currentX = x.get() - moveBy;
-
-    // Seamlessly wrap position
-    if (currentX <= -setWidth) {
-      currentX += setWidth;
-    } else if (currentX > 0) {
-      currentX -= setWidth;
+  // Set initial scroll position to setWidth (Set 2) so bi-directional scrolling is instant
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el && setWidth > 0 && el.scrollLeft === 0) {
+      el.scrollLeft = setWidth;
     }
+  }, [setWidth]);
 
-    x.set(currentX);
-  });
+  const pauseScroll = useCallback(() => {
+    isPausedRef.current = true;
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
+  }, []);
 
-  const handleDrag = () => {
-    if (setWidth <= 0) return;
-    let currentX = x.get();
-    while (currentX <= -setWidth) {
-      currentX += setWidth;
+  const resumeScrollWithDelay = useCallback((delayMs = 1500) => {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
     }
-    while (currentX > 0) {
-      currentX -= setWidth;
+    idleTimerRef.current = setTimeout(() => {
+      isPausedRef.current = false;
+      idleTimerRef.current = null;
+    }, delayMs);
+  }, []);
+
+  // Continuous smooth auto-scroll loop
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || setWidth <= 0) return;
+
+    let animId: number;
+    let lastTime: number | null = null;
+    const speed = 36; // Constant smooth 36px/sec speed
+
+    const loop = (time: number) => {
+      if (lastTime === null) lastTime = time;
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (!isPausedRef.current && el && setWidth > 0) {
+        el.scrollLeft += speed * delta;
+
+        // Seamless infinite loop wrap
+        if (el.scrollLeft >= setWidth * 3) {
+          el.scrollLeft -= setWidth;
+        } else if (el.scrollLeft <= setWidth * 0.5) {
+          el.scrollLeft += setWidth;
+        }
+      }
+
+      animId = requestAnimationFrame(loop);
+    };
+
+    animId = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(animId);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [setWidth]);
+
+  // Handle wrap on manual swipe/scroll as well
+  const handleScroll = () => {
+    const el = containerRef.current;
+    if (!el || setWidth <= 0) return;
+
+    // Wrap seamlessly within the buffer so user can scroll indefinitely in either direction
+    if (el.scrollLeft >= setWidth * 3.5) {
+      el.scrollLeft -= setWidth;
+    } else if (el.scrollLeft <= setWidth * 0.4) {
+      el.scrollLeft += setWidth;
     }
-    x.set(currentX);
   };
 
+  // Mouse drag to scroll handlers (desktop)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const el = containerRef.current;
+    if (!el) return;
+    pauseScroll();
+    isDraggingRef.current = true;
+    hasMovedRef.current = false;
+    startXRef.current = e.pageX - el.offsetLeft;
+    scrollLeftRef.current = el.scrollLeft;
+    setIsGrabbing(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current) return;
+    const el = containerRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startXRef.current) * 1.25;
+    if (Math.abs(walk) > 4) {
+      hasMovedRef.current = true;
+    }
+    el.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsGrabbing(false);
+      resumeScrollWithDelay(1800);
+    }
+  };
+
+  // Chevron navigation buttons
   const scrollStep = (direction: 'left' | 'right') => {
-    if (setWidth <= 0) return;
-    const step = 230;
-    let newX = direction === 'left' ? x.get() + step : x.get() - step;
-    while (newX <= -setWidth) {
-      newX += setWidth;
-    }
-    while (newX > 0) {
-      newX -= setWidth;
-    }
-    x.set(newX);
+    const el = containerRef.current;
+    if (!el) return;
+    pauseScroll();
+    const amount = direction === 'left' ? -230 : 230;
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+    resumeScrollWithDelay(2200);
   };
 
   if (!certifications || certifications.length === 0) return null;
@@ -132,7 +211,7 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
-              if (isDragging) e.preventDefault();
+              if (hasMovedRef.current) e.preventDefault();
             }}
             className="w-full bg-white text-black font-semibold py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-zinc-200 transition-all text-[10px] font-mono tracking-wider uppercase shadow-sm cursor-pointer mt-1"
           >
@@ -173,45 +252,56 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
         </div>
       </div>
 
-      {/* Marquee & Swipe Track */}
-      <div
-        className="relative overflow-hidden rounded-2xl py-1 cursor-grab active:cursor-grabbing"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => setIsHovered(true)}
-        onTouchEnd={() => setTimeout(() => setIsHovered(false), 1500)}
-      >
+      {/* Marquee & Native Smooth Horizontal Scroll Container */}
+      <div className="relative overflow-hidden rounded-2xl py-1">
         {/* Left & Right gradient edge fades */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-[#09090b] via-[#09090b]/80 to-transparent z-10" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-[#09090b] via-[#09090b]/80 to-transparent z-10" />
 
-        <motion.div
-          style={{ x }}
-          drag="x"
-          dragMomentum={false}
-          onDragStart={() => setIsDragging(true)}
-          onDrag={handleDrag}
-          onDragEnd={() => {
-            setIsDragging(false);
-            handleDrag();
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          onMouseEnter={pauseScroll}
+          onMouseLeave={handleMouseUpOrLeave}
+          onTouchStart={pauseScroll}
+          onTouchEnd={() => resumeScrollWithDelay(1500)}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          className={`flex overflow-x-auto scrollbar-none py-1 px-4 select-none touch-pan-x transition-colors ${
+            isGrabbing ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
           }}
-          className="flex w-max"
         >
-          {/* Set 1 (measured for wrap width) */}
-          <div ref={setRef} className="flex gap-4 pr-4">
+          {/* Set 1 (for left-wrap buffer) */}
+          <div className="flex gap-4 pr-4">
             {baseItems.map((cert, idx) => renderCard(cert, `set1-${idx}`))}
           </div>
 
-          {/* Set 2 (seamless continuation) */}
-          <div className="flex gap-4 pr-4">
+          {/* Set 2 (measured set) */}
+          <div ref={setRef} className="flex gap-4 pr-4">
             {baseItems.map((cert, idx) => renderCard(cert, `set2-${idx}`))}
           </div>
 
-          {/* Set 3 (buffer for wide screens & drag) */}
+          {/* Set 3 */}
           <div className="flex gap-4 pr-4">
             {baseItems.map((cert, idx) => renderCard(cert, `set3-${idx}`))}
           </div>
-        </motion.div>
+
+          {/* Set 4 */}
+          <div className="flex gap-4 pr-4">
+            {baseItems.map((cert, idx) => renderCard(cert, `set4-${idx}`))}
+          </div>
+
+          {/* Set 5 */}
+          <div className="flex gap-4 pr-4">
+            {baseItems.map((cert, idx) => renderCard(cert, `set5-${idx}`))}
+          </div>
+        </div>
       </div>
     </div>
   );
