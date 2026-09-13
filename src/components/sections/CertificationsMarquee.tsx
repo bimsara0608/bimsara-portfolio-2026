@@ -73,7 +73,7 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
 
   const scrollStep = (direction: 'left' | 'right') => {
     if (setWidth <= 0) return;
-    const step = 336;
+    const step = 280;
     let newX = direction === 'left' ? x.get() + step : x.get() - step;
     while (newX <= -setWidth) {
       newX += setWidth;
@@ -89,47 +89,50 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
   const renderCard = (cert: Certification, key: string) => (
     <div
       key={key}
-      className="w-[280px] sm:w-[320px] flex-shrink-0 card p-5 border-white/[0.08] hover:border-white/20 transition-all flex flex-col justify-between bg-[#111114] rounded-2xl select-none"
+      className="w-[240px] sm:w-[265px] flex-shrink-0 card overflow-hidden border-white/[0.08] hover:border-white/25 transition-all shadow-xl bg-[#111114] rounded-2xl select-none flex flex-col justify-between"
     >
-      <div>
-        <div className="flex items-start gap-3.5 mb-3">
-          <div className="w-12 h-12 rounded-xl bg-white p-1.5 flex items-center justify-center overflow-hidden flex-shrink-0 relative shadow-sm">
-            {cert.badge_url ? (
-              <Image
-                src={cert.badge_url}
-                alt={cert.title}
-                width={40}
-                height={40}
-                className="object-contain w-full h-full pointer-events-none"
-              />
-            ) : (
-              <Award size={22} className="text-zinc-800" />
-            )}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <h4 className="font-semibold text-white text-sm leading-snug tracking-tight line-clamp-2">
-              {cert.title}
-            </h4>
-            <p className="text-xs text-zinc-300 mt-1 leading-snug">{cert.issuer}</p>
-            <p className="text-xs text-zinc-400 font-mono mt-1">{cert.issue_date}</p>
-            {cert.credential_id && (
-              <p className="text-[11px] text-zinc-500 font-mono mt-0.5">
-                Credential ID {cert.credential_id}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {cert.skills && (
-          <p className="text-[11px] text-zinc-400 font-mono mb-3 line-clamp-1">
-            <span className="text-zinc-500">Skills:</span> {cert.skills}
-          </p>
+      {/* Top: Digital Badge Showcase Window with White Backing */}
+      <div className="w-full h-36 sm:h-40 relative bg-white flex items-center justify-center p-4 overflow-hidden border-b border-white/[0.08]">
+        {cert.badge_url ? (
+          <Image
+            src={cert.badge_url}
+            alt={cert.title}
+            width={120}
+            height={120}
+            className="object-contain max-h-full max-w-full pointer-events-none drop-shadow-sm"
+          />
+        ) : (
+          <Award size={48} className="text-zinc-800" />
         )}
       </div>
 
-      {cert.credential_url && (
-        <div className="pt-2 border-t border-white/[0.06] mt-1">
+      {/* Bottom: Info Section structured like Profile Card (Image 2) */}
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3 bg-[#111114]">
+        <div>
+          <h4 className="font-semibold text-white text-sm leading-snug tracking-tight line-clamp-2">
+            {cert.title}
+          </h4>
+          <p className="text-xs text-zinc-400 mt-1 font-medium">{cert.issuer}</p>
+
+          <div className="h-px bg-white/[0.08] my-2.5" />
+
+          <div className="space-y-1 text-xs text-zinc-400 font-mono">
+            <div>{cert.issue_date}</div>
+            {cert.credential_id && (
+              <div className="text-[11px] text-zinc-500 font-mono truncate">
+                ID: {cert.credential_id}
+              </div>
+            )}
+          </div>
+
+          {cert.skills && (
+            <p className="text-[11px] text-zinc-400 font-mono mt-2 line-clamp-1">
+              <span className="text-zinc-500">Skills:</span> {cert.skills}
+            </p>
+          )}
+        </div>
+
+        {cert.credential_url && (
           <a
             href={cert.credential_url}
             target="_blank"
@@ -137,13 +140,13 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
             onClick={(e) => {
               if (isDragging) e.preventDefault();
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] text-xs font-medium text-white transition-all shadow-sm cursor-pointer"
+            className="w-full bg-white text-black font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 hover:bg-zinc-200 transition-all text-xs font-mono tracking-wider uppercase shadow-sm cursor-pointer mt-1"
           >
-            <span>Show credential</span>
-            <ExternalLink size={11} className="text-zinc-400" />
+            <ExternalLink size={12} />
+            <span>SHOW CREDENTIAL</span>
           </a>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 
