@@ -125,14 +125,6 @@ export function AboutSection({ profile }: AboutSectionProps) {
                   across CAD, robotics, embedded systems, and 3D printing to turn ideas into
                   practical solutions.
                 </p>
-                <p className="text-zinc-400">
-                  As a{' '}
-                  <span className="text-white font-medium">
-                    Certified SOLIDWORKS Professional (CSWP)
-                  </span>
-                  , I combine engineering design with hands-on development, bridging the gap between
-                  digital concepts and physical products.
-                </p>
               </div>
             </div>
 

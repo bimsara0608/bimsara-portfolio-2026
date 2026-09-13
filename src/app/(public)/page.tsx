@@ -28,7 +28,7 @@ export default async function Home() {
     name: 'Bimsara Gunawardana',
     title: 'Design Engineer',
     tagline: 'Design Engineer | Product Design, CAD, Robotics & 3D Visualization',
-    bio: 'I’m Bimsara Gunawardana, a Design Engineer focused on mechanical design, manufacturing, automation, and product development. With a background in Engineering Technology, I work across CAD, robotics, embedded systems, and 3D printing to turn ideas into practical solutions. As a Certified SOLIDWORKS Professional (CSWP), I combine engineering design with hands-on development, bridging the gap between digital concepts and physical products.',
+    bio: 'I’m Bimsara Gunawardana, a Design Engineer focused on mechanical design, manufacturing, automation, and product development. With a background in Engineering Technology, I work across CAD, robotics, embedded systems, and 3D printing to turn ideas into practical solutions.',
     email: 'bimsaragunawardana3d@gmail.com',
     location: 'Colombo, Sri Lanka',
     stat_projects: '60+',
