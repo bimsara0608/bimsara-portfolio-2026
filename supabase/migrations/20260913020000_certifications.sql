@@ -49,7 +49,7 @@ INSERT INTO public.certifications (
   is_published
 )
 VALUES (
-  'cswp-0000-0000-0000-000000000001',
+  '55555555-5555-5555-5555-555555555555',
   'Certified SOLIDWORKS Professional (CSWP)',
   'Dassault Systèmes',
   'Issued May 2026',

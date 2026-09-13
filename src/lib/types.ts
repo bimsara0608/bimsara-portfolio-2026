@@ -220,7 +220,7 @@ export interface Certification {
 
 export const MOCK_CERTIFICATIONS: Certification[] = [
   {
-    id: 'cswp-0000-0000-0000-000000000001',
+    id: '55555555-5555-5555-5555-555555555555',
     title: 'Certified SOLIDWORKS Professional (CSWP)',
     issuer: 'Dassault Systèmes',
     issue_date: 'Issued May 2026',

@@ -9,14 +9,13 @@ export function FluidBackground() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Delay slightly to let WebGL context initialize off-screen, then bloom smoothly
-    const timer = setTimeout(() => setMounted(true), 50);
+    const timer = setTimeout(() => setMounted(true), 20);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div
-      className={`fixed inset-0 z-[-1] pointer-events-none bg-background transition-opacity duration-1000 ease-out ${
+      className={`fixed inset-0 z-[-1] pointer-events-none bg-background transition-opacity duration-500 ease-out ${
         mounted ? 'opacity-100' : 'opacity-0'
       }`}
     >
