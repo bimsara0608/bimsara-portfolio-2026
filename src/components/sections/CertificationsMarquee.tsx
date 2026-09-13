@@ -286,21 +286,15 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
       {/* Tiny UI matching horizontal scroll progress indicator */}
       {canScroll && (
         <div className="flex items-center justify-between pt-1 px-1">
-          <div className="flex items-center gap-3">
-            {/* Slim progress track */}
-            <div className="w-24 sm:w-32 h-1 bg-white/[0.08] rounded-full overflow-hidden relative">
-              <div
-                className="h-full bg-white/80 rounded-full shadow-[0_0_6px_rgba(255,255,255,0.3)] transition-all duration-150 ease-out"
-                style={{
-                  width: `${thumbWidthPercent}%`,
-                  transform: `translateX(${thumbTranslateX * (100 / thumbWidthPercent)}%)`,
-                }}
-              />
-            </div>
-
-            <span className="text-[10px] font-mono text-zinc-500">
-              {Math.round(scrollProgress * 100)}%
-            </span>
+          {/* Slim progress track */}
+          <div className="w-24 sm:w-32 h-1 bg-white/[0.08] rounded-full overflow-hidden relative">
+            <div
+              className="h-full bg-white/80 rounded-full shadow-[0_0_6px_rgba(255,255,255,0.3)] transition-all duration-150 ease-out"
+              style={{
+                width: `${thumbWidthPercent}%`,
+                transform: `translateX(${thumbTranslateX * (100 / thumbWidthPercent)}%)`,
+              }}
+            />
           </div>
 
           <span className="text-[10px] font-mono text-zinc-500">
