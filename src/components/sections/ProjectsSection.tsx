@@ -25,7 +25,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
               <h2 className="text-fluid-h2 text-white tracking-tight mb-3">
                 Featured Engineering &amp; CAD Projects.
               </h2>
-              <p className="text-[15px] text-zinc-400 leading-relaxed max-w-xl">
+              <p className="text-[15px] text-zinc-400 leading-relaxed max-w-xl text-justify">
                 Parametric mechanical assemblies, robotics mechanisms, injection-molded enclosures,
                 and photorealistic visualizations engineered for real-world production.
               </p>

@@ -106,7 +106,7 @@ export function SkillsSection() {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-white leading-tight">
               Engineering Arsenal &amp; Toolset.
             </h2>
-            <p className="text-sm sm:text-base text-zinc-400 mt-3 max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-zinc-400 mt-3 max-w-2xl leading-relaxed text-justify">
               {totalSkillsCount} specialized competencies categorized across parametric CAD
               modeling, industrial automation, embedded electronics, and finite element simulation.
             </p>
@@ -177,7 +177,9 @@ export function SkillsSection() {
                   <h3 className="text-base font-semibold text-white tracking-tight mb-2">
                     {domain.title}
                   </h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed mb-6">{domain.description}</p>
+                  <p className="text-xs text-zinc-400 leading-relaxed mb-6 text-justify">
+                    {domain.description}
+                  </p>
                 </div>
 
                 {/* Skills Chips / Pills */}

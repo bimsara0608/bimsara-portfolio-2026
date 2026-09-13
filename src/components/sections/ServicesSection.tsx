@@ -106,7 +106,7 @@ export function ServicesSection() {
               Engineering Capabilities.{' '}
               <span className="text-zinc-400 block md:inline">From concept to production.</span>
             </h2>
-            <p className="text-[15px] text-zinc-400 leading-relaxed">
+            <p className="text-[15px] text-zinc-400 leading-relaxed text-justify">
               Combining Certified SolidWorks Professional rigor, robotics automation insight, and
               high-end 3D visualization to deliver robust, manufacturing-ready hardware.
             </p>
@@ -131,7 +131,7 @@ export function ServicesSection() {
                 <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
                   {service.title}
                 </h3>
-                <p className="text-[14px] text-zinc-400 mb-6 flex-1 leading-relaxed">
+                <p className="text-[14px] text-zinc-400 mb-6 flex-1 leading-relaxed text-justify">
                   {service.description}
                 </p>
 

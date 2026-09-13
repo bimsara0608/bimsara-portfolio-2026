@@ -87,7 +87,9 @@ export async function GitHubSection() {
                 </h3>
                 <span className="text-xs font-mono text-zinc-400">(@bimsara0608)</span>
               </div>
-              <p className="text-sm text-zinc-300 leading-relaxed max-w-xl">{displayBio}</p>
+              <p className="text-sm text-zinc-300 leading-relaxed max-w-xl text-justify">
+                {displayBio}
+              </p>
               {ghProfile && (
                 <div className="flex justify-center md:justify-start gap-6 mt-4 text-xs font-mono">
                   <span>

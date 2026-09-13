@@ -119,7 +119,7 @@ export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSecti
               </h2>
 
               <div className="p-6 md:p-7 rounded-2xl bg-[#111114] border border-white/[0.08] text-zinc-300 text-[15px] leading-relaxed space-y-3.5 shadow-lg">
-                <p>
+                <p className="text-justify">
                   I’m <span className="text-white font-medium">Bimsara Gunawardana</span>, a{' '}
                   <span className="text-white font-medium">Design Engineer</span> focused on
                   mechanical design, manufacturing, automation, and product development. With a
@@ -155,7 +155,9 @@ export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSecti
                         {exp.period}
                       </span>
                     </div>
-                    <p className="text-sm text-zinc-400 leading-relaxed mt-2">{exp.desc}</p>
+                    <p className="text-sm text-zinc-400 leading-relaxed mt-2 text-justify">
+                      {exp.desc}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -207,12 +209,12 @@ export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSecti
                       </div>
 
                       {edu.activities && (
-                        <p className="text-xs text-zinc-400 leading-relaxed mt-2 pl-0.5">
+                        <p className="text-xs text-zinc-400 leading-relaxed mt-2 pl-0.5 text-justify">
                           {edu.activities}
                         </p>
                       )}
                       {edu.description && (
-                        <p className="text-xs text-zinc-400 leading-relaxed mt-2 pl-0.5">
+                        <p className="text-xs text-zinc-400 leading-relaxed mt-2 pl-0.5 text-justify">
                           {edu.description}
                         </p>
                       )}

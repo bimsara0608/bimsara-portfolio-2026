@@ -116,6 +116,13 @@ body {
   line-height: 1.6;
 }
 
+.text-justify {
+  text-align: justify;
+  text-justify: inter-word;
+  text-align-last: left;
+  hyphens: auto;
+}
+
 /* =============================================
    CARDS — Attio Refined Charcoal Panel
    ============================================= */
