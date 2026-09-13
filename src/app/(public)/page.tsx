@@ -11,8 +11,10 @@ import {
   type Profile,
   type Education,
   type Experience,
+  type Certification,
   MOCK_EDUCATION,
   MOCK_EXPERIENCES,
+  MOCK_CERTIFICATIONS,
 } from '@/lib/types';
 
 export const revalidate = 60;
@@ -25,6 +27,7 @@ export default async function Home() {
     { data: projectsData },
     { data: educationData },
     { data: experiencesData },
+    { data: certificationsData },
   ] = await Promise.all([
     supabase.from('profiles').select('*').limit(1).single(),
     supabase
@@ -40,6 +43,11 @@ export default async function Home() {
       .order('sort_order', { ascending: true }),
     supabase
       .from('experiences')
+      .select('*')
+      .eq('is_published', true)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('certifications')
       .select('*')
       .eq('is_published', true)
       .order('sort_order', { ascending: true }),
@@ -66,12 +74,21 @@ export default async function Home() {
     experiencesData && experiencesData.length > 0
       ? (experiencesData as Experience[])
       : MOCK_EXPERIENCES;
+  const certifications: Certification[] =
+    certificationsData && certificationsData.length > 0
+      ? (certificationsData as Certification[])
+      : MOCK_CERTIFICATIONS;
 
   return (
     <div className="flex flex-col">
       <HeroSection profile={profile} />
       <div className="relative z-10 bg-[#09090b]/95 backdrop-blur-[4px] border-t border-white/[0.08] shadow-[0_-25px_60px_rgba(0,0,0,0.95)]">
-        <AboutSection profile={profile} education={education} experiences={experiences} />
+        <AboutSection
+          profile={profile}
+          education={education}
+          experiences={experiences}
+          certifications={certifications}
+        />
         <SkillsSection />
         <ProjectsSection projects={projects} />
         <ServicesSection />

@@ -202,3 +202,33 @@ export const MOCK_EXPERIENCES: Experience[] = [
     is_published: true,
   },
 ];
+
+export interface Certification {
+  id: string;
+  title: string;
+  issuer: string;
+  issue_date: string;
+  credential_id?: string;
+  credential_url?: string;
+  badge_url?: string;
+  skills?: string;
+  sort_order: number;
+  is_published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const MOCK_CERTIFICATIONS: Certification[] = [
+  {
+    id: 'cswp-0000-0000-0000-000000000001',
+    title: 'Certified SOLIDWORKS Professional (CSWP)',
+    issuer: 'Dassault Systèmes',
+    issue_date: 'Issued May 2026',
+    credential_id: 'C-29RCXDMEHU',
+    credential_url: 'https://cv.virtualtester.com/qr/?b=SLDWRKS&i=C-29RCXDMEHU',
+    badge_url: '/images/certifications/cswp.png',
+    skills: '3D Modeling, Computer-Aided Design (CAD), Parametric Modeling',
+    sort_order: 0,
+    is_published: true,
+  },
+];

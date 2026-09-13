@@ -4,23 +4,30 @@ import {
   type Profile,
   type Education,
   type Experience,
+  type Certification,
   MOCK_EDUCATION,
   MOCK_EXPERIENCES,
+  MOCK_CERTIFICATIONS,
 } from '@/lib/types';
+import { CertificationsMarquee } from '@/components/sections/CertificationsMarquee';
 
 interface AboutSectionProps {
   profile: Profile;
   education?: Education[];
   experiences?: Experience[];
+  certifications?: Certification[];
 }
 
 export function AboutSection({
   profile,
   education = MOCK_EDUCATION,
   experiences = MOCK_EXPERIENCES,
+  certifications = MOCK_CERTIFICATIONS,
 }: AboutSectionProps) {
   const educationItems = education && education.length > 0 ? education : MOCK_EDUCATION;
   const experienceItems = experiences && experiences.length > 0 ? experiences : MOCK_EXPERIENCES;
+  const certItems =
+    certifications && certifications.length > 0 ? certifications : MOCK_CERTIFICATIONS;
 
   return (
     <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
@@ -210,6 +217,9 @@ export function AboutSection({
                 ))}
               </div>
             </div>
+
+            {/* Licenses & Certifications (Marquee & Horizontal Swipeable) */}
+            <CertificationsMarquee certifications={certItems} />
           </div>
         </div>
       </div>
