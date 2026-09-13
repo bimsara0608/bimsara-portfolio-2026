@@ -102,16 +102,16 @@ export function HeroSection({ profile }: HeroSectionProps) {
           <span className="text-zinc-100 block">Meets Design.</span>
         </motion.h1>
 
-        {/* 3D Drone & CFD Flowlines Window (Mobile only: bigger gap between title and subtitle) */}
+        {/* 3D Drone & CFD Flowlines Window (Mobile only) */}
         <div
-          className="h-56 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
+          className="h-60 sm:h-56 w-full mt-2 mb-6 sm:mb-8 relative pointer-events-none md:hidden"
           aria-hidden="true"
         />
 
-        {/* Subtitle - Large, prominent, high-contrast on mobile */}
+        {/* Subtitle - Desktop only; hidden on mobile per user design request */}
         <motion.p
           {...fadeUp(0.2)}
-          className="text-base xs:text-[17px] sm:text-lg md:text-lg text-zinc-100 max-w-sm sm:max-w-md md:max-w-xl mb-4 sm:mb-8 md:mb-10 text-center md:text-left leading-relaxed font-medium mx-auto md:mx-0 drop-shadow-[0_2px_16px_rgba(0,0,0,1)]"
+          className="hidden md:block text-base sm:text-lg md:text-lg text-zinc-100 max-w-sm sm:max-w-md md:max-w-xl mb-4 sm:mb-8 md:mb-10 text-left leading-relaxed font-medium mx-auto md:mx-0 drop-shadow-[0_2px_16px_rgba(0,0,0,1)]"
         >
           CSWP Certified CAD Designer | Building Autonomous &amp; Intelligent Robotic Systems
         </motion.p>

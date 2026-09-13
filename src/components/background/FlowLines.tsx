@@ -274,7 +274,7 @@ export function FlowLines() {
   const initRotY = isMobile ? 0.95 : 0.55;
   const initRotX = isMobile ? 0.03 : -0.065;
   const initPosX = isMobile ? 0.0 : 7.2;
-  const initPosY = isMobile ? 0.5 : 0.0;
+  const initPosY = isMobile ? 0.72 : 0.0;
   const initPosZ = -(isMobile ? 12.5 : 4.6);
 
   const scrollYRef = useRef(0);
@@ -321,7 +321,7 @@ export function FlowLines() {
 
     const isMobile = window.innerWidth < 768;
     const actualPosX = isMobile ? 0.0 : 7.2;
-    const actualPosY = isMobile ? 0.5 : 0.0;
+    const actualPosY = isMobile ? 0.72 : 0.0;
     const actualPosZ = -(isMobile ? 12.5 : 4.6);
     const actualRotY = isMobile ? 0.95 : 0.55;
     const actualRotX = isMobile ? 0.03 : -0.065;
@@ -422,7 +422,7 @@ export function FlowLines() {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       const posX = mobile ? 0.0 : 7.2;
-      const posY = mobile ? 0.5 : 0.0;
+      const posY = mobile ? 0.72 : 0.0;
       const posZ = -(mobile ? 12.5 : 4.6);
       const rotY = mobile ? 0.95 : 0.55;
       const rotX = mobile ? 0.03 : -0.065;
@@ -452,12 +452,12 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     // Location & angle:
     // Desktop: Yaw 0.55 rad (~31.5 deg), pitch -0.065 rad, posX 7.2, posY 0.0, posZ 4.6
-    // Mobile: Pushed deeper into background (posZ 12.5, posY 0.50), rotated forward (Yaw 0.95 rad, pitch 0.03 rad)
+    // Mobile: Pushed deeper into background (posZ 12.5, posY 0.72), rotated forward (Yaw 0.95 rad, pitch 0.03 rad)
     const maxRotY = isMobile ? 0.95 : 0.55;
     const maxRotX = isMobile ? 0.03 : -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
     const maxPosZ = isMobile ? 12.5 : 4.6;
-    const maxPosY = isMobile ? 0.5 : 0.0;
+    const maxPosY = isMobile ? 0.72 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
