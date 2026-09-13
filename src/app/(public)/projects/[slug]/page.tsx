@@ -19,10 +19,28 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .eq('slug', slug)
     .single();
 
-  if (!project) return { title: 'Project Not Found' };
+  if (!project) return { title: 'Project Not Found | Bimsara Gunawardana' };
+
+  // Generate SEO title strictly between 50–60 characters
+  const rawTitle = project.title;
+  let title = `${rawTitle} | Bimsara Gunawardana`;
+  if (title.length > 60) {
+    if (rawTitle.includes(':')) {
+      const parts = rawTitle.split(':');
+      const conciseTitle = `${parts[0].trim()}: HIV System`;
+      title = `${conciseTitle} | Bimsara Gunawardana`;
+    }
+  }
+  if (title.length > 60) {
+    title = `${rawTitle} | Bimsara G.`;
+  }
+  if (title.length > 60) {
+    const maxLen = 60 - ' | Bimsara G.'.length;
+    title = `${rawTitle.slice(0, maxLen).trim()} | Bimsara G.`;
+  }
 
   return {
-    title: `${project.title} | Bimsara Gunawardana`,
+    title,
     description:
       project.description ||
       `${project.category} project by Bimsara Gunawardana — Design Engineer specializing in CAD, robotics, and 3D visualization.`,
@@ -87,13 +105,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
         {/* Hero Image */}
         {heroImage && (
-          <div className="relative aspect-[21/9] w-full overflow-hidden bg-muted mb-20 rounded-xl">
+          <div className="relative aspect-[21/9] w-full overflow-hidden bg-[#111114] border border-white/10 mb-20 rounded-xl">
             <Image
               src={heroImage.url}
               alt={data.title}
-              fill
+              width={1920}
+              height={823}
               sizes="100vw"
-              className="object-cover"
+              className="w-full h-full object-cover"
               priority
             />
           </div>

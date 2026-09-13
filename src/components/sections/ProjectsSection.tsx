@@ -45,6 +45,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 <a
                   key={cat}
                   href={`/projects${cat !== 'All' ? `?category=${encodeURIComponent(cat)}` : ''}`}
+                  rel="nofollow"
                   className="whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-[#111114] text-zinc-300 hover:text-white hover:border-white/25 transition-all shadow-sm"
                 >
                   {cat}

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://bimsara-portfolio-2026.vercel.app'
   ),
-  title: 'Bimsara Gunawardana — Design Engineer | CAD, Robotics & 3D Visualization',
+  title: 'Bimsara Gunawardana | Design Engineer & CAD Specialist',
   description:
     'Portfolio of Bimsara Gunawardana, Design Engineer & Certified SOLIDWORKS Professional (CSWP). Specializing in parametric 3D CAD modeling, robotics automation, DFM, and photorealistic visualization.',
   keywords: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Bimsara Gunawardana — Design Engineer | CAD, Robotics & 3D Visualization',
+    title: 'Bimsara Gunawardana | Design Engineer & CAD Specialist',
     description:
       'Certified SOLIDWORKS Professional (CSWP) specializing in parametric CAD, robotics automation, DFM, and photorealistic visualization.',
     url: 'https://bimsara-portfolio-2026.vercel.app',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bimsara Gunawardana — Design Engineer',
+    title: 'Bimsara Gunawardana | Design Engineer & CAD Specialist',
     description:
       'Certified SOLIDWORKS Professional (CSWP) specializing in parametric CAD, robotics automation, and 3D visualization.',
   },

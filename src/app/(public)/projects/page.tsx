@@ -16,9 +16,14 @@ export async function generateMetadata({
   const category = sp.category || 'All';
 
   const isFiltered = category !== 'All';
-  const title = isFiltered
-    ? `${category} Projects | Bimsara Gunawardana`
-    : 'All Projects | Bimsara Gunawardana';
+  let title = isFiltered
+    ? `${category} CAD & Design Projects | Bimsara Gunawardana`
+    : 'Parametric CAD & Design Projects | Bimsara Gunawardana';
+  if (title.length > 60) {
+    title = isFiltered
+      ? `${category} Projects | Bimsara Gunawardana`
+      : 'All CAD Projects | Bimsara Gunawardana';
+  }
   const description = isFiltered
     ? `Browse Bimsara Gunawardana's ${category} portfolio — CAD designs, 3D models, and engineering projects.`
     : 'Browse the full portfolio of Bimsara Gunawardana — parametric CAD designs, 3D models, robotics, and engineering projects.';
@@ -101,6 +106,7 @@ export default async function ProjectsPage({
             <Link
               key={cat}
               href={cat === 'All' ? '/projects' : `/projects?category=${encodeURIComponent(cat)}`}
+              rel="nofollow"
               className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                 currentCategory === cat
                   ? 'bg-foreground text-background border-foreground'
