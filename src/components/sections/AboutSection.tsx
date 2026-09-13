@@ -22,17 +22,17 @@ const EXPERIENCE = [
     active: false,
   },
   {
-    title: 'Co-Founder & Design Engineer',
+    title: 'Concept & 3D Designer',
     company: 'Lautus Robotics',
     period: 'Robotics & Automation',
-    desc: 'Robotics mechanical architecture, custom enclosure engineering, sensor mount integration, and autonomous system design.',
+    desc: 'Developed concept designs and 3D CAD models and participated in manufacturing and assembly of an AGV for the Civil Aviation Authority of Sri Lanka.',
     active: false,
   },
   {
-    title: '3D & CAD Specialist',
+    title: 'Co-Founder & Lead 3D Designer',
     company: 'VirtualPensar Pvt Ltd',
     period: 'Design & Visualization',
-    desc: 'Parametric CAD modeling, engineering visualization, physical prototype design, and manufacturing asset preparation.',
+    desc: 'Led 3D design and prototyping, delivering 60+ engineering projects including functional prototypes and 3D-printable components.',
     active: false,
   },
 ];
