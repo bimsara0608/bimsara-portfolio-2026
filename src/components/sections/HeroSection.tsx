@@ -77,8 +77,8 @@ export function HeroSection({ profile }: HeroSectionProps) {
       <div className="hidden md:block absolute inset-y-0 left-0 w-full md:w-[56%] lg:w-[52%] pointer-events-none bg-gradient-to-r from-background via-background/90 via-55% to-transparent z-0" />
 
       {/* Top & Bottom protective gradient scrims - Mobile only: solid backing behind text, gentle fade toward drone window */}
-      <div className="md:hidden absolute top-0 left-0 right-0 h-[36%] pointer-events-none bg-gradient-to-b from-[#09090b] via-[#09090b] via-[50%] to-transparent z-0" />
-      <div className="md:hidden absolute bottom-0 left-0 right-0 h-[58%] pointer-events-none bg-gradient-to-t from-[#09090b] from-45% via-[#09090b]/95 via-70% to-transparent z-0" />
+      <div className="md:hidden absolute top-0 left-0 right-0 h-[38%] pointer-events-none bg-gradient-to-b from-[#09090b] via-[#09090b] via-[50%] to-transparent z-0" />
+      <div className="md:hidden absolute bottom-0 left-0 right-0 h-[46%] pointer-events-none bg-gradient-to-t from-[#09090b] via-[#09090b] via-[48%] to-transparent z-0" />
 
       {/* Hero content - Centered on mobile, left-aligned on desktop */}
       <div className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left px-5 sm:px-8 md:pl-20 lg:pl-28 xl:pl-36 md:pr-6 max-w-5xl mx-auto md:mx-0 w-full relative z-10 -translate-y-2 sm:-translate-y-4 md:-translate-y-8">
@@ -108,16 +108,13 @@ export function HeroSection({ profile }: HeroSectionProps) {
           aria-hidden="true"
         />
 
-        {/* Subtitle - Protected with soft atmospheric fade on mobile to eliminate flow line distractions */}
-        <motion.div
+        {/* Subtitle - Large, prominent, high-contrast on mobile */}
+        <motion.p
           {...fadeUp(0.2)}
-          className="relative max-w-sm sm:max-w-md md:max-w-xl mb-4 sm:mb-8 md:mb-10 mx-auto md:mx-0 w-full"
+          className="text-base xs:text-[17px] sm:text-lg md:text-lg text-zinc-100 max-w-sm sm:max-w-md md:max-w-xl mb-4 sm:mb-8 md:mb-10 text-center md:text-left leading-relaxed font-medium mx-auto md:mx-0 drop-shadow-[0_2px_16px_rgba(0,0,0,1)]"
         >
-          <div className="md:hidden absolute -inset-x-4 -inset-y-3 bg-[#09090b]/85 backdrop-blur-[2px] rounded-2xl -z-10 [mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)] pointer-events-none" />
-          <p className="text-base xs:text-[17px] sm:text-lg md:text-lg text-zinc-100 text-center md:text-left leading-relaxed font-medium drop-shadow-[0_2px_16px_rgba(0,0,0,1)]">
-            CSWP Certified CAD Designer | Building Autonomous &amp; Intelligent Robotic Systems
-          </p>
-        </motion.div>
+          CSWP Certified CAD Designer | Building Autonomous &amp; Intelligent Robotic Systems
+        </motion.p>
 
         {/* CTA Buttons - Large, tactile, comfortable mobile touch targets */}
         <motion.div
