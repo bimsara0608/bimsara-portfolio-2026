@@ -19,12 +19,14 @@ CREATE TABLE IF NOT EXISTS public.certifications (
 -- Enable Row Level Security
 ALTER TABLE public.certifications ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access
+-- Allow public read access (idempotent)
+DROP POLICY IF EXISTS "Public certifications are viewable by everyone" ON public.certifications;
 CREATE POLICY "Public certifications are viewable by everyone"
   ON public.certifications FOR SELECT
   USING (true);
 
--- Allow authenticated admin full access
+-- Allow authenticated admin full access (idempotent)
+DROP POLICY IF EXISTS "Only authenticated users can modify certifications" ON public.certifications;
 CREATE POLICY "Only authenticated users can modify certifications"
   ON public.certifications FOR ALL
   USING (auth.role() = 'authenticated');
