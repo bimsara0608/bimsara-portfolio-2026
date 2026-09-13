@@ -1,45 +1,26 @@
 import Image from 'next/image';
 import { Download, Briefcase, GraduationCap, MapPin, Mail } from 'lucide-react';
-import { type Profile, type Education, MOCK_EDUCATION } from '@/lib/types';
+import {
+  type Profile,
+  type Education,
+  type Experience,
+  MOCK_EDUCATION,
+  MOCK_EXPERIENCES,
+} from '@/lib/types';
 
 interface AboutSectionProps {
   profile: Profile;
   education?: Education[];
+  experiences?: Experience[];
 }
 
-const EXPERIENCE = [
-  {
-    title: 'Design Engineer',
-    company: 'Freelance',
-    period: '2023 – Present',
-    desc: 'Specializing in end-to-end product design, parametric SolidWorks CAD, mechanical assemblies, and photorealistic 3D visualization for international clients.',
-    active: true,
-  },
-  {
-    title: 'Autonomation Engineering Intern',
-    company: 'MAS Bodyline / MAS Holdings',
-    period: 'Process Innovation',
-    desc: 'Engineering projects spanning Zig-Zag auto feeder development, PLC programming, HMI interface design, AGV troubleshooting, yarn break detection, PCB design, CAD modeling, and rapid physical prototyping.',
-    active: false,
-  },
-  {
-    title: 'Concept & 3D Designer',
-    company: 'Lautus Robotics',
-    period: 'Robotics & Automation',
-    desc: 'Developed concept designs and 3D CAD models and participated in manufacturing and assembly of an AGV for the Civil Aviation Authority of Sri Lanka.',
-    active: false,
-  },
-  {
-    title: 'Co-Founder & Lead 3D Designer',
-    company: 'VirtualPensar Pvt Ltd',
-    period: 'Design & Visualization',
-    desc: 'Led 3D design and prototyping, delivering 60+ engineering projects including functional prototypes and 3D-printable components.',
-    active: false,
-  },
-];
-
-export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSectionProps) {
+export function AboutSection({
+  profile,
+  education = MOCK_EDUCATION,
+  experiences = MOCK_EXPERIENCES,
+}: AboutSectionProps) {
   const educationItems = education && education.length > 0 ? education : MOCK_EDUCATION;
+  const experienceItems = experiences && experiences.length > 0 ? experiences : MOCK_EXPERIENCES;
 
   return (
     <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
@@ -141,9 +122,9 @@ export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSecti
               </div>
 
               <div className="space-y-4">
-                {EXPERIENCE.map((exp) => (
+                {experienceItems.map((exp) => (
                   <div
-                    key={exp.title}
+                    key={exp.id || exp.title}
                     className="card p-6 border-white/[0.08] hover:border-white/20 transition-all"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">

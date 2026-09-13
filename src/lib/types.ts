@@ -146,3 +146,59 @@ export const MOCK_EDUCATION: Education[] = [
     is_published: true,
   },
 ];
+
+export interface Experience {
+  id: string;
+  title: string;
+  company: string;
+  period: string;
+  desc: string;
+  active?: boolean;
+  sort_order: number;
+  is_published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const MOCK_EXPERIENCES: Experience[] = [
+  {
+    id: '11111111-1111-1111-1111-111111111111',
+    title: 'Design Engineer',
+    company: 'Freelance',
+    period: '2023 – Present',
+    desc: 'Specializing in end-to-end product design, parametric SolidWorks CAD, mechanical assemblies, and photorealistic 3D visualization for international clients.',
+    active: true,
+    sort_order: 0,
+    is_published: true,
+  },
+  {
+    id: '22222222-2222-2222-2222-222222222222',
+    title: 'Autonomation Engineering Intern',
+    company: 'MAS Bodyline / MAS Holdings',
+    period: 'Process Innovation',
+    desc: 'Engineering projects spanning Zig-Zag auto feeder development, PLC programming, HMI interface design, AGV troubleshooting, yarn break detection, PCB design, CAD modeling, and rapid physical prototyping.',
+    active: false,
+    sort_order: 1,
+    is_published: true,
+  },
+  {
+    id: '33333333-3333-3333-3333-333333333333',
+    title: 'Concept & 3D Designer',
+    company: 'Lautus Robotics',
+    period: 'Robotics & Automation',
+    desc: 'Developed concept designs and 3D CAD models and participated in manufacturing and assembly of an AGV for the Civil Aviation Authority of Sri Lanka.',
+    active: false,
+    sort_order: 2,
+    is_published: true,
+  },
+  {
+    id: '44444444-4444-4444-4444-444444444444',
+    title: 'Co-Founder & Lead 3D Designer',
+    company: 'VirtualPensar Pvt Ltd',
+    period: 'Design & Visualization',
+    desc: 'Led 3D design and prototyping, delivering 60+ engineering projects including functional prototypes and 3D-printable components.',
+    active: false,
+    sort_order: 3,
+    is_published: true,
+  },
+];
