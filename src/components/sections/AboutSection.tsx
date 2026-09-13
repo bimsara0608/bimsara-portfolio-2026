@@ -66,17 +66,10 @@ export function AboutSection({ profile }: AboutSectionProps) {
               {/* Info */}
               <div className="p-6 space-y-4 bg-[#111114]">
                 <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-base text-white tracking-tight">
-                      {profile?.name || 'Bimsara Gunawardana'}
-                    </h3>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                      CSWP
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-400 mt-1 font-medium">
-                    {profile?.title || 'Design Engineer'}
-                  </p>
+                  <h3 className="font-semibold text-base text-white tracking-tight">
+                    {profile?.name || 'Bimsara Gunawardana'}
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-1 font-medium">CSWP Certified Designer</p>
                 </div>
 
                 <div className="h-px bg-white/[0.08]" />
@@ -116,26 +109,29 @@ export function AboutSection({ profile }: AboutSectionProps) {
             <div>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono font-medium tracking-widest uppercase text-white/80 mb-5">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                ABOUT BIMSARA
+                ABOUT ME
               </span>
               <h2 className="text-fluid-h2 text-white mb-6 tracking-tight">
-                Engineering rigor meets <span className="text-zinc-400">industrial design.</span>
+                Turning ideas into <span className="text-zinc-400">practical solutions.</span>
               </h2>
 
               <div className="p-6 md:p-7 rounded-2xl bg-[#111114] border border-white/[0.08] text-zinc-300 text-[15px] leading-relaxed space-y-3.5 shadow-lg">
                 <p>
-                  I’m a <span className="text-white font-medium">Design Engineer</span> with an
-                  academic background in{' '}
-                  <span className="text-white font-medium">
-                    Instrumentation and Automation Technology
-                  </span>{' '}
-                  from the <span className="text-white font-medium">University of Colombo</span>.
+                  I’m <span className="text-white font-medium">Bimsara Gunawardana</span>, a{' '}
+                  <span className="text-white font-medium">Design Engineer</span> focused on
+                  mechanical design, manufacturing, automation, and product development. With a
+                  background in{' '}
+                  <span className="text-white font-medium">Engineering Technology</span>, I work
+                  across CAD, robotics, embedded systems, and 3D printing to turn ideas into
+                  practical solutions.
                 </p>
                 <p className="text-zinc-400">
-                  I operate at the intersection of parametric SolidWorks CAD modeling, kinematic
-                  mechanism design, robotics automation, and photorealistic 3D
-                  visualization—transforming abstract engineering specifications into robust,
-                  manufacturing-ready products.
+                  As a{' '}
+                  <span className="text-white font-medium">
+                    Certified SOLIDWORKS Professional (CSWP)
+                  </span>
+                  , I combine engineering design with hands-on development, bridging the gap between
+                  digital concepts and physical products.
                 </p>
               </div>
             </div>

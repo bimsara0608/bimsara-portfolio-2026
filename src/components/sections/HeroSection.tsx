@@ -104,7 +104,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
         {/* 3D Drone & CFD Flowlines Window (Mobile only: bigger gap between title and subtitle) */}
         <div
-          className="h-52 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
+          className="h-56 sm:h-52 w-full my-2 sm:my-3 relative pointer-events-none md:hidden"
           aria-hidden="true"
         />
 
