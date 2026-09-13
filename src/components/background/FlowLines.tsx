@@ -7,81 +7,39 @@ const TUBE_COUNT = 96;
 const SEGMENTS = 205;
 const BOUNDS = 34;
 
-// Analytical Aerodynamic CFD Flow field around the drone (scaled to match drone)
+// Analytical Aerodynamic CFD Flow field around the drone airframe
 function getDroneAeroVelocity(x: number, y: number, z: number) {
   const U = 1.0;
   let vx = U;
   let vy = 0;
   let vz = 0;
 
-  // 1. Upper Canopy Deflection (centered at y = +1.4, front at x = -0.5)
-  const cy = 1.4;
-  const cx = -0.5;
-  const dx1 = (x - cx) / 3.0;
-  const dy1 = (y - cy) / 1.4;
-  const dz1 = z / 2.6;
-  const r1_sq = dx1 * dx1 + dy1 * dy1 + dz1 * dz1 + 0.3;
-  const r1 = Math.sqrt(r1_sq);
+  // Drone airframe center: centered at x = -0.1, y = 0.05, z = 0
+  // Symmetrically and smoothly envelopes both the white canopy (top y=1.64)
+  // and the lower cargo tank (bottom y=-1.51) with clean, laminar CFD clearance
+  const fx = -0.1;
+  const fy = 0.05;
+  const dx = (x - fx) / 3.4;
+  const dy = (y - fy) / 1.85;
+  const dz = z / 2.6;
+  const r_sq = dx * dx + dy * dy + dz * dz + 0.42;
+  const r = Math.sqrt(r_sq);
 
-  if (r1 < 4.5) {
-    const r1_5 = r1_sq * r1_sq * r1;
-    const coef1 = 0.45;
-    vx += (coef1 * (r1_sq - 3 * dx1 * dx1)) / r1_5;
-    vy += (coef1 * (-3 * dx1 * dy1)) / r1_5;
-    vz += (coef1 * (-3 * dx1 * dz1)) / r1_5;
+  if (r < 5.0) {
+    const r5 = r_sq * r_sq * r;
+    const coef = 0.82;
+    vx += (coef * (r_sq - 3 * dx * dx)) / r5;
+    vy += (coef * (-3 * dx * dy)) / r5;
+    vz += (coef * (-3 * dx * dz)) / r5;
   }
 
-  // 2. Lower Cargo, Battery & Landing Skids Deflection (centered at y = -0.8)
-  const by = -0.8;
-  const bx = 0.0;
-  const dx2 = (x - bx) / 3.8;
-  const dy2 = (y - by) / 1.8;
-  const dz2 = z / 2.6;
-  const r2_sq = dx2 * dx2 + dy2 * dy2 + dz2 * dz2 + 0.3;
-  const r2 = Math.sqrt(r2_sq);
-
-  if (r2 < 4.5) {
-    const r2_5 = r2_sq * r2_sq * r2;
-    const coef2 = 0.42;
-    vx += (coef2 * (r2_sq - 3 * dx2 * dx2)) / r2_5;
-    vy += (coef2 * (-3 * dx2 * dy2)) / r2_5;
-    vz += (coef2 * (-3 * dx2 * dz2)) / r2_5;
+  // Smooth aerodynamic wake relaxation on the downstream side
+  if (x > 1.5) {
+    const wake = Math.min((x - 1.5) / 10.0, 1.0);
+    vy += (y > fy ? 0.015 : -0.015) * wake;
   }
 
-  // 3. Four Rotor Arm Hubs at (±3.2, +0.6, ±3.2) with softened denominator to prevent loops
-  const armX = 3.2;
-  const armZ = 3.2;
-  const motorPositions = [
-    { x: -armX, y: 0.6, z: -armZ },
-    { x: -armX, y: 0.6, z: armZ },
-    { x: armX, y: 0.6, z: -armZ },
-    { x: armX, y: 0.6, z: armZ },
-  ];
-
-  for (const pos of motorPositions) {
-    const dxm = (x - pos.x) / 1.1;
-    const dym = (y - pos.y) / 0.8;
-    const dzm = (z - pos.z) / 1.1;
-    const rm_sq = dxm * dxm + dym * dym + dzm * dzm + 0.5; // Softening factor prevents singularities
-    const rm = Math.sqrt(rm_sq);
-    if (rm < 3.0) {
-      const rm5 = rm_sq * rm_sq * rm;
-      const coefM = 0.06;
-      vx += (coefM * (rm_sq - 3 * dxm * dxm)) / rm5;
-      vy += (coefM * (-3 * dxm * dym)) / rm5;
-      vz += (coefM * (-3 * dxm * dzm)) / rm5;
-    }
-  }
-
-  // 4. Aerodynamic Wake Expansion on Downstream side (x > 0):
-  // Keeps streamlines widely spaced and clearly visible on the right side
-  if (x > 0.0) {
-    const wakeFactor = Math.min(x / 14.0, 1.0);
-    vy += (y > 0 ? 0.04 : -0.04) * wakeFactor;
-    vz += (z > 0 ? 0.03 : -0.03) * wakeFactor;
-  }
-
-  // Strictly enforce forward flow (no negative vx, completely preventing loops)
+  // Strictly enforce forward flow (completely preventing loops)
   vx = Math.max(vx, 0.35);
 
   return new THREE.Vector3(vx, vy, vz);
@@ -164,35 +122,9 @@ function generateStreamlineGeometry(
   const alphas: number[] = [];
 
   const current = new THREE.Vector3(startX, startY, startZ);
-  const distFromDrone = Math.sqrt((startY - 0.2) * (startY - 0.2) + startZ * startZ);
+  const distFromDrone = Math.sqrt((startY - 0.05) * (startY - 0.05) + startZ * startZ);
 
   for (let i = 0; i < SEGMENTS; i++) {
-    // Surface contour hugging: deflect smoothly around scaled canopy
-    const cy = 1.4;
-    const cx = -0.5;
-    const distCanopySq =
-      ((current.x - cx) * (current.x - cx)) / (3.0 * 3.0) +
-      ((current.y - cy) * (current.y - cy)) / (1.4 * 1.4) +
-      (current.z * current.z) / (2.6 * 2.6);
-    if (distCanopySq < 1.0) {
-      const scaleFactor = 1.06 / Math.sqrt(distCanopySq);
-      current.y = cy + (current.y - cy) * scaleFactor;
-      current.z = current.z * scaleFactor;
-    }
-
-    // Surface contour hugging: deflect smoothly around scaled battery and skids
-    const by = -0.8;
-    const bx = 0.0;
-    const distBatterySq =
-      ((current.x - bx) * (current.x - bx)) / (3.8 * 3.8) +
-      ((current.y - by) * (current.y - by)) / (1.8 * 1.8) +
-      (current.z * current.z) / (2.6 * 2.6);
-    if (distBatterySq < 1.0) {
-      const scaleFactor = 1.06 / Math.sqrt(distBatterySq);
-      current.y = by + (current.y - by) * scaleFactor;
-      current.z = current.z * scaleFactor;
-    }
-
     // Add point to streamline
     const newPoint = current.clone();
     if (points.length > 0) {
