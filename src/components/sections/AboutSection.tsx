@@ -1,9 +1,10 @@
 import Image from 'next/image';
-import { Download, Award, Briefcase, GraduationCap, MapPin, Mail } from 'lucide-react';
-import type { Profile } from '@/lib/types';
+import { Download, Briefcase, GraduationCap, MapPin, Mail } from 'lucide-react';
+import { type Profile, type Education, MOCK_EDUCATION } from '@/lib/types';
 
 interface AboutSectionProps {
   profile: Profile;
+  education?: Education[];
 }
 
 const EXPERIENCE = [
@@ -37,7 +38,9 @@ const EXPERIENCE = [
   },
 ];
 
-export function AboutSection({ profile }: AboutSectionProps) {
+export function AboutSection({ profile, education = MOCK_EDUCATION }: AboutSectionProps) {
+  const educationItems = education && education.length > 0 ? education : MOCK_EDUCATION;
+
   return (
     <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
@@ -158,43 +161,70 @@ export function AboutSection({ profile }: AboutSectionProps) {
               </div>
             </div>
 
-            {/* Education & Credentials */}
+            {/* Education */}
             <div>
               <div className="flex items-center gap-2.5 mb-6">
                 <GraduationCap size={16} className="text-zinc-400" />
-                <h3 className="text-base font-semibold text-white tracking-tight">
-                  Education &amp; Certification
-                </h3>
+                <h3 className="text-base font-semibold text-white tracking-tight">Education</h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="card p-6 border-white/[0.08] hover:border-white/20">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4">
-                    <Award size={20} />
-                  </div>
-                  <h4 className="font-semibold text-white text-sm mb-1">
-                    Certified SOLIDWORKS Professional (CSWP)
-                  </h4>
-                  <p className="text-xs font-mono text-cyan-400/80 mb-2">Dassault Systèmes</p>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Verified international certification in advanced parametric modeling, complex
-                    multi-body assemblies, and manufacturing validation.
-                  </p>
-                </div>
+                {educationItems.map((edu) => (
+                  <div
+                    key={edu.id}
+                    className="card p-6 border-white/[0.08] hover:border-white/20 transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-start gap-3.5 mb-3">
+                        <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 p-1.5 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                          {edu.logo_url ? (
+                            <Image
+                              src={edu.logo_url}
+                              alt={edu.institution}
+                              width={40}
+                              height={40}
+                              className="object-contain w-full h-full"
+                            />
+                          ) : (
+                            <GraduationCap size={22} className="text-emerald-400" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-semibold text-white text-base leading-snug tracking-tight">
+                            {edu.institution}
+                          </h4>
+                          {edu.degree ? (
+                            <p className="text-xs text-zinc-300 mt-1 leading-snug">
+                              {edu.degree}
+                              {edu.field_of_study ? `, ${edu.field_of_study}` : ''}
+                            </p>
+                          ) : edu.field_of_study ? (
+                            <p className="text-xs text-zinc-300 mt-1 leading-snug">
+                              {edu.field_of_study}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
 
-                <div className="card p-6 border-white/[0.08] hover:border-white/20">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                    <GraduationCap size={20} />
+                      {edu.activities && (
+                        <p className="text-xs text-zinc-400 leading-relaxed mt-2 pl-0.5">
+                          {edu.activities}
+                        </p>
+                      )}
+                      {edu.description && (
+                        <p className="text-xs text-zinc-400 leading-relaxed mt-2 pl-0.5">
+                          {edu.description}
+                        </p>
+                      )}
+                    </div>
+
+                    {edu.period && (
+                      <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                        <span className="text-emerald-400/90 font-medium">{edu.period}</span>
+                      </div>
+                    )}
                   </div>
-                  <h4 className="font-semibold text-white text-sm mb-1">B.Eng.Tech (Honours)</h4>
-                  <p className="text-xs font-mono text-emerald-400/80 mb-2">
-                    University of Colombo · 2022 – Present
-                  </p>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Instrumentation and Automation Technology. Multidisciplinary engineering
-                    spanning robotics, control systems, and CAD automation.
-                  </p>
-                </div>
+                ))}
               </div>
             </div>
           </div>

@@ -101,3 +101,48 @@ export interface GitHubRepo {
   updated_at: string;
   homepage: string | null;
 }
+
+export interface Education {
+  id: string;
+  institution: string;
+  degree?: string;
+  field_of_study?: string;
+  start_date?: string;
+  end_date?: string;
+  period?: string;
+  grade?: string;
+  activities?: string;
+  description?: string;
+  logo_url?: string;
+  sort_order: number;
+  is_published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const MOCK_EDUCATION: Education[] = [
+  {
+    id: 'mock-uoc',
+    institution: 'University of Colombo',
+    degree: 'Bachelor of engineering technology honours in instrumentation and automation',
+    field_of_study: 'Mechatronics, Robotics, and Automation Engineering',
+    period: 'Jun 2022 – Jun 2026',
+    activities: '',
+    description: '',
+    logo_url: '/images/education/colombo.png',
+    sort_order: 0,
+    is_published: true,
+  },
+  {
+    id: 'mock-nalanda',
+    institution: 'Nalanda College Colombo',
+    degree: '',
+    field_of_study: '',
+    period: '',
+    activities: 'Activities and societies: Vice President, Aeronautical Society',
+    description: '',
+    logo_url: '/images/education/nalanda.png',
+    sort_order: 1,
+    is_published: true,
+  },
+];

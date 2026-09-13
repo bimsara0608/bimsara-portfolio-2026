@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Star,
   User,
+  GraduationCap,
   Settings,
   LogOut,
   ExternalLink,
@@ -52,6 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },
     { name: 'Projects', href: '/admin/projects', icon: FolderKanban },
+    { name: 'Education', href: '/admin/education', icon: GraduationCap },
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare, badge: unreadCount },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
     { name: 'Profile', href: '/admin/profile', icon: User },
