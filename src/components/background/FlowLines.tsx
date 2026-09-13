@@ -157,8 +157,7 @@ function generateStreamlineGeometry(
   startY: number,
   startZ: number,
   bounds: number,
-  isClosest: boolean,
-  isMobile: boolean = false
+  isClosest: boolean
 ) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
@@ -227,10 +226,7 @@ function generateStreamlineGeometry(
         ? THREE.MathUtils.clamp(1.0 - ((distFromDrone - 4.5) / 5.0) * 0.35, 0.52, 1.0)
         : 1.0;
 
-    // Smooth lower fade on mobile: dissolves any streamlines below the drone skids into pure void space
-    const mobileLowerFade = isMobile ? THREE.MathUtils.smoothstep(current.y, -2.0, -1.2) : 1.0;
-
-    alphas.push(alphaFlow * edgeFade * heightFade * mobileLowerFade);
+    alphas.push(alphaFlow * edgeFade * heightFade);
 
     const step = 0.35;
     // Strictly forward monotonic step: mathematically impossible to loop backwards
@@ -275,11 +271,11 @@ export function FlowLines() {
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
   const [droneModel, setDroneModel] = useState<THREE.Group | null>(null);
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-  const initRotY = isMobile ? 0.7 : 0.55;
-  const initRotX = isMobile ? -0.02 : -0.065;
+  const initRotY = isMobile ? 0.95 : 0.55;
+  const initRotX = isMobile ? 0.03 : -0.065;
   const initPosX = isMobile ? 0.0 : 7.2;
-  const initPosY = isMobile ? 0.65 : 0.0;
-  const initPosZ = -(isMobile ? 10.0 : 4.6);
+  const initPosY = isMobile ? 0.5 : 0.0;
+  const initPosZ = -(isMobile ? 12.5 : 4.6);
 
   const scrollYRef = useRef(0);
   const currentScrollRotY = useRef(initRotY);
@@ -325,10 +321,10 @@ export function FlowLines() {
 
     const isMobile = window.innerWidth < 768;
     const actualPosX = isMobile ? 0.0 : 7.2;
-    const actualPosY = isMobile ? 0.65 : 0.0;
-    const actualPosZ = -(isMobile ? 10.0 : 4.6);
-    const actualRotY = isMobile ? 0.7 : 0.55;
-    const actualRotX = isMobile ? -0.02 : -0.065;
+    const actualPosY = isMobile ? 0.5 : 0.0;
+    const actualPosZ = -(isMobile ? 12.5 : 4.6);
+    const actualRotY = isMobile ? 0.95 : 0.55;
+    const actualRotX = isMobile ? 0.03 : -0.065;
 
     currentPosX.current = actualPosX;
     currentPosY.current = actualPosY;
@@ -343,8 +339,6 @@ export function FlowLines() {
       groupRef.current.rotation.x = actualRotX;
       groupRef.current.rotation.z = 0;
     }
-
-    let currentIsMobile = isMobile;
 
     const topY = [
       2.0, 2.5, 3.0, 3.5, 4.0, 4.6, 5.2, 5.8, 6.4, 7.0, 7.6, 2.2, 2.7, 3.2, 3.8, 4.3, 4.9, 5.5, 6.1,
@@ -382,15 +376,9 @@ export function FlowLines() {
     const flankY = [0.0, 0.5, -0.4, 0.8, -0.6, 0.3, 1.0, -1.0];
     const flankZ = [-2.6, 2.6, -3.4, 3.4, -4.2, 4.2, -3.0, 3.0];
 
-    const buildGeometries = (mobile: boolean) => {
+    const buildGeometries = () => {
       const geoms: THREE.TubeGeometry[] = [];
       for (let i = 0; i < TUBE_COUNT; i++) {
-        // On mobile: omit the 28 floor wind-tunnel boundary lines below the drone (Group 2, indices 28 to 55)
-        // so the lower screen area (subtitle, buttons, stats) stays clean, dark, and distraction-free
-        if (mobile && i >= 28 && i < 56) {
-          continue;
-        }
-
         const startX = -BOUNDS;
         let startY = 0;
         let startZ = 0;
@@ -423,34 +411,26 @@ export function FlowLines() {
           startZ = flankZ[idx % flankZ.length];
         }
 
-        const geom = generateStreamlineGeometry(startX, startY, startZ, BOUNDS, isClosest, mobile);
+        const geom = generateStreamlineGeometry(startX, startY, startZ, BOUNDS, isClosest);
         geoms.push(geom);
       }
       return geoms;
     };
 
-    const initialGeometries = buildGeometries(isMobile);
+    const initialGeometries = buildGeometries();
 
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       const posX = mobile ? 0.0 : 7.2;
-      const posY = mobile ? 0.65 : 0.0;
-      const posZ = -(mobile ? 10.0 : 4.6);
-      const rotY = mobile ? 0.7 : 0.55;
-      const rotX = mobile ? -0.02 : -0.065;
+      const posY = mobile ? 0.5 : 0.0;
+      const posZ = -(mobile ? 12.5 : 4.6);
+      const rotY = mobile ? 0.95 : 0.55;
+      const rotX = mobile ? 0.03 : -0.065;
       currentPosX.current = posX;
       currentPosY.current = posY;
       currentPosZ.current = posZ;
       currentScrollRotY.current = rotY;
       currentScrollRotX.current = rotX;
-
-      if (mobile !== currentIsMobile) {
-        currentIsMobile = mobile;
-        setGeometries((prev) => {
-          prev.forEach((g) => g.dispose());
-          return buildGeometries(mobile);
-        });
-      }
     };
     window.addEventListener('resize', handleResize);
 
@@ -472,12 +452,12 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     // Location & angle:
     // Desktop: Yaw 0.55 rad (~31.5 deg), pitch -0.065 rad, posX 7.2, posY 0.0, posZ 4.6
-    // Mobile: Desktop scene as-is, centered at posX 0.0, posY 0.2, posZ 5.2, angled at Yaw 0.70 rad, pitch -0.02 rad
-    const maxRotY = isMobile ? 0.7 : 0.55;
-    const maxRotX = isMobile ? -0.02 : -0.065;
+    // Mobile: Pushed deeper into background (posZ 12.5, posY 0.50), rotated forward (Yaw 0.95 rad, pitch 0.03 rad)
+    const maxRotY = isMobile ? 0.95 : 0.55;
+    const maxRotX = isMobile ? 0.03 : -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
-    const maxPosZ = isMobile ? 10.0 : 4.6;
-    const maxPosY = isMobile ? 0.65 : 0.0;
+    const maxPosZ = isMobile ? 12.5 : 4.6;
+    const maxPosY = isMobile ? 0.5 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
@@ -547,7 +527,7 @@ export function FlowLines() {
           <meshBasicMaterial
             vertexColors
             transparent
-            opacity={1.0}
+            opacity={isMobile ? 0.7 : 1.0}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             toneMapped={false}
