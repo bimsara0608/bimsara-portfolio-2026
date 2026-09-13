@@ -271,16 +271,14 @@ export function FlowLines() {
   const [geometries, setGeometries] = useState<THREE.TubeGeometry[]>([]);
   const [droneModel, setDroneModel] = useState<THREE.Group | null>(null);
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-  const initRotY = isMobile ? 0.38 : 0.55;
-  const initRotX = -0.065;
-  const initRotZ = isMobile ? 0.28 : 0.0;
+  const initRotY = isMobile ? 0.88 : 0.55;
+  const initRotX = isMobile ? 0.07 : -0.065;
   const initPosX = isMobile ? 0.0 : 7.2;
-  const initPosZ = -(isMobile ? 2.6 : 4.6);
+  const initPosZ = -(isMobile ? 2.4 : 4.6);
 
   const scrollYRef = useRef(0);
   const currentScrollRotY = useRef(initRotY);
   const currentScrollRotX = useRef(initRotX);
-  const currentScrollRotZ = useRef(initRotZ);
   const currentPosX = useRef(initPosX);
   const currentPosZ = useRef(initPosZ);
 
@@ -321,35 +319,34 @@ export function FlowLines() {
 
     const isMobile = window.innerWidth < 768;
     const actualTubeCount = isMobile ? 38 : TUBE_COUNT;
-    const actualBounds = isMobile ? BOUNDS * 0.55 : BOUNDS;
+    const actualBounds = isMobile ? BOUNDS * 0.7 : BOUNDS;
     const actualPosX = isMobile ? 0.0 : 7.2;
-    const actualPosZ = -(isMobile ? 2.6 : 4.6);
-    const actualRotY = isMobile ? 0.38 : 0.55;
-    const actualRotZ = isMobile ? 0.28 : 0.0;
+    const actualPosZ = -(isMobile ? 2.4 : 4.6);
+    const actualRotY = isMobile ? 0.88 : 0.55;
+    const actualRotX = isMobile ? 0.07 : -0.065;
 
     currentPosX.current = actualPosX;
     currentPosZ.current = actualPosZ;
     currentScrollRotY.current = actualRotY;
-    currentScrollRotX.current = initRotX;
-    currentScrollRotZ.current = actualRotZ;
+    currentScrollRotX.current = actualRotX;
     if (groupRef.current) {
       groupRef.current.position.x = actualPosX;
       groupRef.current.position.z = actualPosZ;
       groupRef.current.rotation.y = actualRotY;
-      groupRef.current.rotation.x = initRotX;
-      groupRef.current.rotation.z = actualRotZ;
+      groupRef.current.rotation.x = actualRotX;
+      groupRef.current.rotation.z = 0;
     }
 
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       const posX = mobile ? 0.0 : 7.2;
-      const posZ = -(mobile ? 2.6 : 4.6);
-      const rotY = mobile ? 0.38 : 0.55;
-      const rotZ = mobile ? 0.28 : 0.0;
+      const posZ = -(mobile ? 2.4 : 4.6);
+      const rotY = mobile ? 0.88 : 0.55;
+      const rotX = mobile ? 0.07 : -0.065;
       currentPosX.current = posX;
       currentPosZ.current = posZ;
       currentScrollRotY.current = rotY;
-      currentScrollRotZ.current = rotZ;
+      currentScrollRotX.current = rotX;
     };
     window.addEventListener('resize', handleResize);
 
@@ -480,19 +477,17 @@ export function FlowLines() {
     const isMobile = window.innerWidth < 768;
     // At top (hero):
     // Desktop: Yaw 0.55 rad (~31.5 deg), pitch -0.065 rad, roll 0 rad, posX 7.2, posZ 4.6
-    // Mobile: Yaw 0.38 rad (~21.8 deg), pitch -0.065 rad, roll 0.28 rad (~16 deg), posX 0.0 (dead center), posZ 2.6, posY 0.6 (centered in window)
-    const maxRotY = isMobile ? 0.38 : 0.55;
-    const maxRotX = -0.065;
-    const maxRotZ = isMobile ? 0.28 : 0.0;
+    // Mobile: Yaw 0.88 rad (~50.4 deg, facing towards screen), pitch 0.07 rad (pitched forward), roll 0 rad (streamlines strictly horizontal), posX 0.0, posZ 2.4, posY 0.25
+    const maxRotY = isMobile ? 0.88 : 0.55;
+    const maxRotX = isMobile ? 0.07 : -0.065;
     const maxPosX = isMobile ? 0.0 : 7.2;
-    const maxPosZ = isMobile ? 2.6 : 4.6;
-    const maxPosY = isMobile ? 0.6 : 0.0;
+    const maxPosZ = isMobile ? 2.4 : 4.6;
+    const maxPosY = isMobile ? 0.25 : 0.0;
 
     // Smooth scroll interpolation: At About section (scrollProgress = 1), moves to (0,0,0) and rotation = 0
     const scrollProgress = Math.min(scrollYRef.current / 800, 1);
     const targetRotY = maxRotY * (1 - scrollProgress);
     const targetRotX = maxRotX * (1 - scrollProgress);
-    const targetRotZ = maxRotZ * (1 - scrollProgress);
     const targetPosX = maxPosX * (1 - scrollProgress);
     const targetPosZ = -maxPosZ * (1 - scrollProgress);
     const targetPosY = maxPosY * (1 - scrollProgress);
@@ -509,12 +504,6 @@ export function FlowLines() {
       delta * 5.0
     );
 
-    currentScrollRotZ.current = THREE.MathUtils.lerp(
-      currentScrollRotZ.current,
-      targetRotZ,
-      delta * 5.0
-    );
-
     currentPosX.current = THREE.MathUtils.lerp(currentPosX.current, targetPosX, delta * 5.0);
 
     currentPosZ.current = THREE.MathUtils.lerp(currentPosZ.current, targetPosZ, delta * 5.0);
@@ -525,7 +514,7 @@ export function FlowLines() {
     // Living aerodynamic fluid sway animation on the entire tunnel:
     groupRef.current.rotation.y = Math.sin(time * 0.25) * 0.06 * sway + currentScrollRotY.current;
     groupRef.current.rotation.x = Math.cos(time * 0.2) * 0.035 * sway + currentScrollRotX.current;
-    groupRef.current.rotation.z = currentScrollRotZ.current;
+    groupRef.current.rotation.z = 0; // Streamlines strictly horizontal
     groupRef.current.position.y = targetPosY + Math.sin(time * 0.3) * 0.18 * sway;
 
     groupRef.current.position.z = currentPosZ.current;
@@ -542,11 +531,7 @@ export function FlowLines() {
   });
 
   return (
-    <group
-      ref={groupRef}
-      position={[initPosX, 0, initPosZ]}
-      rotation={[initRotX, initRotY, initRotZ]}
-    >
+    <group ref={groupRef} position={[initPosX, 0, initPosZ]} rotation={[initRotX, initRotY, 0]}>
       {/* 3D Drone Model with natural 11 deg forward pitch into oncoming airflow */}
       {droneModel && (
         <group ref={dronePivotRef} position={[0, isMobile ? 0.0 : -0.6, 0]}>
