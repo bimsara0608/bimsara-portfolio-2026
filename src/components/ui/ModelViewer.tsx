@@ -18,23 +18,23 @@ export function ModelViewer({ src, alt }: ModelViewerProps) {
 
   if (error) {
     return (
-      <div className="w-full h-[400px] bg-gray-100 dark:bg-gray-900 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700">
-        <span className="text-muted">Failed to load 3D viewer.</span>
+      <div className="w-full h-[400px] bg-[#111114] flex items-center justify-center border border-dashed border-white/15 rounded-xl">
+        <span className="text-zinc-400 text-sm font-medium">Failed to load 3D viewer.</span>
       </div>
     );
   }
 
   if (!isMounted) {
     return (
-      <div className="w-full h-[400px] bg-gray-100 dark:bg-gray-900 animate-pulse flex items-center justify-center border border-gray-200 dark:border-gray-800">
-        <span className="text-muted font-medium">Loading Interactive 3D Model...</span>
+      <div className="w-full h-[400px] bg-[#111114] animate-pulse flex items-center justify-center border border-white/10 rounded-xl">
+        <span className="text-zinc-400 text-sm font-medium">Loading Interactive 3D Model...</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[500px] bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden relative group">
-      <div className="absolute top-4 left-4 z-10 bg-white/80 dark:bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-muted uppercase tracking-wider">
+    <div className="w-full h-[500px] bg-[#111114] border border-white/10 rounded-xl overflow-hidden relative group shadow-xl">
+      <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-zinc-300 uppercase tracking-wider">
         Interactive 3D
       </div>
       {/* @ts-expect-error - Custom element not known to React types */}

@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =============================================
    DESIGN TOKENS — Attio-Inspired System
    ============================================= */
@@ -11,6 +13,8 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-fg);
+  --color-secondary: var(--muted);
+  --color-secondary-foreground: var(--muted-fg);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-fg);
   --font-sans: var(--font-inter);

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ArrowRight, Mail } from 'lucide-react';
 import { subscribeNewsletter } from '@/app/actions';
 
@@ -8,6 +10,8 @@ export function Footer() {
   const [email, setEmail] = useState('');
   const [subStatus, setSubStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [subMsg, setSubMsg] = useState('');
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +29,11 @@ export function Footer() {
     }
   };
 
-  const handleNavClick = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (isHome) {
+      e.preventDefault();
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
@@ -79,12 +86,13 @@ export function Footer() {
                 { label: 'Contact', id: 'contact' },
               ].map((l) => (
                 <li key={l.id}>
-                  <button
-                    onClick={() => handleNavClick(l.id)}
+                  <Link
+                    href={`/#${l.id}`}
+                    onClick={(e) => handleNavClick(e, l.id)}
                     className="text-xs font-medium text-white/60 hover:text-white transition-colors"
                   >
                     {l.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>

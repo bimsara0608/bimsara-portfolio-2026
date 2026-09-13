@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Box, Bot, Cpu, Activity, Award, ArrowUpRight } from 'lucide-react';
+import { Box, Bot, Cpu, Activity, Award } from 'lucide-react';
 
 interface SkillItem {
   name: string;
@@ -84,9 +84,6 @@ const SKILL_DOMAINS: SkillDomain[] = [
 
 export function SkillsSection() {
   const [activeTab, setActiveTab] = useState<string>('all');
-
-  const filteredDomains =
-    activeTab === 'all' ? SKILL_DOMAINS : SKILL_DOMAINS.filter((d) => d.id === activeTab);
 
   const totalSkillsCount = SKILL_DOMAINS.reduce((acc, d) => acc + d.skills.length, 0);
 

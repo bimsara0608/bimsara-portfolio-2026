@@ -11,7 +11,7 @@ export async function GitHubCalendarServer({ username }: { username: string }) {
     if (res.ok) {
       svgContent = await res.text();
     }
-  } catch (err) {
+  } catch {
     // Silently ignore and fallback
   }
 

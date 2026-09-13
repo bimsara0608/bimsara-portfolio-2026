@@ -63,7 +63,7 @@ function AscendingCounter({
   );
 }
 
-export function HeroSection({ profile }: HeroSectionProps) {
+export function HeroSection({}: HeroSectionProps) {
   const handleScroll = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };

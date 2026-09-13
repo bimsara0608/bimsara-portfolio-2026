@@ -1,13 +1,4 @@
-import {
-  ArrowRight,
-  PenTool,
-  Cpu,
-  Printer,
-  Video,
-  CheckCircle2,
-  Layers,
-  ShieldCheck,
-} from 'lucide-react';
+import { ArrowRight, PenTool, Cpu, Printer, Video, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 const SERVICES = [
   {
