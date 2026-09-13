@@ -73,7 +73,7 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
 
   const scrollStep = (direction: 'left' | 'right') => {
     if (setWidth <= 0) return;
-    const step = 280;
+    const step = 230;
     let newX = direction === 'left' ? x.get() + step : x.get() - step;
     while (newX <= -setWidth) {
       newX += setWidth;
@@ -89,47 +89,41 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
   const renderCard = (cert: Certification, key: string) => (
     <div
       key={key}
-      className="w-[240px] sm:w-[265px] flex-shrink-0 card overflow-hidden border-white/[0.08] hover:border-white/25 transition-all shadow-xl bg-[#111114] rounded-2xl select-none flex flex-col justify-between"
+      className="w-[195px] sm:w-[215px] flex-shrink-0 card overflow-hidden border-white/[0.08] hover:border-white/20 transition-all shadow-md bg-[#111114] rounded-xl select-none flex flex-col justify-between"
     >
-      {/* Top: Digital Badge Showcase Window with White Backing */}
-      <div className="w-full h-36 sm:h-40 relative bg-white flex items-center justify-center p-4 overflow-hidden border-b border-white/[0.08]">
+      {/* Top: Compact Digital Badge Showcase Window with White Backing */}
+      <div className="w-full h-24 sm:h-28 relative bg-white flex items-center justify-center p-3 overflow-hidden border-b border-white/[0.08]">
         {cert.badge_url ? (
           <Image
             src={cert.badge_url}
             alt={cert.title}
-            width={120}
-            height={120}
+            width={72}
+            height={72}
             className="object-contain max-h-full max-w-full pointer-events-none drop-shadow-sm"
           />
         ) : (
-          <Award size={48} className="text-zinc-800" />
+          <Award size={32} className="text-zinc-800" />
         )}
       </div>
 
-      {/* Bottom: Info Section structured like Profile Card (Image 2) */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3 bg-[#111114]">
+      {/* Bottom: Compact Information Section */}
+      <div className="p-3 sm:p-3.5 flex-1 flex flex-col justify-between space-y-2 bg-[#111114]">
         <div>
-          <h4 className="font-semibold text-white text-sm leading-snug tracking-tight line-clamp-2">
+          <h4 className="font-semibold text-white text-xs leading-snug tracking-tight line-clamp-2">
             {cert.title}
           </h4>
-          <p className="text-xs text-zinc-400 mt-1 font-medium">{cert.issuer}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5 font-medium truncate">{cert.issuer}</p>
 
-          <div className="h-px bg-white/[0.08] my-2.5" />
+          <div className="h-px bg-white/[0.08] my-2" />
 
-          <div className="space-y-1 text-xs text-zinc-400 font-mono">
+          <div className="space-y-0.5 text-[10px] text-zinc-400 font-mono">
             <div>{cert.issue_date}</div>
             {cert.credential_id && (
-              <div className="text-[11px] text-zinc-500 font-mono truncate">
+              <div className="text-[9.5px] text-zinc-500 font-mono truncate">
                 ID: {cert.credential_id}
               </div>
             )}
           </div>
-
-          {cert.skills && (
-            <p className="text-[11px] text-zinc-400 font-mono mt-2 line-clamp-1">
-              <span className="text-zinc-500">Skills:</span> {cert.skills}
-            </p>
-          )}
         </div>
 
         {cert.credential_url && (
@@ -140,9 +134,9 @@ export function CertificationsMarquee({ certifications }: CertificationsMarqueeP
             onClick={(e) => {
               if (isDragging) e.preventDefault();
             }}
-            className="w-full bg-white text-black font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 hover:bg-zinc-200 transition-all text-xs font-mono tracking-wider uppercase shadow-sm cursor-pointer mt-1"
+            className="w-full bg-white text-black font-semibold py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-zinc-200 transition-all text-[10px] font-mono tracking-wider uppercase shadow-sm cursor-pointer mt-1"
           >
-            <ExternalLink size={12} />
+            <ExternalLink size={10} />
             <span>SHOW CREDENTIAL</span>
           </a>
         )}
