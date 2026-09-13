@@ -157,7 +157,8 @@ function generateStreamlineGeometry(
   startY: number,
   startZ: number,
   bounds: number,
-  isClosest: boolean
+  isClosest: boolean,
+  isMobile: boolean = false
 ) {
   const points: THREE.Vector3[] = [];
   const colorsArray: THREE.Color[] = [];
@@ -226,7 +227,10 @@ function generateStreamlineGeometry(
         ? THREE.MathUtils.clamp(1.0 - ((distFromDrone - 4.5) / 5.0) * 0.35, 0.52, 1.0)
         : 1.0;
 
-    alphas.push(alphaFlow * edgeFade * heightFade);
+    // Smooth lower fade on mobile: dissolves any streamlines below the drone skids into pure void space
+    const mobileLowerFade = isMobile ? THREE.MathUtils.smoothstep(current.y, -2.0, -1.2) : 1.0;
+
+    alphas.push(alphaFlow * edgeFade * heightFade * mobileLowerFade);
 
     const step = 0.35;
     // Strictly forward monotonic step: mathematically impossible to loop backwards
@@ -340,29 +344,8 @@ export function FlowLines() {
       groupRef.current.rotation.z = 0;
     }
 
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      const posX = mobile ? 0.0 : 7.2;
-      const posY = mobile ? 0.65 : 0.0;
-      const posZ = -(mobile ? 10.0 : 4.6);
-      const rotY = mobile ? 0.7 : 0.55;
-      const rotX = mobile ? -0.02 : -0.065;
-      currentPosX.current = posX;
-      currentPosY.current = posY;
-      currentPosZ.current = posZ;
-      currentScrollRotY.current = rotY;
-      currentScrollRotX.current = rotX;
-    };
-    window.addEventListener('resize', handleResize);
+    let currentIsMobile = isMobile;
 
-    const newGeometries: THREE.TubeGeometry[] = [];
-
-    // Expansive full-canvas CFD streamline seeding (identical 96-tube setup for desktop and mobile):
-    // 1. 28 Upper wind-tunnel & atmospheric streamlines (Y: 2.0 to 7.6) -> sweeps through top-right corner
-    // 2. 28 Lower wind-tunnel & floor streamlines (Y: -2.0 to -7.6) -> sweeps through bottom-right corner
-    // 3. 18 Front canopy streamlines (hugging drone nose & canopy)
-    // 4. 14 Front cargo & skid streamlines (hugging battery & skids)
-    // 5. 8 Flank & outer streamlines (framing drone wings & arms)
     const topY = [
       2.0, 2.5, 3.0, 3.5, 4.0, 4.6, 5.2, 5.8, 6.4, 7.0, 7.6, 2.2, 2.7, 3.2, 3.8, 4.3, 4.9, 5.5, 6.1,
       6.7, 7.3, 2.4, 3.4, 4.4, 5.0, 5.9, 6.5, 7.1,
@@ -399,52 +382,87 @@ export function FlowLines() {
     const flankY = [0.0, 0.5, -0.4, 0.8, -0.6, 0.3, 1.0, -1.0];
     const flankZ = [-2.6, 2.6, -3.4, 3.4, -4.2, 4.2, -3.0, 3.0];
 
-    for (let i = 0; i < TUBE_COUNT; i++) {
-      const startX = -BOUNDS;
-      let startY = 0;
-      let startZ = 0;
-      let isClosest = false;
+    const buildGeometries = (mobile: boolean) => {
+      const geoms: THREE.TubeGeometry[] = [];
+      for (let i = 0; i < TUBE_COUNT; i++) {
+        // On mobile: omit the 28 floor wind-tunnel boundary lines below the drone (Group 2, indices 28 to 55)
+        // so the lower screen area (subtitle, buttons, stats) stays clean, dark, and distraction-free
+        if (mobile && i >= 28 && i < 56) {
+          continue;
+        }
 
-      if (i < 28) {
-        startY = topY[i % topY.length];
-        startZ = topZ[i % topZ.length];
-      } else if (i < 56) {
-        const idx = i - 28;
-        startY = bottomY[idx % bottomY.length];
-        startZ = bottomZ[idx % bottomZ.length];
-      } else if (i < 74) {
-        const idx = i - 56;
-        startY = frontCanopyY[idx % frontCanopyY.length];
-        startZ = frontCanopyZ[idx % frontCanopyZ.length];
-        if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
-          isClosest = true;
+        const startX = -BOUNDS;
+        let startY = 0;
+        let startZ = 0;
+        let isClosest = false;
+
+        if (i < 28) {
+          startY = topY[i % topY.length];
+          startZ = topZ[i % topZ.length];
+        } else if (i < 56) {
+          const idx = i - 28;
+          startY = bottomY[idx % bottomY.length];
+          startZ = bottomZ[idx % bottomZ.length];
+        } else if (i < 74) {
+          const idx = i - 56;
+          startY = frontCanopyY[idx % frontCanopyY.length];
+          startZ = frontCanopyZ[idx % frontCanopyZ.length];
+          if (Math.abs(startZ) <= 0.65 && startY >= 0.4 && startY <= 1.25) {
+            isClosest = true;
+          }
+        } else if (i < 88) {
+          const idx = i - 74;
+          startY = frontCargoY[idx % frontCargoY.length];
+          startZ = frontCargoZ[idx % frontCargoZ.length];
+          if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
+            isClosest = true;
+          }
+        } else {
+          const idx = i - 88;
+          startY = flankY[idx % flankY.length];
+          startZ = flankZ[idx % flankZ.length];
         }
-      } else if (i < 88) {
-        const idx = i - 74;
-        startY = frontCargoY[idx % frontCargoY.length];
-        startZ = frontCargoZ[idx % frontCargoZ.length];
-        if (Math.abs(startZ) <= 0.55 && startY >= -0.6 && startY <= -0.15) {
-          isClosest = true;
-        }
-      } else {
-        const idx = i - 88;
-        startY = flankY[idx % flankY.length];
-        startZ = flankZ[idx % flankZ.length];
+
+        const geom = generateStreamlineGeometry(startX, startY, startZ, BOUNDS, isClosest, mobile);
+        geoms.push(geom);
       }
+      return geoms;
+    };
 
-      const geom = generateStreamlineGeometry(startX, startY, startZ, BOUNDS, isClosest);
-      newGeometries.push(geom);
-    }
+    const initialGeometries = buildGeometries(isMobile);
+
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      const posX = mobile ? 0.0 : 7.2;
+      const posY = mobile ? 0.65 : 0.0;
+      const posZ = -(mobile ? 10.0 : 4.6);
+      const rotY = mobile ? 0.7 : 0.55;
+      const rotX = mobile ? -0.02 : -0.065;
+      currentPosX.current = posX;
+      currentPosY.current = posY;
+      currentPosZ.current = posZ;
+      currentScrollRotY.current = rotY;
+      currentScrollRotX.current = rotX;
+
+      if (mobile !== currentIsMobile) {
+        currentIsMobile = mobile;
+        setGeometries((prev) => {
+          prev.forEach((g) => g.dispose());
+          return buildGeometries(mobile);
+        });
+      }
+    };
+    window.addEventListener('resize', handleResize);
 
     const timer = setTimeout(() => {
-      setGeometries(newGeometries);
+      setGeometries(initialGeometries);
     }, 0);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       clearTimeout(timer);
-      newGeometries.forEach((g) => g.dispose());
+      initialGeometries.forEach((g) => g.dispose());
     };
   }, []);
 
