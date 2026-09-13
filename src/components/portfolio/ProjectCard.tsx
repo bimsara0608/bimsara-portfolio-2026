@@ -25,6 +25,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
               src={heroUrl}
               alt={project.title}
               fill
+              width={0}
+              height={0}
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             />

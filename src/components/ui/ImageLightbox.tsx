@@ -65,6 +65,8 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
               src={img.url}
               alt={img.alt_text || `Gallery image ${idx + 1}`}
               fill
+              width={0}
+              height={0}
               sizes={idx === 0 ? '100vw' : '50vw'}
               className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
@@ -118,6 +120,8 @@ export function ImageLightbox({ images }: ImageLightboxProps) {
               src={images[currentIndex].url}
               alt={images[currentIndex].alt_text || `Gallery image ${currentIndex + 1}`}
               fill
+              width={0}
+              height={0}
               className="object-contain"
               sizes="100vw"
               priority

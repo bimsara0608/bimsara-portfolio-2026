@@ -1,13 +1,37 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { createClient } from '@/utils/supabase/server';
 import { ProjectCard } from '@/components/portfolio/ProjectCard';
 import type { Project } from '@/lib/types';
 
-export const metadata = {
-  title: 'Projects | Bimsara Gunawardana',
-  description: 'Browse my portfolio of 3D models, CAD designs, and engineering projects.',
-};
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bimsara-portfolio-2026.vercel.app';
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const category = sp.category || 'All';
+
+  const isFiltered = category !== 'All';
+  const title = isFiltered
+    ? `${category} Projects | Bimsara Gunawardana`
+    : 'All Projects | Bimsara Gunawardana';
+  const description = isFiltered
+    ? `Browse Bimsara Gunawardana's ${category} portfolio — CAD designs, 3D models, and engineering projects.`
+    : 'Browse the full portfolio of Bimsara Gunawardana — parametric CAD designs, 3D models, robotics, and engineering projects.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      // Always point to the clean /projects URL — prevents category query params being indexed as separate pages
+      canonical: `${BASE_URL}/projects`,
+    },
+  };
+}
 
 export default async function ProjectsPage({
   searchParams,
@@ -42,6 +66,9 @@ export default async function ProjectsPage({
     ...Array.from(new Set((allProjects ?? []).map((p) => p.category))),
   ].sort();
 
+  // Dynamic H1 label
+  const pageHeading = currentCategory === 'All' ? 'All Projects' : `${currentCategory} Projects`;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
       {/* Back to Home Nav */}
@@ -57,8 +84,9 @@ export default async function ProjectsPage({
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">
             Portfolio Archive
           </span>
+          {/* H1 is now unique per category — fixes duplicate H1 audit issue */}
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
-            All Projects
+            {pageHeading}
           </h1>
         </div>
         <p className="text-sm font-medium text-muted-foreground">

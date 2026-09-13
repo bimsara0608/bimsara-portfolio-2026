@@ -10,6 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://bimsara-portfolio-2026.vercel.app'
+  ),
   title: 'Bimsara Gunawardana — Design Engineer | CAD, Robotics & 3D Visualization',
   description:
     'Portfolio of Bimsara Gunawardana, Design Engineer & Certified SOLIDWORKS Professional (CSWP). Specializing in parametric 3D CAD modeling, robotics automation, DFM, and photorealistic visualization.',
@@ -28,6 +31,9 @@ export const metadata: Metadata = {
     'Sri Lanka',
   ],
   authors: [{ name: 'Bimsara Gunawardana', url: 'https://bimsara-portfolio-2026.vercel.app' }],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Bimsara Gunawardana — Design Engineer | CAD, Robotics & 3D Visualization',
     description:

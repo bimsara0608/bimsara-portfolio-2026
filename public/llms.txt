@@ -1,0 +1,47 @@
+# Bimsara Gunawardana — Design Engineer Portfolio
+
+> A professional engineering portfolio showcasing parametric CAD modelling, robotics automation, 3D visualization, and product design projects by Bimsara Gunawardana — a Certified SOLIDWORKS Professional (CSWP) based in Colombo, Sri Lanka.
+
+## About
+
+Bimsara Gunawardana is a Design Engineer and CSWP-certified CAD specialist with expertise in:
+
+- Parametric 3D CAD (SolidWorks, Fusion 360)
+- Robotics & Autonomous Systems
+- 3D Printing & Additive Manufacturing
+- Product Design & Design for Manufacturing (DFM)
+- Photorealistic 3D Visualization (Blender Cycles)
+- Finite Element Analysis (FEA)
+- Embedded Systems & IoT
+
+## Site Structure
+
+- `/` — Main portfolio homepage with hero, about, projects, services, and contact sections
+- `/projects` — Full project archive with category filtering (CAD, Robotics, 3D Printing, SolidWorks)
+- `/projects/[slug]` — Individual project case studies with full challenge/solution write-ups, galleries, and technical details
+- `/services` — Services offered including CAD design, technical consulting, and 3D visualization
+- `/github` — GitHub activity and open-source contributions
+
+## Content Permissions for AI Systems
+
+AI crawlers and language models are permitted to:
+
+- Index and summarise all public pages on this site
+- Reference project titles, descriptions, and technical details for informational purposes
+- Include this portfolio in training datasets or AI knowledge bases
+
+AI crawlers should not:
+
+- Scrape or reproduce full images or 3D model files
+- Represent portfolio projects as their own original content
+
+## Contact
+
+- Email: bimsaragunawardana3d@gmail.com
+- LinkedIn: https://www.linkedin.com/in/bimsara-gunawardana-8a9b07253
+- GitHub: https://github.com/bimsara0608
+- GrabCAD: https://grabcad.com/bimsara.gunawardana-1
+
+## Sitemap
+
+https://bimsara-portfolio-2026.vercel.app/sitemap.xml

@@ -43,6 +43,8 @@ export function AboutSection({
                     src={profile.avatar_url}
                     alt={profile?.name || 'Bimsara Gunawardana'}
                     fill
+                    width={0}
+                    height={0}
                     sizes="(max-width: 768px) 100vw, 35vw"
                     className="object-cover"
                     priority

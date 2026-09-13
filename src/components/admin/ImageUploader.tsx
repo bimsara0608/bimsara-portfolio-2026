@@ -129,7 +129,14 @@ export function ImageUploader({ projectId, existingImages = [], onChange }: Imag
               key={idx}
               className="relative group aspect-[4/3] bg-muted rounded-lg overflow-hidden border border-border"
             >
-              <Image src={img.url} alt={`Upload ${idx + 1}`} fill className="object-cover" />
+              <Image
+                src={img.url}
+                alt={`Upload ${idx + 1}`}
+                fill
+                width={0}
+                height={0}
+                className="object-cover"
+              />
 
               {/* Hero Badge */}
               {img.is_hero && (
