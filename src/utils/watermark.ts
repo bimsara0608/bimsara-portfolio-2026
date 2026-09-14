@@ -37,14 +37,14 @@ export async function watermarkImage(file: File): Promise<File> {
       const text = '© Bimsara Gunawardana';
       // Font size: ~1.8% of the image width, clamped between 14px and 36px
       const fontSize = Math.min(36, Math.max(14, Math.round(img.naturalWidth * 0.018)));
-      const padding = Math.round(fontSize * 1.0);
 
       ctx.font = `500 ${fontSize}px Inter, -apple-system, sans-serif`;
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'bottom';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-      const x = canvas.width - padding;
-      const y = canvas.height - padding;
+      // Center horizontally, 3/4 down from the top
+      const x = canvas.width / 2;
+      const y = canvas.height * 0.75;
 
       // Shadow for visibility on any background
       ctx.shadowColor = 'rgba(0,0,0,0.65)';
