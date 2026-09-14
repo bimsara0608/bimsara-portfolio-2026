@@ -14,7 +14,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <section
       id="projects"
-      className="w-full pt-12 md:pt-16 pb-24 md:pb-32 px-6 lg:px-8 relative z-10"
+      className="w-full pt-12 md:pt-16 pb-16 md:pb-20 px-6 lg:px-8 relative z-10"
     >
       <div className="max-w-6xl mx-auto">
         <div>

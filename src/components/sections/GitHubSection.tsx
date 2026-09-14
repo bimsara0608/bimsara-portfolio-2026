@@ -48,7 +48,7 @@ export async function GitHubSection() {
       : 'Design Engineer specializing in Parametric CAD, Robotics Automation, and Embedded Systems.';
 
   return (
-    <section id="github" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
+    <section id="github" className="w-full py-16 md:py-20 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
         <div>
           {/* Header */}

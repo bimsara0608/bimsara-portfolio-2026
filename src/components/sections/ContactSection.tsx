@@ -74,7 +74,7 @@ export function ContactSection() {
     'block text-[11px] font-mono font-medium text-zinc-400 mb-1.5 uppercase tracking-wider';
 
   return (
-    <section id="contact" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
+    <section id="contact" className="w-full py-16 md:py-20 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-24">
           {/* Left: Info */}

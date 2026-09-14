@@ -84,7 +84,7 @@ const PROCESS = [
 
 export function ServicesSection() {
   return (
-    <section id="services" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
+    <section id="services" className="w-full py-16 md:py-20 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
         <div>
           {/* Header */}
