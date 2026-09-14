@@ -475,3 +475,60 @@ select option {
 .marquee-grid-wrapper:hover .marquee-track-reverse {
   animation-play-state: paused !important;
 }
+
+/* =============================================
+   CONTENT PROTECTION — Deterrents
+   ============================================= */
+
+/* Disable text selection everywhere (allows selecting in inputs/textareas) */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable selection in form fields */
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Prevent drag on images and canvas (Three.js) */
+img,
+canvas,
+video {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Re-enable pointer events on interactive elements that wrap images */
+a img,
+button img,
+a canvas,
+button canvas {
+  pointer-events: auto;
+}
+
+/* Hide entire page content when printing */
+@media print {
+  body * {
+    display: none !important;
+  }
+
+  body::after {
+    content: '© Bimsara Gunawardana — This content is protected and not available for print.';
+    display: block !important;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 4rem;
+    color: #0f172a;
+  }
+}
