@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .from('projects')
     .select('title, description, category')
     .eq('slug', slug)
+    .eq('is_published', true)
     .single();
 
   if (!project) return { title: 'Project Not Found | Bimsara Gunawardana' };
@@ -55,13 +56,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const supabase = await createClient();
   const slug = (await params).slug;
 
-  const { data: project } = await supabase
+  const { data: project, error } = await supabase
     .from('projects')
     .select('*, project_images(*)')
     .eq('slug', slug)
+    .eq('is_published', true)
     .single();
 
-  if (!project) notFound();
+  // notFound for missing rows OR Supabase fetch errors (e.g. RLS blocks the row)
+  if (!project || error) notFound();
 
   const data = project as Project;
   const heroImage = data.project_images?.find((img) => img.is_hero) ?? data.project_images?.[0];
