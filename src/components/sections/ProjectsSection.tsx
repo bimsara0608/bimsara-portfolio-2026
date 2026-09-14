@@ -12,7 +12,10 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const categories = ['All', ...Array.from(new Set(projects.map((p) => p.category))).sort()];
 
   return (
-    <section id="projects" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
+    <section
+      id="projects"
+      className="w-full pt-12 md:pt-16 pb-24 md:pb-32 px-6 lg:px-8 relative z-10"
+    >
       <div className="max-w-6xl mx-auto">
         <div>
           {/* Header */}

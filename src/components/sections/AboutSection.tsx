@@ -30,7 +30,7 @@ export function AboutSection({
     certifications && certifications.length > 0 ? certifications : MOCK_CERTIFICATIONS;
 
   return (
-    <section id="about" className="w-full py-24 md:py-32 px-6 lg:px-8 relative z-10">
+    <section id="about" className="w-full pt-24 md:pt-32 pb-12 md:pb-16 px-6 lg:px-8 relative z-10">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           {/* Left: Profile card */}
