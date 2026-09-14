@@ -10,7 +10,6 @@ import { motion } from 'framer-motion';
 const NAV_LINKS = [
   { label: 'Home', href: '/#hero', section: 'hero' },
   { label: 'About', href: '/#about', section: 'about' },
-  { label: 'Skills', href: '/#skills', section: 'skills' },
   { label: 'Projects', href: '/#projects', section: 'projects' },
   { label: 'Services', href: '/#services', section: 'services' },
   { label: 'GitHub', href: '/#github', section: 'github' },
@@ -34,7 +33,7 @@ export function Navbar({ resumeUrl }: { resumeUrl?: string | null }) {
   // IntersectionObserver to track active section (only on home page)
   useEffect(() => {
     if (!isHome) return;
-    const sections = ['hero', 'about', 'skills', 'projects', 'services', 'github', 'contact'];
+    const sections = ['hero', 'about', 'projects', 'services', 'github', 'contact'];
     const observers: IntersectionObserver[] = [];
 
     sections.forEach((id) => {

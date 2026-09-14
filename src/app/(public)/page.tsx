@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
 import { HeroSection } from '@/components/sections/HeroSection';
-import { SkillsSection } from '@/components/sections/SkillsSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { ServicesSection } from '@/components/sections/ServicesSection';
@@ -89,7 +88,6 @@ export default async function Home() {
           experiences={experiences}
           certifications={certifications}
         />
-        <SkillsSection />
         <ProjectsSection projects={projects} />
         <ServicesSection />
         <GitHubSection />
