@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { Upload, X, Star, Loader2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { watermarkImage } from '@/utils/watermark';
 
 interface UploadedImage {
   url: string;
@@ -24,12 +25,15 @@ export function ImageUploader({ projectId, existingImages = [], onChange }: Imag
 
   const uploadFile = useCallback(
     async (file: File) => {
-      const fileExt = file.name.split('.').pop();
+      // Apply watermark before uploading to Supabase
+      const watermarked = await watermarkImage(file);
+
+      const fileExt = watermarked.name.split('.').pop();
       const fileName = `${projectId}/${Date.now()}.${fileExt}`;
 
       const { data, error } = await supabase.storage
         .from('portfolio-assets')
-        .upload(fileName, file, { upsert: false });
+        .upload(fileName, watermarked, { upsert: false });
 
       if (error) throw error;
 
@@ -110,7 +114,7 @@ export function ImageUploader({ projectId, existingImages = [], onChange }: Imag
         {uploading ? (
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Loader2 size={32} className="animate-spin" />
-            <p className="font-medium">Uploading...</p>
+            <p className="font-medium">Watermarking &amp; uploading...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
