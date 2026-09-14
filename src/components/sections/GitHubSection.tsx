@@ -118,7 +118,7 @@ export async function GitHubSection() {
           </div>
 
           {/* Contribution calendar */}
-          <div className="card p-6 md:p-8 mb-6 overflow-x-auto bg-[#111114] border-white/[0.08] shadow-lg">
+          <div className="card p-5 sm:p-6 md:p-8 mb-6 bg-[#111114] border-white/[0.08] shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-white">Git Commit Activity</h3>
               <span className="text-[11px] font-mono text-zinc-400">Last 12 Months</span>

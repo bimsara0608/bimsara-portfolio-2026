@@ -1,40 +1,21 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 /**
- * SmoothEntrance / PageTransition
+ * SmoothEntrance
  *
- * Plays a full-screen dark curtain that fades out on every route
- * change (including client-side navigation). Fixes the "ugly pop"
- * when entering a project page and the "laggy" feel navigating away.
- *
- * Uses setTimeout-only approach (no synchronous setState in effects)
- * to satisfy the react-hooks/set-state-in-effect lint rule.
+ * Provides a clean initial-load dark curtain to prevent hydration flash
+ * when first entering the site. Route transitions are handled seamlessly
+ * by route-level loading skeletons and page entrance animations.
  */
 export function SmoothEntrance() {
-  const pathname = usePathname();
   const [visible, setVisible] = useState(true);
-  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      // First render: useState(true) already shows curtain; just schedule hide
-      isFirstRender.current = false;
-      const timer = setTimeout(() => setVisible(false), 80);
-      return () => clearTimeout(timer);
-    }
-
-    // Subsequent navigations: flash curtain visible then fade out
-    const showTimer = setTimeout(() => setVisible(true), 0);
-    const hideTimer = setTimeout(() => setVisible(false), 80);
-
-    return () => {
-      clearTimeout(showTimer);
-      clearTimeout(hideTimer);
-    };
-  }, [pathname]);
+    const timer = setTimeout(() => setVisible(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div

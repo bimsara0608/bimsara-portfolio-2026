@@ -1,4 +1,5 @@
 import React from 'react';
+import { GitHubCalendarClient } from './GitHubCalendarClient';
 
 export async function GitHubCalendarServer({ username }: { username: string }) {
   let svgContent: string | null = null;
@@ -17,16 +18,28 @@ export async function GitHubCalendarServer({ username }: { username: string }) {
 
   if (!svgContent) {
     return (
-      <div className="py-10 text-center text-muted-foreground bg-secondary/20 rounded-lg">
+      <div className="py-10 text-center text-zinc-400 bg-white/[0.02] border border-white/[0.06] rounded-xl text-sm">
         GitHub contributions temporarily unavailable.
       </div>
     );
   }
 
-  return (
-    <div
-      className="overflow-x-auto py-2 flex w-full justify-start [&_svg]:min-w-[700px] [&_svg]:max-w-full [&_svg]:h-auto dark:[&_svg]:invert dark:[&_svg]:hue-rotate-180 opacity-90 hover:opacity-100 transition-opacity"
-      dangerouslySetInnerHTML={{ __html: svgContent }}
-    />
-  );
+  let transformedSvg = svgContent;
+
+  // 1. Ensure viewBox attribute is present so SVG can render responsively without clipping
+  if (!transformedSvg.includes('viewBox')) {
+    transformedSvg = transformedSvg.replace(/<svg\s+/i, '<svg viewBox="0 0 663 104" ');
+  }
+
+  // 2. Make empty contribution cells visible and sleek in dark mode
+  transformedSvg = transformedSvg.replace(/fill:#eeeeee/gi, 'fill:rgba(255,255,255,0.08)');
+  transformedSvg = transformedSvg.replace(/fill:#EEEEEE/g, 'fill:rgba(255,255,255,0.08)');
+
+  // 3. Style month and day text labels for crisp readability on dark backgrounds
+  transformedSvg = transformedSvg.replace(/fill:#767676/gi, 'fill:#a1a1aa');
+
+  // 4. Give cells rounded corners (rx="2" ry="2") for modern design aesthetics
+  transformedSvg = transformedSvg.replace(/<rect\s+/gi, '<rect rx="2" ry="2" ');
+
+  return <GitHubCalendarClient svgHtml={transformedSvg} />;
 }

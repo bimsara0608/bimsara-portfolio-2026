@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
 import { ModelViewer } from '@/components/ui/ModelViewer';
 import { ProjectPageEntrance } from '@/components/ui/ProjectPageEntrance';
+import { ProjectBackButton } from '@/components/ui/ProjectBackButton';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bimsara-portfolio-2026.vercel.app';
 
@@ -86,12 +87,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <div className="min-h-screen bg-[#09090b] relative z-10 text-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 md:pt-32 pb-24 w-full">
           {/* Back Nav */}
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium mb-12 transition-colors"
-          >
-            <ArrowLeft size={18} /> Back to Projects
-          </Link>
+          <ProjectBackButton />
 
           {/* Header */}
           <div className="mb-12">
