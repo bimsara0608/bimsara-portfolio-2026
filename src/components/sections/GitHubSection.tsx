@@ -144,33 +144,36 @@ export async function GitHubSection() {
                   href={repo.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="card p-5 block group bg-[#111114] border-white/[0.08] hover:border-white/20 transition-all hover:-translate-y-0.5 shadow-sm"
+                  className="card p-5 flex flex-col justify-between group bg-[#111114] border-white/[0.08] hover:border-white/20 transition-all hover:-translate-y-0.5 shadow-sm"
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-sm font-mono font-semibold text-white group-hover:text-cyan-400 transition-colors truncate pr-3">
-                      {repo.name}
-                    </h4>
-                    <ArrowRight
-                      size={14}
-                      className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-0.5"
-                    />
-                  </div>
-                  <p className="text-xs text-zinc-400 mb-3 h-8 line-clamp-2 leading-relaxed">
-                    {repo.description || 'Automation and software engineering repository.'}
-                  </p>
-                  {repo.topics && repo.topics.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {repo.topics.slice(0, 3).map((t) => (
-                        <span
-                          key={t}
-                          className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-zinc-300"
-                        >
-                          {t}
-                        </span>
-                      ))}
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-sm font-mono font-semibold text-white group-hover:text-cyan-400 transition-colors truncate pr-3">
+                        {repo.name}
+                      </h4>
+                      <ArrowRight
+                        size={14}
+                        className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-0.5"
+                      />
                     </div>
-                  )}
-                  <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 pt-2 border-t border-white/[0.08]">
+                    <p className="text-xs text-zinc-400 mb-3 leading-relaxed line-clamp-3">
+                      {repo.description || 'Automation and software engineering repository.'}
+                    </p>
+                    {repo.topics && repo.topics.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {repo.topics.slice(0, 3).map((t) => (
+                          <span
+                            key={t}
+                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-zinc-300"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs font-mono text-zinc-400 pt-3 mt-auto border-t border-white/[0.08]">
                     {repo.language && (
                       <div className="flex items-center gap-1.5">
                         <span
