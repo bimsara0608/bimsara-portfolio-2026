@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { createClient } from '@/utils/supabase/server';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getCachedProjects } from '@/lib/data';
 import { ProjectCard } from '@/components/portfolio/ProjectCard';
-import type { Project } from '@/lib/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bimsara-portfolio-2026.vercel.app';
+const PAGE_SIZE = 16;
 
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }): Promise<Metadata> {
   const sp = await searchParams;
   const category = sp.category || 'All';
@@ -32,7 +32,6 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      // Always point to the clean /projects URL — prevents category query params being indexed as separate pages
       canonical: `${BASE_URL}/projects`,
     },
   };
@@ -41,38 +40,47 @@ export async function generateMetadata({
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }) {
-  const supabase = await createClient();
   const sp = await searchParams;
   const currentCategory = sp.category || 'All';
+  const currentPage = Math.max(1, parseInt(sp.page || '1', 10) || 1);
 
-  // Fetch projects
-  let query = supabase
-    .from('projects')
-    .select('*, project_images(*)')
-    .eq('is_published', true)
-    .order('date', { ascending: false });
+  // Fetch from cached data store (0ms round-trip when cached)
+  const allProjects = await getCachedProjects();
 
-  if (currentCategory !== 'All') {
-    query = query.eq('category', currentCategory);
-  }
-
-  const { data: projectsData } = await query;
-  const projects = (projectsData as Project[]) ?? [];
-
-  // Fetch unique categories
-  const { data: allProjects } = await supabase
-    .from('projects')
-    .select('category')
-    .eq('is_published', true);
+  // Extract available unique categories
   const categories = [
     'All',
-    ...Array.from(new Set((allProjects ?? []).map((p) => p.category))),
+    ...Array.from(new Set(allProjects.map((p) => p.category).filter(Boolean))),
   ].sort();
+
+  // Filter by category
+  const filteredProjects =
+    currentCategory === 'All'
+      ? allProjects
+      : allProjects.filter((p) => p.category === currentCategory);
+
+  const totalProjects = filteredProjects.length;
+  const totalPages = Math.ceil(totalProjects / PAGE_SIZE);
+
+  // Paginate list to avoid excessive DOM nodes and optimize paint times
+  const projects = filteredProjects.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   // Dynamic H1 label
   const pageHeading = currentCategory === 'All' ? 'All Projects' : `${currentCategory} Projects`;
+
+  const buildCategoryUrl = (cat: string) => {
+    return cat === 'All' ? '/projects' : `/projects?category=${encodeURIComponent(cat)}`;
+  };
+
+  const buildPageUrl = (pageNum: number) => {
+    const params = new URLSearchParams();
+    if (currentCategory !== 'All') params.set('category', currentCategory);
+    if (pageNum > 1) params.set('page', pageNum.toString());
+    const qs = params.toString();
+    return qs ? `/projects?${qs}` : '/projects';
+  };
 
   return (
     <div className="min-h-screen bg-[#09090b] relative z-10 text-foreground">
@@ -90,13 +98,13 @@ export default async function ProjectsPage({
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">
               Portfolio Archive
             </span>
-            {/* H1 is now unique per category — fixes duplicate H1 audit issue */}
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
               {pageHeading}
             </h1>
           </div>
           <p className="text-sm font-medium text-muted-foreground">
-            Showing {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+            Showing {filteredProjects.length}{' '}
+            {filteredProjects.length === 1 ? 'project' : 'projects'}
           </p>
         </div>
 
@@ -105,7 +113,7 @@ export default async function ProjectsPage({
           {categories.map((cat) => (
             <Link
               key={cat}
-              href={cat === 'All' ? '/projects' : `/projects?category=${encodeURIComponent(cat)}`}
+              href={buildCategoryUrl(cat)}
               rel="nofollow"
               className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                 currentCategory === cat
@@ -125,7 +133,8 @@ export default async function ProjectsPage({
           ))}
         </div>
 
-        {projects.length === 0 && (
+        {/* Empty state */}
+        {filteredProjects.length === 0 && (
           <div className="rounded-xl border border-dashed border-border text-center py-16 text-muted-foreground mt-8">
             <p className="text-sm font-medium">No projects found in this category.</p>
             <Link
@@ -133,6 +142,39 @@ export default async function ProjectsPage({
               className="text-foreground text-xs font-semibold mt-3 inline-block hover:underline"
             >
               View all projects
+            </Link>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-12 pt-8 border-t border-white/10">
+            <Link
+              href={buildPageUrl(currentPage - 1)}
+              aria-disabled={currentPage <= 1}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                currentPage <= 1
+                  ? 'opacity-40 pointer-events-none border-white/10 text-zinc-500'
+                  : 'border-white/15 bg-white/[0.04] text-white hover:bg-white/10'
+              }`}
+            >
+              <ChevronLeft size={14} /> Previous
+            </Link>
+
+            <span className="text-xs font-mono text-zinc-400">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <Link
+              href={buildPageUrl(currentPage + 1)}
+              aria-disabled={currentPage >= totalPages}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                currentPage >= totalPages
+                  ? 'opacity-40 pointer-events-none border-white/10 text-zinc-500'
+                  : 'border-white/15 bg-white/[0.04] text-white hover:bg-white/10'
+              }`}
+            >
+              Next <ChevronRight size={14} />
             </Link>
           </div>
         )}

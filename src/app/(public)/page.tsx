@@ -1,4 +1,10 @@
-import { createClient } from '@/utils/supabase/server';
+import {
+  getCachedProfile,
+  getCachedProjects,
+  getCachedEducation,
+  getCachedExperiences,
+  getCachedCertifications,
+} from '@/lib/data';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
@@ -19,38 +25,14 @@ import {
 export const revalidate = 60;
 
 export default async function Home() {
-  const supabase = await createClient();
-
-  const [
-    { data: profileData },
-    { data: projectsData },
-    { data: educationData },
-    { data: experiencesData },
-    { data: certificationsData },
-  ] = await Promise.all([
-    supabase.from('profiles').select('*').limit(1).single(),
-    supabase
-      .from('projects')
-      .select('*, project_images(*)')
-      .eq('is_published', true)
-      .order('sort_order', { ascending: true })
-      .order('date', { ascending: false }),
-    supabase
-      .from('education')
-      .select('*')
-      .eq('is_published', true)
-      .order('sort_order', { ascending: true }),
-    supabase
-      .from('experiences')
-      .select('*')
-      .eq('is_published', true)
-      .order('sort_order', { ascending: true }),
-    supabase
-      .from('certifications')
-      .select('*')
-      .eq('is_published', true)
-      .order('sort_order', { ascending: true }),
-  ]);
+  const [profileData, projectsData, educationData, experiencesData, certificationsData] =
+    await Promise.all([
+      getCachedProfile(),
+      getCachedProjects(),
+      getCachedEducation(),
+      getCachedExperiences(),
+      getCachedCertifications(),
+    ]);
 
   const profile: Profile = (profileData as Profile) || {
     id: '',

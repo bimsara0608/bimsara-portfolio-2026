@@ -2,25 +2,29 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PillBadge } from '@/components/ui/PillBadge';
 import { ArrowLeft, ArrowRight, ExternalLink, Calendar, Clock, User } from 'lucide-react';
-import { createClient } from '@/utils/supabase/server';
-import type { Project } from '@/lib/types';
+import { getCachedProjectBySlug, getCachedProjects } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
-import { ModelViewer } from '@/components/ui/ModelViewer';
+import dynamic from 'next/dynamic';
 import { ProjectPageEntrance } from '@/components/ui/ProjectPageEntrance';
 import { ProjectBackButton } from '@/components/ui/ProjectBackButton';
+
+const ModelViewer = dynamic(
+  () => import('@/components/ui/ModelViewer').then((mod) => mod.ModelViewer),
+  {
+    loading: () => (
+      <div className="w-full h-[400px] bg-[#111114] animate-pulse flex items-center justify-center border border-white/10 rounded-xl">
+        <span className="text-zinc-400 text-sm font-medium">Loading Interactive 3D Model...</span>
+      </div>
+    ),
+  }
+);
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bimsara-portfolio-2026.vercel.app';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data: project } = await supabase
-    .from('projects')
-    .select('title, description, category')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single();
+  const project = await getCachedProjectBySlug(slug);
 
   if (!project) return { title: 'Project Not Found | Bimsara Gunawardana' };
 
@@ -54,33 +58,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const supabase = await createClient();
   const slug = (await params).slug;
+  const project = await getCachedProjectBySlug(slug);
 
-  const { data: project, error } = await supabase
-    .from('projects')
-    .select('*, project_images(*)')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single();
+  // notFound for missing rows
+  if (!project) notFound();
 
-  // notFound for missing rows OR Supabase fetch errors (e.g. RLS blocks the row)
-  if (!project || error) notFound();
-
-  const data = project as Project;
+  const data = project;
   const heroImage = data.project_images?.find((img) => img.is_hero) ?? data.project_images?.[0];
   const galleryImages = data.project_images?.filter((img) => !img.is_hero) ?? [];
 
   // Fetch prev/next projects for navigation
-  const { data: allProjects } = await supabase
-    .from('projects')
-    .select('id, slug, title')
-    .eq('is_published', true)
-    .order('date', { ascending: false });
+  const allProjects = await getCachedProjects();
 
-  const currentIndex = (allProjects ?? []).findIndex((p) => p.slug === slug);
-  const nextProject = allProjects?.[currentIndex + 1];
-  const prevProject = allProjects?.[currentIndex - 1];
+  const currentIndex = allProjects.findIndex((p) => p.slug === slug);
+  const nextProject = allProjects[currentIndex + 1];
+  const prevProject = allProjects[currentIndex - 1];
 
   return (
     <ProjectPageEntrance>
