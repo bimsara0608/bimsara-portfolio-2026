@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { streamText } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
 
 // Allow streaming responses up to 30 seconds (Vercel maxDuration)
@@ -39,13 +39,10 @@ Do not hallucinate information. If the answer is not in the context, politely sa
 CONTEXT:
 ---
 Bio: ${profile?.bio || 'Design Engineer'}
-Location: ${profile?.location || ''}
-Tagline: ${profile?.tagline || ''}
-
 Experience:
 ${experienceContext}
 
-Key Projects:
+Projects:
 ${projectContext}
 ---
 End of context.`;
@@ -64,9 +61,14 @@ End of context.`;
       apiKey: process.env.GOOGLE_GENERATIVE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     });
 
+    const coreMessages = messages.map((msg: any) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
     const result = await streamText({
       model: google('gemini-3.6-flash'),
-      messages,
+      messages: coreMessages,
       system: systemPrompt,
     });
 
