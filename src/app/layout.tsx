@@ -91,6 +91,8 @@ const jsonLd = {
   ],
 };
 
+import { ChatBot } from '@/components/ui/ChatBot';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -115,6 +117,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         <ContentProtection />
         {children}
+        <ChatBot />
       </body>
     </html>
   );
