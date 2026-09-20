@@ -81,7 +81,7 @@ End of context.`;
       system: systemPrompt,
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error: any) {
     console.error('Chat API Error:', error);
     return new Response(JSON.stringify({ error: 'An error occurred connecting to the AI.' }), {
