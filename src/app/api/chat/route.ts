@@ -69,7 +69,7 @@ End of context.`;
       system: systemPrompt,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('Chat API Error:', error);
     return new Response(
