@@ -135,7 +135,14 @@ export function ChatBot() {
                     <Bot size={16} />
                   </div>
                   <div className="px-4 py-2.5 rounded-2xl bg-white/5 border border-red-500/30 rounded-tl-sm text-sm text-red-400">
-                    {error.message || 'An error occurred connecting to the AI.'}
+                    {(() => {
+                      try {
+                        const parsed = JSON.parse(error.message);
+                        return parsed.error || error.message;
+                      } catch {
+                        return error.message || 'An error occurred connecting to the AI.';
+                      }
+                    })()}
                   </div>
                 </div>
               )}
