@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createGroq } from '@ai-sdk/groq';
 import { streamText, convertToModelMessages } from 'ai';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
 
@@ -57,8 +57,8 @@ End of context.`;
       );
     }
 
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GOOGLE_GENERATIVE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    const groq = createGroq({
+      apiKey: process.env.GROQ_API_KEY,
     });
 
     // Filter out empty messages that might be sent by old cached frontend bundles
@@ -76,7 +76,7 @@ End of context.`;
     }
 
     const result = await streamText({
-      model: google('gemini-3.6-flash'),
+      model: groq('llama-3.1-8b-instant'),
       messages: coreMessages,
       system: systemPrompt,
     });
