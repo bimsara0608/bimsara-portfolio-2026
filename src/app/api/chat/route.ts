@@ -76,12 +76,12 @@ End of context.`;
     }
 
     const result = await streamText({
-      model: groq('qwen/qwen3.8-27b'),
+      model: groq('openai/gpt-oss-20b'),
       messages: coreMessages,
       system: systemPrompt,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('Chat API Error:', error);
     return new Response(JSON.stringify({ error: 'An error occurred connecting to the AI.' }), {

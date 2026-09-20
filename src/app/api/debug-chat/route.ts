@@ -27,7 +27,7 @@ export async function GET() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'qwen/qwen3.8-27b',
+        model: 'openai/gpt-oss-20b',
         messages: messages,
       }),
     });
