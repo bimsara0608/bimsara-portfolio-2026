@@ -84,12 +84,8 @@ End of context.`;
     return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('Chat API Error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message || 'An error occurred during chat generation.' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'An error occurred connecting to the AI.' }), {
+      status: 500,
+    });
   }
 }
