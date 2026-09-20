@@ -12,7 +12,16 @@ export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
-  const { messages, sendMessage, status, error } = useChat();
+  const { messages, sendMessage, status, error } = useChat({
+    initialMessages: [
+      {
+        id: 'welcome-message',
+        role: 'assistant',
+        content:
+          "Hello! I'm Bimsara Gunawardana's AI assistant. Feel free to ask me any questions about Bimsara's experience as a Design Engineer, his projects, or his technical skills.\n\nHow can I help you today?",
+      },
+    ],
+  });
   const isLoading = status === 'streaming' || status === 'submitted';
 
   const messagesEndRef = useRef<HTMLDivElement>(null);

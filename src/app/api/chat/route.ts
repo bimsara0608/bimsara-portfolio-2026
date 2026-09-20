@@ -61,10 +61,19 @@ End of context.`;
       apiKey: process.env.GOOGLE_GENERATIVE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     });
 
-    const coreMessages = messages.map((msg: any) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+    // Filter out empty messages that might be sent by old cached frontend bundles
+    const coreMessages = messages
+      .map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      }))
+      .filter((msg: any) => msg.content && msg.content.trim() !== '');
+
+    // Gemini strictly requires the first message to be from a 'user'.
+    // If the chat UI uses an initial assistant greeting, we must drop it.
+    while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
+      coreMessages.shift();
+    }
 
     const result = await streamText({
       model: google('gemini-3.6-flash'),
