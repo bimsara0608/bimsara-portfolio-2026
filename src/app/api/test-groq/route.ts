@@ -13,24 +13,24 @@ export async function GET() {
       );
     }
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
+    const response = await fetch('https://api.groq.com/openai/v1/models', {
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: 'hi' }],
-      }),
     });
 
     const data = await response.json();
 
+    // Extract just the model IDs for easy reading
+    const availableModels = data.data ? data.data.map((m: { id: string }) => m.id) : data;
+
     return NextResponse.json({
       status: response.status,
       ok: response.ok,
-      data,
+      availableModels,
+      fullResponse: data,
     });
   } catch (error: unknown) {
     const err = error as Error;
