@@ -12,7 +12,7 @@ export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, error } = useChat();
   const isLoading = status === 'streaming' || status === 'submitted';
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -126,6 +126,16 @@ export function ChatBot() {
                   </div>
                   <div className="px-4 py-2.5 rounded-2xl bg-white/5 border border-white/[0.04] rounded-tl-sm flex items-center justify-center h-[44px]">
                     <Loader2 size={16} className="animate-spin text-zinc-400" />
+                  </div>
+                </div>
+              )}
+              {error && (
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center">
+                    <Bot size={16} />
+                  </div>
+                  <div className="px-4 py-2.5 rounded-2xl bg-white/5 border border-red-500/30 rounded-tl-sm text-sm text-red-400">
+                    {error.message || 'An error occurred connecting to the AI.'}
                   </div>
                 </div>
               )}
