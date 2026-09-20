@@ -5,7 +5,7 @@ import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib
 
 // Allow streaming responses up to 30 seconds (Vercel maxDuration)
 export const maxDuration = 30;
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
