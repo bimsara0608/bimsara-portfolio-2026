@@ -47,9 +47,9 @@ ${projectContext}
 ---
 End of context.`;
 
-    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY && !process.env.GOOGLE_GENERATIVE_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return new Response(
-        JSON.stringify({ error: 'Missing Google Gemini API Key in environment variables.' }),
+        JSON.stringify({ error: 'Missing Groq API Key in environment variables.' }),
         {
           status: 500,
           headers: { 'Content-Type': 'application/json' },
