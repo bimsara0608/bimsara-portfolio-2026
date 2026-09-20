@@ -76,7 +76,7 @@ End of context.`;
     }
 
     const result = await streamText({
-      model: groq('llama-3.1-8b-instant'),
+      model: groq('llama3-8b-8192'),
       messages: coreMessages,
       system: systemPrompt,
     });
