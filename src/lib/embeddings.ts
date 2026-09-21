@@ -28,12 +28,13 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   if (!apiKey) throw new Error('Missing GOOGLE_GENERATIVE_API_KEY');
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'models/text-embedding-004',
+        model: 'models/gemini-embedding-2',
+        outputDimensionality: 768,
         content: { parts: [{ text }] },
       }),
     }
