@@ -4,7 +4,7 @@
 //  2. Lead Qualification — AI tool calling to capture client briefs
 
 import { createGroq } from '@ai-sdk/groq';
-import { streamText, stepCountIs, tool, convertToModelMessages } from 'ai';
+import { streamText, stepCountIs, tool } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
@@ -116,14 +116,32 @@ End of context.`;
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Clean and validate message history using AI SDK's built-in converter
-    // This preserves toolInvocations so the model remembers it already submitted a lead!
-    const coreMessages = await convertToModelMessages(messages);
+    // Clean and validate message history manually to avoid SDK version conflicts
+    const coreMessages = messages
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((msg: any) => ({ role: msg.role, content: msg.content }))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((msg: any) => msg.content && (msg.content as string).trim() !== '');
 
     // Strip any leading non-user messages (some models require user-first)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     while (coreMessages.length > 0 && (coreMessages[0] as any).role !== 'user') {
       coreMessages.shift();
+    }
+
+    // Check if submit_lead was already called in this conversation history
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hasSubmittedLead = messages.some((m: any) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      m.toolInvocations?.some((t: any) => t.toolName === 'submit_lead')
+    );
+
+    if (hasSubmittedLead) {
+      coreMessages.push({
+        role: 'system',
+        content:
+          '[SYSTEM: The submit_lead tool was already called successfully in this conversation. DO NOT call it again. Just politely answer questions or end the conversation.]',
+      });
     }
 
     // ── Tool: submit_lead ───────────────────────────────────────────────────
