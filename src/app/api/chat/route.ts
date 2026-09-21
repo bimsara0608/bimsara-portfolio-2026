@@ -4,7 +4,7 @@
 //  2. Lead Qualification — AI tool calling to capture client briefs
 
 import { createGroq } from '@ai-sdk/groq';
-import { streamText, stepCountIs, tool } from 'ai';
+import { streamText, stepCountIs, tool, convertToCoreMessages } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
@@ -116,12 +116,9 @@ End of context.`;
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Clean and validate message history
-    const coreMessages = messages
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((msg: any) => ({ role: msg.role, content: msg.content }))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((msg: any) => msg.content && (msg.content as string).trim() !== '');
+    // Clean and validate message history using AI SDK's built-in converter
+    // This preserves toolInvocations so the model remembers it already submitted a lead!
+    const coreMessages = convertToCoreMessages(messages);
 
     // Strip any leading non-user messages (some models require user-first)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -223,7 +220,7 @@ End of context.`;
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('openai/gpt-oss-20b'),
+      model: groq('llama-3.1-70b-versatile'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
