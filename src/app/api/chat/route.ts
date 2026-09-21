@@ -116,7 +116,7 @@ End of context.`;
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Clean and validate message history manually to avoid SDK version conflicts
+    // Clean and validate message history
     const coreMessages = messages
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((msg: any) => ({ role: msg.role, content: msg.content }))
@@ -127,21 +127,6 @@ End of context.`;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     while (coreMessages.length > 0 && (coreMessages[0] as any).role !== 'user') {
       coreMessages.shift();
-    }
-
-    // Check if submit_lead was already called in this conversation history
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hasSubmittedLead = messages.some((m: any) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      m.toolInvocations?.some((t: any) => t.toolName === 'submit_lead')
-    );
-
-    if (hasSubmittedLead) {
-      coreMessages.push({
-        role: 'system',
-        content:
-          '[SYSTEM: The submit_lead tool was already called successfully in this conversation. DO NOT call it again. Just politely answer questions or end the conversation.]',
-      });
     }
 
     // ── Tool: submit_lead ───────────────────────────────────────────────────
@@ -238,7 +223,7 @@ End of context.`;
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('llama-3.1-70b-versatile'),
+      model: groq('openai/gpt-oss-20b'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
