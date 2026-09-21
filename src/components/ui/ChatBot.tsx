@@ -4,7 +4,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Loader2, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -45,6 +45,18 @@ export function ChatBot() {
         .join('\n');
     }
     return text;
+  };
+
+  // Check if a message contains a successful lead submission tool result
+  const hasLeadSuccess = (m: any): boolean => {
+    if (!m.parts) return false;
+    return m.parts.some(
+      (p: any) =>
+        p.type === 'tool-invocation' &&
+        p.toolName === 'submit_lead' &&
+        p.state === 'result' &&
+        p.result?.success === true
+    );
   };
 
   return (
@@ -113,16 +125,31 @@ export function ChatBot() {
                   >
                     {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                   </div>
-                  <div
-                    className={`text-sm px-4 py-3 rounded-2xl max-w-[85%] shadow-sm ${
-                      m.role === 'user'
-                        ? 'bg-zinc-800/80 text-white rounded-tr-sm border border-white/5'
-                        : 'bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 text-zinc-200 rounded-tl-sm border border-white/20'
-                    }`}
-                  >
-                    <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10">
-                      <ReactMarkdown>{renderMessageContent(m)}</ReactMarkdown>
-                    </div>
+                  <div className="flex flex-col gap-2 max-w-[85%]">
+                    {renderMessageContent(m) && (
+                      <div
+                        className={`text-sm px-4 py-3 rounded-2xl shadow-sm ${
+                          m.role === 'user'
+                            ? 'bg-zinc-800/80 text-white rounded-tr-sm border border-white/5'
+                            : 'bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 text-zinc-200 rounded-tl-sm border border-white/20'
+                        }`}
+                      >
+                        <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10">
+                          <ReactMarkdown>{renderMessageContent(m)}</ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
+                    {/* Lead success badge — shown when AI submits a client lead */}
+                    {hasLeadSuccess(m) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-medium"
+                      >
+                        <CheckCircle2 size={13} />
+                        Project brief sent to Bimsara!
+                      </motion.div>
+                    )}
                   </div>
                 </div>
               ))}

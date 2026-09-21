@@ -1,6 +1,27 @@
 // src/lib/types.ts
 // Strict TypeScript interfaces for the entire portfolio system
 
+// ─── AI / Chat types ──────────────────────────────────────────────────────────
+
+export interface LeadData {
+  name: string;
+  email: string;
+  project_type: string;
+  manufacturing_method?: string;
+  has_sketches?: boolean;
+  timeline?: string;
+  budget_range?: string;
+  additional_notes?: string;
+}
+
+export interface ContextChunk {
+  content_type: string;
+  content_text: string;
+  similarity: number;
+}
+
+// ─── Portfolio types ──────────────────────────────────────────────────────────
+
 export interface ProjectImage {
   id: string;
   project_id: string;
