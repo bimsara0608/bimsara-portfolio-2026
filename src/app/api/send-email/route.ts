@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/utils/supabase/server';
 
-// Initialize Resend with the API key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: Request) {
   try {
+    // Initialize Resend inside the request handler to prevent build-time errors
+    // if the environment variable is not yet set in Vercel.
+    const resend = new Resend(process.env.RESEND_API_KEY || 'missing_key');
     // 1. Authenticate the request: Ensure only logged-in admins can send emails
     const supabase = await createClient();
     const {
