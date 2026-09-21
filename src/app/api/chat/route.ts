@@ -4,7 +4,7 @@
 //  2. Lead Qualification — AI tool calling to capture client briefs
 
 import { createGroq } from '@ai-sdk/groq';
-import { streamText, stepCountIs, tool, convertToCoreMessages } from 'ai';
+import { streamText, stepCountIs, tool, convertToModelMessages } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
@@ -118,7 +118,7 @@ End of context.`;
 
     // Clean and validate message history using AI SDK's built-in converter
     // This preserves toolInvocations so the model remembers it already submitted a lead!
-    const coreMessages = convertToCoreMessages(messages);
+    const coreMessages = await convertToModelMessages(messages);
 
     // Strip any leading non-user messages (some models require user-first)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
