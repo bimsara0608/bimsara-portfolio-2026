@@ -289,7 +289,7 @@ ${portfolioContext}
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: groq('openai/gpt-oss-120b'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
