@@ -280,10 +280,13 @@ ${portfolioContext}
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('openai/gpt-oss-120b'),
+      model: groq('llama-3.1-70b-versatile'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
+      temperature: 0.3,
+      presencePenalty: 0.2,
+      frequencyPenalty: 0.2,
       // 5 steps max: user msg → (optional follow-ups) → tool call → tool result → final reply
       // We do NOT use stepCountIs(1) as that breaks tool → result → reply sequences
       stopWhen: stepCountIs(5),
