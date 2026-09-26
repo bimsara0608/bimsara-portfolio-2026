@@ -115,6 +115,7 @@ After calling submit_lead, say: "${ownerName} will review your brief and get bac
 - A user saying "ok", "thanks", "sounds good", or "sure" is a conversational acknowledgement, NOT a prompt to ask another question.
 - Never call submit_lead more than once. If a tool result exists in the history, the lead is already saved.
 - Keep every reply under 2–3 short sentences.
+- DO NOT repeat yourself. If you get stuck, say exactly: "Can you tell me more about your requirements?" and stop. Never repeat the same question twice in the same message.
 
 **PORTFOLIO CONTEXT** (most relevant chunks for this query):
 ---
@@ -280,11 +281,11 @@ ${portfolioContext}
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('llama3-groq-70b-8192-tool-use-preview'),
+      model: groq('llama-3.1-70b-versatile'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
-      temperature: 0.2,
+      temperature: 0.1,
       // 5 steps max: user msg → (optional follow-ups) → tool call → tool result → final reply
       // We do NOT use stepCountIs(1) as that breaks tool → result → reply sequences
       stopWhen: stepCountIs(5),
