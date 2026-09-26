@@ -131,9 +131,19 @@ ${portfolioContext}
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
+    // Vercel AI SDK's convertToModelMessages crashes if message.parts is undefined.
+    // We must manually map text content into the parts array before converting.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const safeMessages = messages.map((m: any) => {
+      if (!m.parts && m.content) {
+        return { ...m, parts: [{ type: 'text', text: m.content }] };
+      }
+      return m;
+    });
+
     // Convert UIMessages (with toolInvocations) to ModelMessages (CoreMessages)
     // required for tool tracking in AI SDK v6+.
-    let coreMessages = await convertToModelMessages(messages);
+    let coreMessages = await convertToModelMessages(safeMessages);
 
     // Strip any leading non-user messages (some models require user-first)
     while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
