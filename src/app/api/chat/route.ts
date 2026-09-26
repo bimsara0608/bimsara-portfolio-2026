@@ -349,7 +349,8 @@ ${portfolioContext}
   } catch (error: unknown) {
     const err = error as Error;
     console.error('Chat API Error:', err);
-    return new Response(JSON.stringify({ error: 'An error occurred connecting to the AI.' }), {
+    // Include the actual error message in the response to help debug Vercel issues
+    return new Response(JSON.stringify({ error: err.message || 'An error occurred connecting to the AI.' }), {
       status: 500,
     });
   }
