@@ -4,7 +4,7 @@
 //  2. Lead Qualification — AI tool calling to capture client briefs
 
 import { createGroq } from '@ai-sdk/groq';
-import { streamText, stepCountIs, tool, convertToModelMessages } from 'ai';
+import { streamText, stepCountIs, tool } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
@@ -131,19 +131,63 @@ ${portfolioContext}
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Vercel AI SDK's convertToModelMessages crashes if message.parts is undefined.
-    // We must manually map text content into the parts array before converting.
+    // ── Safe UIMessage -> CoreMessage Conversion ────────────────────────────
+    // We manually map messages instead of using AI SDK's convertToModelMessages
+    // because:
+    // 1. The SDK version has a bug where undefined `parts` causes a 500 crash.
+    // 2. Patching the bug by adding `parts` forces the SDK to output array-based
+    //    content for user messages, which Groq's open-source models reject (400 Bad Request).
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const safeMessages = messages.map((m: any) => {
-      if (!m.parts && m.content) {
-        return { ...m, parts: [{ type: 'text', text: m.content }] };
+    let coreMessages = messages.map((m: any) => {
+      // Normal text messages (User / System)
+      if (m.role === 'user' || m.role === 'system') {
+        return { role: m.role, content: m.content || '' };
       }
-      return m;
+      
+      // Assistant messages (may contain tool calls)
+      if (m.role === 'assistant') {
+        if (m.toolInvocations && m.toolInvocations.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const contentParts: any[] = [];
+          if (m.content) contentParts.push({ type: 'text', text: m.content });
+          
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          m.toolInvocations.forEach((t: any) => {
+            // Only add tool-calls (tool-results are handled by role: 'tool' or appended separately)
+            if (t.state !== 'result') {
+              contentParts.push({
+                type: 'tool-call',
+                toolCallId: t.toolCallId,
+                toolName: t.toolName,
+                args: t.args
+              });
+            }
+          });
+          if (contentParts.length > 0) return { role: 'assistant', content: contentParts };
+        }
+        return { role: 'assistant', content: m.content || '' };
+      }
+      
+      // Tool messages (Results)
+      if (m.role === 'tool') {
+        if (Array.isArray(m.content)) return { role: 'tool', content: m.content };
+        
+        // Convert old toolInvocation structures if present in UIMessage
+        if (m.toolInvocations && m.toolInvocations.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return { role: 'tool', content: m.toolInvocations.map((t: any) => ({
+            type: 'tool-result',
+            toolCallId: t.toolCallId,
+            toolName: t.toolName,
+            result: t.result
+          }))};
+        }
+        return { role: 'tool', content: [{ type: 'tool-result', toolCallId: 'unknown', toolName: 'unknown', result: m.content }] };
+      }
+      
+      return { role: m.role, content: m.content || '' };
     });
-
-    // Convert UIMessages (with toolInvocations) to ModelMessages (CoreMessages)
-    // required for tool tracking in AI SDK v6+.
-    let coreMessages = await convertToModelMessages(safeMessages);
 
     // Strip any leading non-user messages (some models require user-first)
     while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
