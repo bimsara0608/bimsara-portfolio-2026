@@ -280,13 +280,11 @@ ${portfolioContext}
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('llama-3.1-70b-versatile'),
+      model: groq('llama3-groq-70b-8192-tool-use-preview'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
-      temperature: 0.3,
-      presencePenalty: 0.2,
-      frequencyPenalty: 0.2,
+      temperature: 0.2,
       // 5 steps max: user msg → (optional follow-ups) → tool call → tool result → final reply
       // We do NOT use stepCountIs(1) as that breaks tool → result → reply sequences
       stopWhen: stepCountIs(5),
