@@ -15,6 +15,11 @@ export const maxDuration = 60;
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// In-memory cache to prevent duplicate inserts across rapid follow-up requests
+// handled by the same serverless instance. Bypasses the need for DB-level checks
+// which fail under RLS for anonymous users.
+const recentSubmissions = new Set<string>();
+
 function getSupabaseClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -125,53 +130,10 @@ ${portfolioContext}
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Clean and validate message history — preserve tool invocations so the AI
-    // knows what it has already asked and submitted in this conversation.
+    // Strip any leading non-user messages (some models require user-first)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const coreMessages = messages.reduce((acc: any[], msg: any) => {
-      // Always keep user messages that have content
-      if (msg.role === 'user') {
-        // Extract content from either the string field or the parts array
-        let content = (msg.content as string) || '';
-        if (!content.trim()) {
-          // AI SDK v7 { text } format stores content in parts
-          const parts = (msg.parts || []) as any[];
-          const textPart = parts.find((p: any) => p.type === 'text');
-          content = textPart?.text || '';
-        }
-        if (content.trim() !== '') {
-          acc.push({ role: 'user', content });
-        }
-        return acc;
-      }
-
-      // For assistant messages, build a summary string that includes any tool calls made
-      if (msg.role === 'assistant') {
-        const textContent = (msg.content as string) || '';
-        // Extract any tool invocations from the parts array (they show as empty content)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const toolParts = (msg.parts || []).filter((p: any) => p.type === 'tool-invocation');
-        if (toolParts.length > 0) {
-          // Build a combined content string so the model knows the tool was already called
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const toolSummary = toolParts.map((p: any) => {
-            const args = JSON.stringify(p.toolInvocation?.input || p.args || {});
-            const result = JSON.stringify(p.toolInvocation?.output || p.result || {});
-            return `[Tool: ${p.toolName} | Args: ${args} | Result: ${result}]`;
-          }).join(' ');
-          acc.push({ role: 'assistant', content: [textContent, toolSummary].filter(Boolean).join('\n') });
-        } else if (textContent.trim() !== '') {
-          acc.push({ role: 'assistant', content: textContent });
-        }
-        return acc;
-      }
-
-      return acc;
-    }, []);
-
-    // Strip any leading non-user messages (Groq requires user-first)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    while (coreMessages.length > 0 && (coreMessages[0] as any).role !== 'user') {
+    let coreMessages = messages;
+    while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
       coreMessages.shift();
     }
 
@@ -223,20 +185,41 @@ ${portfolioContext}
         try {
           const supabase = getSupabaseClient();
 
-          // ── Idempotency guard ──────────────────────────────────────────────
-          // Check if a lead from the same email was already submitted within
-          // the last 10 minutes to prevent duplicate inserts caused by the
-          // AI re-triggering the tool on short follow-up messages.
-          const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-          const { data: existing } = await supabase
-            .from('contact_messages')
-            .select('id')
-            .eq('email', leadData.email.toLowerCase().trim())
-            .gte('created_at', tenMinutesAgo)
-            .limit(1);
+          // ── Idempotency Guard 1: Memory Cache ──────────────────────────────
+          // Prevents duplicate inserts if the AI calls the tool twice rapidly
+          // or if the user sends short follow-ups to the same serverless instance.
+          const cacheKey = `${leadData.email.toLowerCase().trim()}:${leadData.project_type.toLowerCase().trim()}`;
+          if (recentSubmissions.has(cacheKey)) {
+            return {
+              success: true,
+              message: `Brief for ${leadData.name} was already received. ${ownerName} will be in touch within 24–48 hours!`,
+            };
+          }
 
-          if (existing && existing.length > 0) {
-            // Already submitted recently — return success without a second insert
+          // ── Idempotency Guard 2: Conversation History ──────────────────────
+          // Checks if the tool was already successfully called in the chat history.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const hasPriorCall = coreMessages.some((msg: any) => {
+            if (msg.toolInvocations) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return msg.toolInvocations.some((t: any) => t.toolName === 'submit_lead');
+            }
+            if (msg.parts) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return msg.parts.some((p: any) => 
+                (p.type === 'tool-invocation' || p.type === 'tool-result') && 
+                (p.toolInvocation?.toolName === 'submit_lead' || p.toolName === 'submit_lead')
+              );
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (msg.role === 'tool' && Array.isArray(msg.content)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return msg.content.some((c: any) => c.toolName === 'submit_lead');
+            }
+            return false;
+          });
+
+          if (hasPriorCall) {
             return {
               success: true,
               message: `Brief for ${leadData.name} was already received. ${ownerName} will be in touch within 24–48 hours!`,
@@ -272,6 +255,10 @@ ${portfolioContext}
               message: 'There was an issue saving your brief. Please try again.',
             };
           }
+
+          // Add to memory cache to prevent rapid duplicate calls
+          recentSubmissions.add(cacheKey);
+          setTimeout(() => recentSubmissions.delete(cacheKey), 10 * 60 * 1000);
 
           return {
             success: true,
