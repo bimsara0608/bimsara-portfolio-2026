@@ -26,12 +26,10 @@ export function ChatBot() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
-    (sendMessage as any)({
-      role: 'user',
-      content: inputValue,
-      parts: [{ type: 'text', text: inputValue }],
-    });
+    const text = inputValue.trim();
+    if (!text || isLoading) return;
+    // Use the { text } overload — the SDK-native format for plain text messages
+    (sendMessage as any)({ text });
     setInputValue('');
   };
 

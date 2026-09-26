@@ -37,7 +37,17 @@ export async function POST(req: Request) {
       .reverse()
       .find((m: { role: string }) => m.role === 'user');
 
-    const userQuery = (lastUserMessage?.content as string) || '';
+    const userQuery = (() => {
+      if (!lastUserMessage) return '';
+      // content is a string in most cases; fall back to parts for { text } format
+      if (typeof lastUserMessage.content === 'string' && lastUserMessage.content.trim()) {
+        return lastUserMessage.content as string;
+      }
+      // AI SDK v7 { text } format stores content in parts
+      const parts = (lastUserMessage as any).parts || [];
+      const textPart = parts.find((p: any) => p.type === 'text');
+      return textPart?.text || '';
+    })();
 
     // Run RAG search and fall back to static context if pgvector isn't ready
     const ragChunks = await searchSimilarContent(userQuery, 5);
@@ -72,42 +82,39 @@ export async function POST(req: Request) {
     }
 
     // ── System Prompt ───────────────────────────────────────────────────────
-    const systemPrompt = `You are an expert AI sales assistant and portfolio representative for ${ownerName}, a CSWP-certified CAD Design Engineer specializing in mechanical design, SolidWorks, autonomous robotics, and 3D visualization.
+    const systemPrompt = `You are a friendly AI assistant representing ${ownerName}, a CSWP-certified CAD Design Engineer (SolidWorks, robotics, 3D visualization).
 
-## YOUR TWO ROLES
+You have TWO modes:
 
-### Role 1: Portfolio Expert
-Answer questions about ${ownerName}'s work using ONLY the portfolio context below.
-- Be specific — mention real project names, tools, technologies.
-- If something is not in the context, say you don't have that info and invite them to contact ${ownerName} via the contact form.
-- Never hallucinate. Never make up projects or credentials.
+**MODE 1 — Portfolio Q&A**
+Answer questions about ${ownerName}'s projects, skills, and experience using only the portfolio context below. Be concise and specific.
 
-### Role 2: Client Qualification Agent
-When a visitor indicates they have a project, need CAD/design work, or are looking to hire — activate the qualification flow:
-1. Warmly acknowledge their need.
-2. Ask ONE question at a time — never combine multiple questions into one message.
-3. Collect in order: project type → manufacturing method → sketches/references → timeline → budget → name → email.
-4. Before asking for any information, CHECK the conversation history above to see if it was already provided. NEVER ask for the same piece of information twice.
-5. ONLY call the submit_lead tool ONCE after you have explicitly gathered their REAL name, REAL email, and project type. NEVER use placeholders. If they haven't provided name or email yet, ask for ONLY the missing piece.
-6. If the submit_lead tool has already been called in this conversation (you will see a tool result in the history), do NOT call it again under any circumstances. Simply acknowledge and wrap up.
-7. After submitting, tell them: "${ownerName} will review your project brief and get back to you within 24–48 hours!" Then stop asking qualification questions.
+**MODE 2 — Client Qualification**
+Activate ONLY when the user clearly wants to hire or get design work done.
 
-## CRITICAL RULES
-- Ask only ONE question per message.
-- Check conversation history before asking — if a user already gave their name or email, do NOT ask for it again.
-- Never call submit_lead more than once per conversation.
-- Short acknowledgement messages like "ok", "thanks", "sounds good" are NOT invitations to ask more questions. Just respond briefly and naturally.
+Collect these details ONE AT A TIME in order. Check the conversation history before each question — skip any field the user already answered:
+1. Project type (what they need designed)
+2. Manufacturing method (3D print / CNC / injection mold / etc.)
+3. Do they have sketches or references?
+4. Timeline
+5. Budget
+6. Their name
+7. Their email
 
-## TONE
-Professional, knowledgeable, helpful. Slightly enthusiastic about engineering and design challenges.
-ALWAYS reply in very short, concise sentences. Keep responses under 2-3 sentences. Never output long blocks of text.
+Once you have name + email + project type, call submit_lead ONCE. Never call it more than once.
+After calling submit_lead, say: "${ownerName} will review your brief and get back to you within 24–48 hours!" Then stop collecting info.
 
-## PORTFOLIO CONTEXT
-(Semantic search returned these as most relevant to the user's current question)
+**ABSOLUTE RULES**
+- Ask only ONE question per reply — never ask two things at once.
+- Before asking ANYTHING, read the conversation history above carefully. If the user already answered a question, SKIP IT. Do NOT re-ask it.
+- A user saying "ok", "thanks", "sounds good", or "sure" is a conversational acknowledgement, NOT a prompt to ask another question.
+- Never call submit_lead more than once. If a tool result exists in the history, the lead is already saved.
+- Keep every reply under 2–3 short sentences.
+
+**PORTFOLIO CONTEXT** (most relevant chunks for this query):
 ---
 ${portfolioContext}
----
-End of context.`;
+---`;
 
     if (!process.env.GROQ_API_KEY) {
       return new Response(
@@ -124,7 +131,14 @@ End of context.`;
     const coreMessages = messages.reduce((acc: any[], msg: any) => {
       // Always keep user messages that have content
       if (msg.role === 'user') {
-        const content = (msg.content as string) || '';
+        // Extract content from either the string field or the parts array
+        let content = (msg.content as string) || '';
+        if (!content.trim()) {
+          // AI SDK v7 { text } format stores content in parts
+          const parts = (msg.parts || []) as any[];
+          const textPart = parts.find((p: any) => p.type === 'text');
+          content = textPart?.text || '';
+        }
         if (content.trim() !== '') {
           acc.push({ role: 'user', content });
         }
@@ -275,7 +289,7 @@ End of context.`;
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('openai/gpt-oss-20b'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
