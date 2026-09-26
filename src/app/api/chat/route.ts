@@ -84,17 +84,23 @@ Answer questions about ${ownerName}'s work using ONLY the portfolio context belo
 
 ### Role 2: Client Qualification Agent
 When a visitor indicates they have a project, need CAD/design work, or are looking to hire — activate the qualification flow:
-1. Warmly acknowledge their need
-2. Ask what type of project/product they are designing
-3. Ask about manufacturing method (3D printing, CNC, injection molding, sheet metal, etc.)
-4. Ask if they have sketches, references, or existing CAD files
-5. Ask about timeline and approximate budget range
-6. ONLY once you have explicitly gathered their REAL name, REAL email, and project type — call the submit_lead tool to save their brief. NEVER use placeholders like "[Client Name]". If they haven't provided their name or email, ASK them for it before calling the tool.
-7. After submitting, tell them: "${ownerName} will review your project brief and get back to you within 24–48 hours!"
+1. Warmly acknowledge their need.
+2. Ask ONE question at a time — never combine multiple questions into one message.
+3. Collect in order: project type → manufacturing method → sketches/references → timeline → budget → name → email.
+4. Before asking for any information, CHECK the conversation history above to see if it was already provided. NEVER ask for the same piece of information twice.
+5. ONLY call the submit_lead tool ONCE after you have explicitly gathered their REAL name, REAL email, and project type. NEVER use placeholders. If they haven't provided name or email yet, ask for ONLY the missing piece.
+6. If the submit_lead tool has already been called in this conversation (you will see a tool result in the history), do NOT call it again under any circumstances. Simply acknowledge and wrap up.
+7. After submitting, tell them: "${ownerName} will review your project brief and get back to you within 24–48 hours!" Then stop asking qualification questions.
+
+## CRITICAL RULES
+- Ask only ONE question per message.
+- Check conversation history before asking — if a user already gave their name or email, do NOT ask for it again.
+- Never call submit_lead more than once per conversation.
+- Short acknowledgement messages like "ok", "thanks", "sounds good" are NOT invitations to ask more questions. Just respond briefly and naturally.
 
 ## TONE
 Professional, knowledgeable, helpful. Slightly enthusiastic about engineering and design challenges.
-CRITICAL INSTRUCTION: ALWAYS reply in very short, concise sentences. Keep your responses under 2-3 sentences whenever possible. Never output long blocks of text.
+ALWAYS reply in very short, concise sentences. Keep responses under 2-3 sentences. Never output long blocks of text.
 
 ## PORTFOLIO CONTEXT
 (Semantic search returned these as most relevant to the user's current question)
@@ -112,14 +118,44 @@ End of context.`;
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Clean and validate message history
-    const coreMessages = messages
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((msg: any) => ({ role: msg.role, content: msg.content }))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((msg: any) => msg.content && (msg.content as string).trim() !== '');
+    // Clean and validate message history — preserve tool invocations so the AI
+    // knows what it has already asked and submitted in this conversation.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const coreMessages = messages.reduce((acc: any[], msg: any) => {
+      // Always keep user messages that have content
+      if (msg.role === 'user') {
+        const content = (msg.content as string) || '';
+        if (content.trim() !== '') {
+          acc.push({ role: 'user', content });
+        }
+        return acc;
+      }
 
-    // Strip any leading non-user messages (some models require user-first)
+      // For assistant messages, build a summary string that includes any tool calls made
+      if (msg.role === 'assistant') {
+        const textContent = (msg.content as string) || '';
+        // Extract any tool invocations from the parts array (they show as empty content)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const toolParts = (msg.parts || []).filter((p: any) => p.type === 'tool-invocation');
+        if (toolParts.length > 0) {
+          // Build a combined content string so the model knows the tool was already called
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const toolSummary = toolParts.map((p: any) => {
+            const args = JSON.stringify(p.toolInvocation?.input || p.args || {});
+            const result = JSON.stringify(p.toolInvocation?.output || p.result || {});
+            return `[Tool: ${p.toolName} | Args: ${args} | Result: ${result}]`;
+          }).join(' ');
+          acc.push({ role: 'assistant', content: [textContent, toolSummary].filter(Boolean).join('\n') });
+        } else if (textContent.trim() !== '') {
+          acc.push({ role: 'assistant', content: textContent });
+        }
+        return acc;
+      }
+
+      return acc;
+    }, []);
+
+    // Strip any leading non-user messages (Groq requires user-first)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     while (coreMessages.length > 0 && (coreMessages[0] as any).role !== 'user') {
       coreMessages.shift();
@@ -173,6 +209,26 @@ End of context.`;
         try {
           const supabase = getSupabaseClient();
 
+          // ── Idempotency guard ──────────────────────────────────────────────
+          // Check if a lead from the same email was already submitted within
+          // the last 10 minutes to prevent duplicate inserts caused by the
+          // AI re-triggering the tool on short follow-up messages.
+          const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+          const { data: existing } = await supabase
+            .from('contact_messages')
+            .select('id')
+            .eq('email', leadData.email.toLowerCase().trim())
+            .gte('created_at', tenMinutesAgo)
+            .limit(1);
+
+          if (existing && existing.length > 0) {
+            // Already submitted recently — return success without a second insert
+            return {
+              success: true,
+              message: `Brief for ${leadData.name} was already received. ${ownerName} will be in touch within 24–48 hours!`,
+            };
+          }
+
           const subject = `[AI Lead] ${leadData.project_type}`;
           const message = [
             `Project Type: ${leadData.project_type}`,
@@ -189,7 +245,7 @@ End of context.`;
 
           const { error } = await supabase.from('contact_messages').insert({
             name: leadData.name,
-            email: leadData.email,
+            email: leadData.email.toLowerCase().trim(),
             subject,
             message,
             is_read: false,
@@ -223,8 +279,9 @@ End of context.`;
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
-      // Allow up to 3 steps: user msg → tool call → tool result → final reply
-      stopWhen: stepCountIs(3),
+      // 5 steps max: user msg → (optional follow-ups) → tool call → tool result → final reply
+      // We do NOT use stepCountIs(1) as that breaks tool → result → reply sequences
+      stopWhen: stepCountIs(5),
     });
 
     return result.toUIMessageStreamResponse();
