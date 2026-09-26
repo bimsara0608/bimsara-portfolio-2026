@@ -4,7 +4,7 @@
 //  2. Lead Qualification — AI tool calling to capture client briefs
 
 import { createGroq } from '@ai-sdk/groq';
-import { streamText, stepCountIs, tool } from 'ai';
+import { streamText, stepCountIs, tool, convertToModelMessages } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
@@ -130,9 +130,11 @@ ${portfolioContext}
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
+    // Convert UIMessages (with toolInvocations) to ModelMessages (CoreMessages)
+    // required for tool tracking in AI SDK v6+.
+    let coreMessages = await convertToModelMessages(messages);
+
     // Strip any leading non-user messages (some models require user-first)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let coreMessages = messages;
     while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
       coreMessages.shift();
     }
@@ -211,10 +213,12 @@ ${portfolioContext}
                 (p.toolInvocation?.toolName === 'submit_lead' || p.toolName === 'submit_lead')
               );
             }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (msg.role === 'tool' && Array.isArray(msg.content)) {
+            // ModelMessage format (SDK v6+) stores tool parts in content array
+            if (Array.isArray(msg.content)) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              return msg.content.some((c: any) => c.toolName === 'submit_lead');
+              return msg.content.some((c: any) => 
+                (c.type === 'tool-call' || c.type === 'tool-result') && c.toolName === 'submit_lead'
+              );
             }
             return false;
           });
