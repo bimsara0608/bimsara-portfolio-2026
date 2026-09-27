@@ -115,7 +115,6 @@ After calling submit_lead, say: "${ownerName} will review your brief and get bac
 - A user saying "ok", "thanks", "sounds good", or "sure" is a conversational acknowledgement, NOT a prompt to ask another question.
 - Never call submit_lead more than once. If a tool result exists in the history, the lead is already saved.
 - Keep every reply under 2–3 short sentences.
-- DO NOT repeat yourself. If you get stuck, say exactly: "Can you tell me more about your requirements?" and stop. Never repeat the same question twice in the same message.
 
 **PORTFOLIO CONTEXT** (most relevant chunks for this query):
 ---
@@ -131,65 +130,9 @@ ${portfolioContext}
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // ── Safe UIMessage -> CoreMessage Conversion ────────────────────────────
-    // We manually map messages instead of using AI SDK's convertToModelMessages
-    // because:
-    // 1. The SDK version has a bug where undefined `parts` causes a 500 crash.
-    // 2. Patching the bug by adding `parts` forces the SDK to output array-based
-    //    content for user messages, which Groq's open-source models reject (400 Bad Request).
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let coreMessages = messages.map((m: any) => {
-      // Normal text messages (User / System)
-      if (m.role === 'user' || m.role === 'system') {
-        return { role: m.role, content: m.content || '' };
-      }
-      
-      // Assistant messages (may contain tool calls)
-      if (m.role === 'assistant') {
-        if (m.toolInvocations && m.toolInvocations.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const contentParts: any[] = [];
-          if (m.content) contentParts.push({ type: 'text', text: m.content });
-          
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          m.toolInvocations.forEach((t: any) => {
-            // Only add tool-calls (tool-results are handled by role: 'tool' or appended separately)
-            if (t.state !== 'result') {
-              contentParts.push({
-                type: 'tool-call',
-                toolCallId: t.toolCallId,
-                toolName: t.toolName,
-                args: t.args
-              });
-            }
-          });
-          if (contentParts.length > 0) return { role: 'assistant', content: contentParts };
-        }
-        return { role: 'assistant', content: m.content || '' };
-      }
-      
-      // Tool messages (Results)
-      if (m.role === 'tool') {
-        if (Array.isArray(m.content)) return { role: 'tool', content: m.content };
-        
-        // Convert old toolInvocation structures if present in UIMessage
-        if (m.toolInvocations && m.toolInvocations.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return { role: 'tool', content: m.toolInvocations.map((t: any) => ({
-            type: 'tool-result',
-            toolCallId: t.toolCallId,
-            toolName: t.toolName,
-            result: t.result
-          }))};
-        }
-        return { role: 'tool', content: [{ type: 'tool-result', toolCallId: 'unknown', toolName: 'unknown', result: m.content }] };
-      }
-      
-      return { role: m.role, content: m.content || '' };
-    });
-
     // Strip any leading non-user messages (some models require user-first)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let coreMessages = messages;
     while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
       coreMessages.shift();
     }
@@ -268,12 +211,10 @@ ${portfolioContext}
                 (p.toolInvocation?.toolName === 'submit_lead' || p.toolName === 'submit_lead')
               );
             }
-            // ModelMessage format (SDK v6+) stores tool parts in content array
-            if (Array.isArray(msg.content)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (msg.role === 'tool' && Array.isArray(msg.content)) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              return msg.content.some((c: any) => 
-                (c.type === 'tool-call' || c.type === 'tool-result') && c.toolName === 'submit_lead'
-              );
+              return msg.content.some((c: any) => c.toolName === 'submit_lead');
             }
             return false;
           });
@@ -335,11 +276,10 @@ ${portfolioContext}
 
     // ── Stream ──────────────────────────────────────────────────────────────
     const result = await streamText({
-      model: groq('llama-3.1-70b-versatile'),
+      model: groq('openai/gpt-oss-120b'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
-      temperature: 0.1,
       // 5 steps max: user msg → (optional follow-ups) → tool call → tool result → final reply
       // We do NOT use stepCountIs(1) as that breaks tool → result → reply sequences
       stopWhen: stepCountIs(5),
@@ -349,8 +289,7 @@ ${portfolioContext}
   } catch (error: unknown) {
     const err = error as Error;
     console.error('Chat API Error:', err);
-    // Include the actual error message in the response to help debug Vercel issues
-    return new Response(JSON.stringify({ error: err.message || 'An error occurred connecting to the AI.' }), {
+    return new Response(JSON.stringify({ error: 'An error occurred connecting to the AI.' }), {
       status: 500,
     });
   }
