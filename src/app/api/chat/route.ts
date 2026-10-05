@@ -349,9 +349,15 @@ ${portfolioContext}
   } catch (error: unknown) {
     const err = error as Error;
     console.error('Chat API Error:', err);
-    // Explicitly return the raw error message so the client UI can parse and display it!
-    return new Response(JSON.stringify({ error: err.message || 'An error occurred connecting to the AI.' }), {
-      status: 500,
+    // Bypassing Vercel AI SDK error masking by pretending it's a successful response
+    // and sending the raw error message as the AI's reply text.
+    const escapedMsg = (err.message || 'Unknown error').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    return new Response(`0:"SERVER ERROR: ${escapedMsg}"\n`, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Vercel-AI-Data-Stream': 'v1',
+      }
     });
   }
 }
