@@ -331,9 +331,9 @@ ${portfolioContext}`;
     });
 
     // ── Stream ──────────────────────────────────────────────────────────────
-    // llama-3.1-8b-instant: fastest free-tier Groq model, ~400 tokens/sec
+    // llama-3.1-8b-instant is deprecated — use openai/gpt-oss-20b (fast free-tier replacement)
     const result = await streamText({
-      model: groq('llama-3.1-8b-instant'),
+      model: groq('openai/gpt-oss-20b'),
       messages: coreMessages,
       system: systemPrompt,
       tools: { submit_lead: submitLead },
