@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedProfile, getCachedProjects, getCachedExperiences } from '@/lib/data';
 import { searchSimilarContent } from '@/lib/embeddings';
+import { buildSystemPrompt } from '@/lib/prompt';
 
 // Allow streaming responses up to 60 seconds (Vercel maxDuration)
 export const maxDuration = 60;
@@ -87,39 +88,10 @@ export async function POST(req: Request) {
     }
 
     // ── System Prompt ───────────────────────────────────────────────────────
-    const systemPrompt = `You are a friendly AI assistant representing ${ownerName}, a CSWP-certified CAD Design Engineer (SolidWorks, robotics, 3D visualization).
-
-You have TWO modes:
-
-**MODE 1 — Portfolio Q&A**
-Answer questions about ${ownerName}'s projects, skills, and experience using only the portfolio context below. Be concise and specific.
-
-**MODE 2 — Client Qualification**
-Activate ONLY when the user clearly wants to hire or get design work done.
-
-Collect these details ONE AT A TIME in order. Check the conversation history before each question — skip any field the user already answered:
-1. Project type (what they need designed)
-2. Manufacturing method (3D print / CNC / injection mold / etc.)
-3. Do they have sketches or references?
-4. Timeline
-5. Budget
-6. Their name
-7. Their email
-
-Once you have name + email + project type, call submit_lead ONCE. Never call it more than once.
-After calling submit_lead, say: "${ownerName} will review your brief and get back to you within 24–48 hours!" Then stop collecting info.
-
-**ABSOLUTE RULES**
-- Ask only ONE question per reply — never ask two things at once.
-- Before asking ANYTHING, read the conversation history above carefully. If the user already answered a question, SKIP IT. Do NOT re-ask it.
-- A user saying "ok", "thanks", "sounds good", or "sure" is a conversational acknowledgement, NOT a prompt to ask another question.
-- Never call submit_lead more than once. If a tool result exists in the history, the lead is already saved.
-- Keep every reply under 2–3 short sentences.
-
-**PORTFOLIO CONTEXT** (most relevant chunks for this query):
----
-${portfolioContext}
----`;
+    const systemPrompt = buildSystemPrompt({
+      ownerName,
+      portfolioContext,
+    });
 
     if (!process.env.GROQ_API_KEY) {
       return new Response(
@@ -135,14 +107,26 @@ ${portfolioContext}
     // Passing raw UIMessages causes AI_InvalidPromptError. We map manually.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let coreMessages = messages.map((m: any) => {
+      const extractText = (msg: any) => {
+        if (typeof msg.content === 'string' && msg.content.trim()) return msg.content;
+        if (Array.isArray(msg.parts)) {
+          return msg.parts
+            .filter((p: any) => p.type === 'text' && p.text)
+            .map((p: any) => p.text)
+            .join('\n');
+        }
+        return msg.content || '';
+      };
+
       if (m.role === 'user' || m.role === 'system') {
-        return { role: m.role, content: m.content || '' };
+        return { role: m.role, content: extractText(m) };
       }
       if (m.role === 'assistant') {
+        const text = extractText(m);
         if (m.toolInvocations && m.toolInvocations.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const parts: any[] = [];
-          if (m.content) parts.push({ type: 'text', text: m.content });
+          if (text) parts.push({ type: 'text', text });
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           m.toolInvocations.forEach((t: any) => {
             if (t.state !== 'result') {
@@ -151,7 +135,7 @@ ${portfolioContext}
           });
           if (parts.length > 0) return { role: 'assistant', content: parts };
         }
-        return { role: 'assistant', content: m.content || '' };
+        return { role: 'assistant', content: text };
       }
       if (m.role === 'tool') {
         if (Array.isArray(m.content)) return { role: 'tool', content: m.content };
@@ -162,7 +146,7 @@ ${portfolioContext}
           }))};
         }
       }
-      return { role: m.role, content: m.content || '' };
+      return { role: m.role, content: extractText(m) };
     });
 
     // Strip any leading non-user messages (Groq requires user-first)
