@@ -130,9 +130,42 @@ ${portfolioContext}
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
-    // Strip any leading non-user messages (some models require user-first)
+    // ── Safe UIMessage → CoreMessage conversion ──────────────────────────────
+    // streamText (ai@7) expects ModelMessage[] not UIMessage[].
+    // Passing raw UIMessages causes AI_InvalidPromptError. We map manually.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let coreMessages = messages;
+    let coreMessages = messages.map((m: any) => {
+      if (m.role === 'user' || m.role === 'system') {
+        return { role: m.role, content: m.content || '' };
+      }
+      if (m.role === 'assistant') {
+        if (m.toolInvocations && m.toolInvocations.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const parts: any[] = [];
+          if (m.content) parts.push({ type: 'text', text: m.content });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          m.toolInvocations.forEach((t: any) => {
+            if (t.state !== 'result') {
+              parts.push({ type: 'tool-call', toolCallId: t.toolCallId, toolName: t.toolName, args: t.args });
+            }
+          });
+          if (parts.length > 0) return { role: 'assistant', content: parts };
+        }
+        return { role: 'assistant', content: m.content || '' };
+      }
+      if (m.role === 'tool') {
+        if (Array.isArray(m.content)) return { role: 'tool', content: m.content };
+        if (m.toolInvocations && m.toolInvocations.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return { role: 'tool', content: m.toolInvocations.map((t: any) => ({
+            type: 'tool-result', toolCallId: t.toolCallId, toolName: t.toolName, result: t.result
+          }))};
+        }
+      }
+      return { role: m.role, content: m.content || '' };
+    });
+
+    // Strip any leading non-user messages (Groq requires user-first)
     while (coreMessages.length > 0 && coreMessages[0].role !== 'user') {
       coreMessages.shift();
     }
